@@ -1,0 +1,259 @@
+<xmp>
+
+	<link href="../css/bootstrap-theme.min.css" rel="stylesheet">
+	<!-- Prism -->
+	<link href="../css/prism.css" rel="stylesheet">
+	<link href="../css/footable.bootstrap.min.css" rel="stylesheet">
+
+	<!--[if lt IE 9]>
+	<script src="../js/html5shiv.min.js"></script>
+	<script src="../js/respond.min.js"></script>
+	<![endif]-->
+<style type="text/css">
+td{ text-align: center}
+th{ text-align: center}
+.lb{ cursor: pointer; padding: 5px; font-size: 13px; padding: 5px; border: 1px solid #ccc; margin-left: 2px }
+.lbf{ cursor: pointer; padding: 2px 5px; font-size: 16px; border: 1px solid #ccc;  }
+.activL{ background-color: #ccc }
+
+</style>
+<div class="m-sm bg-main">  
+	<div class="hbox hbox-auto-xs hbox-auto-xs bg-white">
+		<div class="col col-sm-6 p-n">
+			<div class="title" id="flowt">办公流动分析</div>
+            <div id="view1" class="w-full" style="height:380px"></div>
+		</div>
+		<div class="col col-sm-6">
+			<div class="title">出差流动分析</div>
+            <div id="view2p" class="w-full p-l-sm" style="height:380px; padding-top:0px">
+				<div style="padding: 10px 0 0 20px; height: 30px">
+					<label class="lb activL" id="v2lb1" style="cursor: pointer">出差统计</label>
+					<label class="lb" id="v2lb2">流动地图</label>
+					<div style="float: right; padding-right: 20px" >
+						<label class="lbf" id="lbf1">&nbsp;<&nbsp;</label><label class="lbf" id="lbf2">&nbsp;>&nbsp;</label>
+					</div>
+				</div>
+				<div id="view2" style="height:350px"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto">
+		<div class="col col-sm-6">
+			<div class="title"></div>
+			<div id="view3" class="w-full" style="height:395px">
+			</div>
+		</div>
+		<div class="col col-sm-6">
+			<div class="title"></div>
+			<div id="view4" class="w-full" style="height:430px">
+				<table id="table-data2" class="table" data-paging="true" data-sorting="false"></table>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script src="../js/jquery-1.9.1.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/prism.js"></script>
+<script src="../js/ie10-viewport-bug-workaround.js"></script>
+<script src="../js/moment.min.js"></script>
+<script src="../js/footable.min.js"></script>
+<script src="../js/d3.v3.min.js"></script>
+<script src="../js/timePiece.js"></script>
+<script src="../js/highcharts.js"></script>
+	<script src="../js/echarts.min.js"></script>
+	<script src="../js/datazoom.js"></script>
+
+
+<script language="javascript">
+"use strict";
+var pieSelectName = "nosel";
+var __myChart = null, __view1, __view2;
+
+$(document).ready(function() {
+	function cout(d){ console.log(d); }
+	var days = [ "一", "二", "三", "四", "五", "六", "日" ];
+	var units = ['水资源规划处', '项目部', '征地移民处', '人力资源部', '采购部', '海外事务部', '科技质量部', '造价中心', '施工处'];
+	days = days.map(function(d){ return "星期" + d; });
+
+	loadUnitInfo();
+	addTimeSel("flowt");
+
+	//人员流动时间段选择
+	function addTimeSel(id){
+		var div = '<div style="float:right">', sel1 = '<select id="'+ id + 'sel1">',
+				sel2 = '<select id="'+ id + 'sel2">', sp = ' - ', opt='';
+		for(var i=0;i<24;i++)opt += '<option value ="'+ i +'">'+ i +':00</option>';
+		$("#" + id).append(div + sel1 + opt + '</select>' + sp + sel2 + opt + '</select>' + '</div>');
+		$("#" + id + 'sel1').val(8);
+		$("#" + id + 'sel2').val(9);
+	}
+
+	createTable("view3");
+	setTableHead("view3", []);
+	setTableData("view3", []);
+	loadFlow('view1');
+	function loadFlow(id){
+		var datazoom = new Zoom(id);
+		var lsd = days.map(function(d){ return [d, parseInt(Math.random() * 30)]; });
+		datazoom.loadZoom(lsd, listenZoom);
+		__view1 = datazoom.did;
+		__myChart = echarts.init(document.getElementById(__view1));
+		loadFlowData(__view1);
+	}
+	function loadFlowData(id){
+		var cls = ['温江->成都', '成都->温江'];
+		var udata = cls.map(function(d){
+			return units.map(function(d){ return Math.random()>0.5 ? parseInt(Math.random() * 50) : 0; } )
+		});
+		var ses = units.map(function(d, i){ return {
+			barWidth:60, name:d, type:'bar', stack: '总量', data:[udata[0][i], udata[1][i]],
+			itemStyle : { normal: {label : {show: true, position: 'insideRight'}}},
+		}; });
+		var lg = Object.keys(units.reduce(function(a, b, i){ if((udata[0][i]+udata[1][i])>0)a[b]=1; return a; }, {}));
+		var option1 = {
+			title : { subtext: '', x:'center', y:10 },
+			tooltip : { axisPointer : { type : 'shadow' } },
+			grid:{x2:13, x:40, y2:35 },
+			legend: { y:10, data: lg  },
+			calculable : true,
+			xAxis : [ { type : 'value' } ],
+			yAxis : [{ axisLabel:{rotate:-90,textStyle:{fontWeight:'bold',fontSize:14}}, splitLine:{show: false}, type : 'category', data : cls }],
+			series : ses
+		};
+		Init3(option1, id);
+	}
+	function listenZoom(pos, time){
+		__myChart.showLoading();
+		//lsp = getProjectByTime(time[0][0], time[1][0]);
+		loadFlowData(__view1);
+		__myChart.hideLoading();
+	}
+	//**********************************图二相关代码****************************************************************************
+	$("#v2lb2").click(clickLabel);
+	$("#v2lb1").click(clickLabel);
+	$(".lbf").click(clickDirection);
+	loadMapView1();
+	//点击方向
+	function clickDirection(){
+		_listenZoomMap1();
+	}
+	//统计图和地图切换
+	function clickLabel(){
+		var idn = this.id.substr(this.id.length-1), oid = idn == 1 ? 2 : 1, funcs = ['loadMapView1()', 'loadMapView2()'];
+		if($(this).hasClass('activL'))return;
+		else{
+			$("#v2lb" + oid).removeClass('activL');
+			$(this).addClass('activL');
+			eval(funcs[parseInt(idn)-1]);
+		}
+	}
+
+	function _loadMap(id, _index){
+		$("#"+ id).html("");
+		var datazoom = new Zoom(id), lsm = [], lsnfunc = _index ? _listenZoomMap2 : _listenZoomMap1,
+				loadfunc = _index ? _loadMapData2 : _loadMapData1;
+		for(var i=0; i<12; i++)lsm.push((i+1) + '月');
+		var lsd = lsm.map(function(d){ return [d, parseInt(Math.random() * 30)]; });
+		datazoom.loadZoom(lsd, lsnfunc);
+		__view2 = datazoom.did; 	//__myChart2 = echarts.init(document.getElementById(__view2));
+		loadfunc(__view2);
+	}
+	function loadMapView1(){ _loadMap('view2'); }
+	function loadMapView2(){ _loadMap('view2', 1); }
+	function _listenZoomMap1(){ _loadMapData1(__view2); }	//监听函数1
+	function _listenZoomMap2(){ _loadMapData2(__view2); }	//监听函数2
+	//地图 - 主要代码
+	function _loadMapData2(id){
+
+	}
+	//堆积图 - 主要代码
+	function _loadMapData1(id){
+		var names = getNames(150), lg = [], index = 0;
+		var temp = units.map(function(d, z){
+			if(Math.random()>0.85) return [];
+			var lstp = [];
+			for(var i=0; i<parseInt(Math.random() * 10); i++){
+				var ram = parseInt(Math.random() * 8);
+				lstp.push(ram + 1);
+				lg.push([names[index++], d, ram + 1]);
+			}
+			return lstp;
+		});
+		var data = lg.map(function(d, i){
+			return { name:d, type:'bar', stack:lg[0], data:units.map(function(rd){ return rd==d[1] ? d[2] : 0; }) }
+		});
+		var max = temp.reduce(function(a, b){ var e=b.reduce(function(c, d){ return c+d; }, 0); return a>e ? a : e  }, 0) ;
+		var option = {
+			tooltip : { axisPointer:{ type : 'shadow' }, formatter:function(p){
+				return p.seriesName.split(',')[0] + ' : ' + p.data + '次<br/>' + p.name;
+			}},
+			grid: { x:30, x2:10, y:20, y2:48 },
+			calculable : true,
+			xAxis : [ { type : 'category', data : units, axisLabel: { interval:0 } } ],
+			yAxis : [ { type : 'value' } ],
+			series : data
+		};
+		Init3(option, id);
+	}
+
+	//********************************表格相关************************************************************************************
+	//加载数据
+	function setTableData(id, data){
+		var tp = [];
+		for(var i=0; i<12; i++){
+			tp.push([]);
+			for(var j=0; j<7; j++)tp[i].push(parseInt(Math.random() * 35)); //i + ':' + j
+		}
+		$("#" + id + ' table tr td').each(function(d){
+			var i = parseInt(d / 7), j = d % 7;
+			$(this).text(tp[i][j]);
+		});
+	}
+	//设置表头
+	function setTableHead(id){
+		var rth = ['07:00-08:00', '08:00-09:00', '09:00-10:00', '16:00-17:00', '17:00-18:00', '18:00-19:00']
+		$("#" + id + ' table tr:first th').each(function(i){ if(i>0)$(this).text(days[i-1]); });
+		$("#" + id + ' table tr:nth-child(2) th:first').text("成都->温江");
+		$("#" + id + ' table tr:nth-child(8) th:first').text("温江->成都");
+		for(var i=0; i<12; i++){
+			var th = i%6!=0 ? 'first' : 'nth-child(2)';
+			$("#" + id + ' table tr:nth-child('+ (i+2) +') th:' + th).text(rth[i%6]);
+		}
+	}
+	//创建特殊表格
+	function createTable(id){
+		var view = $("#" + id), width = view.width()/9, height = (view.height()-20)/13,
+				sty = ' style="border: 1px solid #ccc;width:'+ width + 'px;height:'+ height +'px"';
+		var tb = '<table><tr style="border: 1px solid #ccc"><th colspan="2"></th>';
+		for(var i=0; i<7; i++)tb += '<th scope="col" '+ sty +'></th>';
+		for(var z=0; z<2; z++)for(var i=0; i<6; i++){
+			var tp = i==0 ? 'rowspan="6"></th><th>' : '>';
+			tb += '<tr style="border: 1px solid #ccc"><th '+ sty + tp + '</th>';
+			for(var j=0; j<7; j++)tb += '<td'+ sty +'></td>';
+			tb += '</tr>';
+		}
+		tb += '</table>';
+		view.html(tb);
+		return tb;
+	}
+	//************************************************************************************
+
+	function loadUnitInfo(){
+		var columns = [
+			{"name":"id","title":"工号","breakpoints":"xs sm","type":"number","style":{"width":80,"maxWidth":80}},
+			{"name":"name", "title":"姓名"},
+			{"name":"unit", "title":"部门", "breakpoints":"xs sm"},
+			{"name":"years","title":"从业时间","type":"number"},
+		];
+		$('#table-data2').footable({
+			"columns": columns, "rows": $.get("content/people.json"),
+			"paging": { "size": 8 }
+		});
+	}
+});
+
+</script>
+</xmp>

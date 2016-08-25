@@ -1,0 +1,141 @@
+<xmp>
+
+	<link href="../css/bootstrap-theme.min.css" rel="stylesheet">
+	<!-- Prism -->
+	<link href="../css/prism.css" rel="stylesheet">
+	<link href="../css/footable.bootstrap.min.css" rel="stylesheet">
+
+	<!--[if lt IE 9]>
+	<script src="../js/html5shiv.min.js"></script>
+	<script src="../js/respond.min.js"></script>
+	<![endif]-->
+<style type="text/css">
+
+
+</style>
+<div class="m-sm bg-main">  
+	<div class="hbox hbox-auto-xs hbox-auto-xs bg-white">
+		<div class="col col-sm-6 p-n">
+			<div class="title">工作时间分析</div>
+            <div id="view1" class="w-full" style="height:380px"></div>
+		</div>
+		<div class="col col-sm-6">
+			<div class="title">工作时间统计</div>
+            <div id="view2" class="w-full p-l-sm" style="height:380px; padding-top:6px">
+				<table id="table-data1" class="table" data-paging="true" data-sorting="true"></table>
+			</div>
+		</div>
+	</div>
+
+	<div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto">
+		<div class="col col-sm-9">
+			<div class="title">事件画像</div>
+            <div id="view3" class="w-full" style="height:380px; "></div>
+		</div>
+		<div class="col col-sm-3">
+			<div class="title">查看详情</div>
+            <div id="view4" class="w-full" style="height:380px;">
+				<table id="table-data2" class="table" data-paging="true" data-sorting="true"></table>
+			</div>
+		</div>
+	</div>
+	<!--
+	<div class="m-t-sm">
+		<div class="hbox hbox-auto-xs hbox-auto-xs bg-white">       
+			<div class="col w-full bg-light lter bg-auto">
+				<div class="title">数据视图</div>
+				<div id="view5" style="width:100%;min-height:400px">
+					<table id="table-data" class="table" data-page-size="4" data-paging="true"  data-filtering="true" data-sorting="true"></table>
+				</div>
+			
+			</div>
+		</div>	
+	</div>
+	-->
+</div>
+	<script src="../js/echarts.min.js"></script>
+<script src="../js/jquery-1.9.1.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/prism.js"></script>
+<script src="../js/ie10-viewport-bug-workaround.js"></script>
+<script src="../js/moment.min.js"></script>
+<script src="../js/footable.min.js"></script>
+<script src="../js/d3.v3.min.js"></script>
+<script src="../js/highcharts.js"></script>
+
+<script language="javascript">
+"use strict";
+var pieSelectName = "nosel";
+$(document).ready(function() {
+
+	//function DateF(date){ return parseInt(date/60 + 5) + ":" + parseInt(date % 60); }
+	loadTimes();
+
+	function loadTimes() {
+		var lstp = ['OA', '专业网站', '邮件系统', '生活购物', '文学', '娱乐'], lstm = [],
+				source = lstp.reduce(function (a, b) { a[b] = []; return a; }, {});
+		range(9, 19).forEach(function (d) { lstm.push(d + ':00'); lstm.push(d + ':30'); });
+		lstp.forEach(function (d) {
+			lstm.forEach(function (d2) { source[d].push([d2, parseInt(Math.random() * 50)]); })
+		});
+		var ses = Object.keys(source).map(function (d) {
+			return {
+				name: d, type: 'line', stack: '总量', smooth: true, areaStyle: {normal: {}},
+				data: source[d].reduce(function (a, b) { a.push(b[1]); return a; }, [])
+			};
+		});
+		cout(ses);
+		var option = {
+			title: {text: '员工时间分布'},
+			tooltip: {trigger: 'axis', formatter :'访问次数：<br />{a0}: {c0}<br />{a1}: {c1}<br />'+
+				'{a2}: {c2}<br />{a3}: {c3}<br />{a4}: {c4}<br />{a5}: {c5}'},
+			legend: {data: lstp},
+			grid: {left: '3%', right: '4%', bottom: '3%', containLabel: true},
+			xAxis: [{type: 'category', boundaryGap: false, data: lstm}],
+			yAxis: [{type: 'value'}],
+			series: ses
+		};
+		Init3(option, 'view1');
+	}
+
+
+
+
+	loadPersonTime('view2');
+	function loadPersonTime(id){
+		$('#' + id).highcharts({
+			chart: { type: 'bar', marginLeft:25 },
+			title: { text: '李**时间统计' },
+			subtitle: { text: '' },
+			xAxis: {
+				categories: [''],
+				title: { offset:12, rotation: 270, text: '时间统计', style:{'fontSize':'15px'} }
+			},
+			yAxis: {
+				min: 0, lineWidth: 1,
+				title: { text: '时长 (单位：小时)', align: 'high' },
+				labels: { overflow: 'justify' }
+			},
+			tooltip: { valueSuffix: ' h' },
+			plotOptions: { bar: { dataLabels: { enabled: true } } },
+			legend: {
+				layout: 'vertical', align: 'right', verticalAlign: 'top',
+				x: -15, y: 60, floating: true, borderWidth: 1, shadow: true,
+				backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF')
+			},
+			credits: { enabled: false },
+			series: [{ name: '会议', data: [1.2]},
+			{ name: '看电影', data: [1.5]},
+			{ name: '收发邮件', data: [0.7]},
+			{name: '玩游戏', data: [2]},
+			{ name: '上网', data: [4.5]}
+			]
+		});	
+	}
+
+	
+	
+});
+
+</script>
+</xmp>

@@ -1,0 +1,37 @@
+@charset "utf-8";
+/* CSS Document */
+
+.right{ float:right}
+.right{ float:right}
+.clear{ clear:both}
+.red{ color:red }
+.green{ color:green }
+.blue{ color:blue }
+.white{ color:white }
+.bg-red{ background-color:red}
+.bg-green{ background-color:green}
+.bg-blue{ background-color:blue}
+.bg-white{ background-color:white}
+
+.floatL{ float:left}
+.height10{ height:10px }
+.height15{ height:15px }
+.height20{ height:20px }
+.height30{ height:30px }
+
+.title,title-l,title-r {
+	font-family: "黑体";
+    font-size: 13px;
+    line-height: 25px;
+    color: #333333;
+    background-color: #ffffff;
+	height:30px;
+	border-bottom:1px solid #ccc;
+	padding-left:30px;
+}
+.title-l{
+	padding-left:0px;
+}
+.title-r{
+	padding-right:0px;
+}

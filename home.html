@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+
+    <title>Dashboard Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/dashboard.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/public.css" rel="stylesheet">
+    
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="js/ie-emulation-modes-warning.js"></script>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top" style="background-color:#666;">
+      <div class="container-fluid" style="background-color:#ccc;">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"><i class="icon-home icon-1x"></i> 数联寻英人力资源大数据平台</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse" style="background-color:#ccc;">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">数据导入</a></li>
+            <li><a href="#">用户设置</a></li>
+            <li><a href="#">帮助</a></li>
+            <li><a href="#">关于</a></li>
+          </ul>
+          <div class="right">
+              <form class="navbar-form navbar-left" role="search">
+                  <div class="input-group" style="width:220px; float:right; ">
+                      <input type="text" class="form-control" placeholder="Search...">
+                      <span class="input-group-addon"><i class="icon-search icon-1x"></i></span>
+                  </div>
+              </form>
+	      </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3 col-md-2 sidebar">
+            <ul id="bar-human" class="nav nav-sidebar">
+                <li class="active">
+                    <a href="#"><i class="glyphicon glyphicon-th-large"></i> 数据可视化 <span class="sr-only">(current)</span></a>
+                </li>
+            </ul>		
+		<script id="tm_menu" type="text/html">
+			<% menu.forEach(function(d, i){ %>
+				<ul class="nav nav-sidebar">
+					<li>
+						<a href="#system<%= i %>" class="nav-header collapsed" data-toggle="collapse">
+							<i class="glyphicon glyphicon-<%= d.icon %>"></i> <%= d.name %>
+							<span class="pull-right glyphicon glyphicon-chevron-toggle"></span>
+						</a>
+						<ul id="system<%= i %>" class="nav nav-list collapse" style="height: 0px;">
+							<% d.chlidren.forEach(function(c){ %>
+								<li><a href="<%= c.url %>"><%= c.name %></a></li>
+							<% }); %>
+						</ul>
+					</li>
+				</ul>	
+			<% }); %>
+		</script>
+        <ul class="nav nav-sidebar" style="margin-top:30px;">
+	    	<li class="active">
+            	<a href="#" style="background-color:#38dbad">
+                	<i class="glyphicon glyphicon-th-large"></i> 数据集成 <span class="sr-only">(current)</span>
+                </a>
+            </li>
+    	</ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">Dashboard</h1>
+
+          <div class="row placeholders">
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+          </div>
+
+          <h2 class="sub-header">Section title</h2>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Header</th>
+                  <th>Header</th>
+                  <th>Header</th>
+                  <th>Header</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1,001</td>
+                  <td>Lorem</td>
+                  <td>ipsum</td>
+                  <td>dolor</td>
+                  <td>sit</td>
+                </tr>
+                <tr>
+                  <td>1,002</td>
+                  <td>amet</td>
+                  <td>consectetur</td>
+                  <td>adipiscing</td>
+                  <td>elit</td>
+                </tr>
+                <tr>
+                  <td>1,003</td>
+                  <td>Integer</td>
+                  <td>nec</td>
+                  <td>odio</td>
+                  <td>Praesent</td>
+                </tr>
+                <tr>
+                  <td>1,003</td>
+                  <td>libero</td>
+                  <td>Sed</td>
+                  <td>cursus</td>
+                  <td>ante</td>
+                </tr>
+                <tr>
+                  <td>1,004</td>
+                  <td>dapibus</td>
+                  <td>diam</td>
+                  <td>Sed</td>
+                  <td>nisi</td>
+                </tr>
+                <tr>
+                  <td>1,005</td>
+                  <td>Nulla</td>
+                  <td>quis</td>
+                  <td>sem</td>
+                  <td>at</td>
+                </tr>
+                <tr>
+                  <td>1,006</td>
+                  <td>nibh</td>
+                  <td>elementum</td>
+                  <td>imperdiet</td>
+                  <td>Duis</td>
+                </tr>
+                <tr>
+                  <td>1,007</td>
+                  <td>sagittis</td>
+                  <td>ipsum</td>
+                  <td>Praesent</td>
+                  <td>mauris</td>
+                </tr>
+                <tr>
+                  <td>1,008</td>
+                  <td>Fusce</td>
+                  <td>nec</td>
+                  <td>tellus</td>
+                  <td>sed</td>
+                </tr>
+                <tr>
+                  <td>1,009</td>
+                  <td>augue</td>
+                  <td>semper</td>
+                  <td>porta</td>
+                  <td>Mauris</td>
+                </tr>
+                <tr>
+                  <td>1,010</td>
+                  <td>massa</td>
+                  <td>Vestibulum</td>
+                  <td>lacinia</td>
+                  <td>arcu</td>
+                </tr>
+                <tr>
+                  <td>1,011</td>
+                  <td>eget</td>
+                  <td>nulla</td>
+                  <td>Class</td>
+                  <td>aptent</td>
+                </tr>
+                <tr>
+                  <td>1,012</td>
+                  <td>taciti</td>
+                  <td>sociosqu</td>
+                  <td>ad</td>
+                  <td>litora</td>
+                </tr>
+                <tr>
+                  <td>1,013</td>
+                  <td>torquent</td>
+                  <td>per</td>
+                  <td>conubia</td>
+                  <td>nostra</td>
+                </tr>
+                <tr>
+                  <td>1,014</td>
+                  <td>per</td>
+                  <td>inceptos</td>
+                  <td>himenaeos</td>
+                  <td>Curabitur</td>
+                </tr>
+                <tr>
+                  <td>1,015</td>
+                  <td>sodales</td>
+                  <td>ligula</td>
+                  <td>in</td>
+                  <td>libero</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/ejs.js"></script>
+	<script language="javascript">
+		$(document).ready(function() { 
+			var menus = [{ name:"员工构成", icon:'user', chlidren:[
+				{name:'年龄分布', url:'#'}, {name:'工龄分布', url:'#'}, {name:'性别分布', url:'#'}, 
+				{name:'员工籍贯', url:'#'}, {name:'员工学历', url:'#'}, {name:'员工职能', url:'#'}, {name:'其它分析', url:'#'} 
+			]},
+			{name:"时间画像", icon:'time', chlidren:[
+				{name:'打卡时间', url:'#'}, {name:'迟到统计', url:'#'}, {name:'早退统计', url:'#'}, 
+				{name:'加班统计', url:'#'}, {name:'时间分配', url:'#'}, {name:'其它分析', url:'#'},
+			]},
+			{name:"员工绩效", icon:'credit-card', chlidren:[
+				{name:'绩效统计', url:'#'}, {name:'薪酬统计', url:'#'}, {name:'对比分析', url:'#'}, 
+				{name:'其它分析', url:'#'}
+			]},
+			{name:"职业路径", icon:'tasks', chlidren:[
+				{name:'频繁模式挖掘', url:'#'}, {name:'路径预测', url:'#'}
+			]},
+			{name:"互动关系", icon:'eye-open', chlidren:[
+				{name:'工作关系', url:'#'}, {name:'社交关系', url:'#'}, {name:'复杂网络分析', url:'#'}, 
+				{name:'异常预警', url:'#'}, 
+			]},			
+			];
+			var tm_menu = $("#tm_menu").html();
+			var html = ejs.render(tm_menu, { menu: menus });
+			$("#bar-human").after(html);
+			//$(".col-sm-3.col-md-2.sidebar").append(html);
+			
+		}); 
+	
+	
+	</script>
+    
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/bootstrap.min.js"></script>
+    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
+    <script src="js/holder.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="js/ie10-viewport-bug-workaround.js"></script>
+    
+    
+    
+    
+    
+    
+  </body>
+</html>
