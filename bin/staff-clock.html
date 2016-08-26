@@ -52,6 +52,7 @@
 <script language="javascript">
 "use strict";
 var pieSelectName = "nosel";
+var __myChart1 = null;
 function cout(d){ console.log(d); }
 var units = ['水资源规划处', '项目部', '征地移民处', '人力资源部', '采购部', '海外事务部', '科技质量部', '造价中心', '施工处'];
 $(document).ready(function() {
@@ -69,21 +70,18 @@ $(document).ready(function() {
 
 	//Init(option, "view1", "", null, ['heatmap']);
 
-	loadUnit();
+	loadUnit('view1');
 	addUnitSel('unitsel1');
 	loadUnusual("view2");
 
+	function addUnitSel(id, _units){
 
-
-
-
-	function addUnitSel(id){
 		var div = '<div style="float:right; margin-right:15px;">', sel1 = '<select id="'+ id + 'sel1">', opt='';
-		units.forEach(function(d){ opt += '<option value ="'+ d +'">'+ d +'</option>'; });
+		_units.forEach(function(d){ opt += '<option value ="'+ d +'">'+ d +'</option>'; });
 		$("#" + id).append(div + sel1 + opt + '</select>' + '</div>');
 		$("#" + id + 'sel1').val('人力资源部');
 		$("#" + id + 'sel1').change(function(d){
-			loadUnit($(this).val());
+			loadUnit('view1', $(this).val());
 		});
 	}
 });
@@ -97,8 +95,54 @@ function Init3(option, id){
 	myChart.setOption(option);
 	return myChart;
 }
+function loadUnit(id){
+	__myChart1 = echarts.init(document.getElementById(id));
+	__myChart1.showLoading();
+	$.ajax({
+		type:'GET',
+		url:'http://127.0.0.1:8000/people_clock/',
+		dataType:'jsonp',
+		jsonpCallback: 'call1back',
+		success:function(data)
+		{
+			var dt = JSON.parse(data);
+			dealUnitData(dt);
+			__myChart1.hideLoading();
+		},
+		error:function(data)
+		{
+			__myChart1.hideLoading();
+			alert("error");
+		}
+	});
+}
+function timeToValue(str){ var sp = str.split(":"), h=parseInt(sp[0]), m=parseInt(sp[1]); return h * 60 + m; }
+function valueToTime(value){ var h = value/60, m = value % 60; return h + ':' + m; }
+
+
 //散点图1
-function loadUnit(_unit){
+function dealUnitData(dt, _unit){
+	_unit = _unit || '全公司';
+	var data = dt[0], lsDate = dt[1], dt1 = [], dt2 = [], index = 0,
+		dates = lsDate.reduce(function(a, b, i){ a[b] = i; return a; }, {});
+	//document.write(JSON.stringify(data));
+
+	for(var p in data){
+		var line = data[p][0];
+		if(_unit!='全公司')if(line[1] != _unit)continue;
+		cout(line[1]);
+		line[2].forEach(function(d){
+			var sp = parseInt(d[1].split(':')[0]);
+			if((sp>7 && sp<9) || (sp>=17 && sp<21))
+				dt1.push([timeToValue(d[1]), dates[d[0]]]);
+			else {
+				dt2.push([timeToValue(d[1]), dates[d[0]]])
+			}
+		});break;
+	}
+
+	/*
+	return;
 	var dt1=[], dt2=[], tp= [4, 5, 11, 12, 18, 19, 25, 26], x=[];
 	var ft = tp.reduce(function(a, b){ a[b]=1; return a; }, {});
 	var p1 = 0.8, p2 =0.2;
@@ -127,8 +171,12 @@ function loadUnit(_unit){
 			x.push("3月" + (i+1) + "");
 		}
 	}
-	function DateF(date){ return parseInt(date/60 + 5) + ":" + parseInt(date % 60); }
-	_unit = _unit || '项目部';
+	cout(x);
+	cout(dt1);
+	cout(dt2);
+	*/
+	function DateF(date){ return parseInt(date/60) + ":" + parseInt(date % 60); }
+
 	var option = {
 		title : { text: '部门打卡时间分布', subtext: _unit, x:30 },
 		tooltip : { trigger: 'item', formatter:function(p){
@@ -138,12 +186,12 @@ function loadUnit(_unit){
 		grid:{x2:15},
 		calculable : true,
 		xAxis : [{
-				type : 'value', scale : true, min:40, axisLine:{show:false,onZero:false},
-				axisLabel : { formatter: function(params){ return DateF(params);} },
+				type : 'value', scale : true, axisLine:{show:false,onZero:false}, min:300,
+				axisLabel : { formatter: function(params){ return DateF(params); } },
 		}],
 		yAxis : [{
-				type : 'value', scale : false, min:0,
-				axisLabel : { formatter: function(params){ return "3月" + (params + 1) + "日";} } }
+				type : 'value', scale : false, min:-1, max:31,
+				axisLabel : { formatter: function(params){ return lsDate[params]?lsDate[params].substr(5):''; } } }
 		],
 		series : [
 			{ name:'正常', type:'scatter', symbolSize:4, data: dt1 },
@@ -158,7 +206,7 @@ function loadUnit(_unit){
 		$("#view1").append('<div id="view1rtn" style="left:'+ left +'px" >返回</div>');
 		$("#view1rtn").click(function(){
 			$("#view1rtn").remove();
-			loadUnit();
+			loadUnit('view1');
 		});
 	})
 }
@@ -215,7 +263,9 @@ function loadPerson(){
         }}]
 	};
 	$("#view1").html("");
-	Init3(option, "view1");
+	__myChart1.setOption(option);
+	__myChart1.hideLoading();
+	//Init3(option, "view1");
 }
 //***********************************************图2************************************************
 function getRGB(hex){

@@ -5,6 +5,7 @@
 		if (r != null) return unescape(r[2]); return null; 
 	}
 	function range(_min, _max){ var rt=[]; for(var i=_min;i<_max;i++)rt.push(i); return rt; }
+	function set(){this.data={};this.keys=[];this.add=function(e){if(!this.data.hasOwnProperty(e))this.keys.push(e);this.data[e]=1;};}
 	function cout(d){ console.log(d); }
 
 	function Init(option, id, eventName, callback, otherLibs){
