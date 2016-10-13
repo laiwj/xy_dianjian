@@ -71,6 +71,7 @@ th{ text-align: center}
 "use strict";
 var pieSelectName = "nosel";
 var __myChart = null, __view1, __view2;
+var __myChart1 = null;
 
 $(document).ready(function() {
 	function cout(d){ console.log(d); }
@@ -94,7 +95,36 @@ $(document).ready(function() {
 	createTable("view3");
 	setTableHead("view3", []);
 	setTableData("view3", []);
-	loadFlow('view1');
+
+
+	loadFlowDataEx('view1');
+	//loadFlow('view1');
+
+	function loadFlowDataEx(id){
+		__myChart1 = echarts.init(document.getElementById(id));
+		__myChart1.showLoading();
+		console.log('Hello');
+		$.ajax({
+			type:'GET',
+			url:'http://127.0.0.1:8000/get_flow/',
+			dataType:'jsonp',
+			jsonpCallback: 'call1back',
+			success:function(data)
+			{
+				//var dt = JSON.parse(data);
+				cout(data);
+				//dealUnitData(dt);
+				__myChart1.hideLoading();
+			},
+			error:function(data)
+			{
+				__myChart1.hideLoading();
+				alert("error");
+			}
+		});
+	}
+
+
 	function loadFlow(id){
 		var datazoom = new Zoom(id);
 		var lsd = days.map(function(d){ return [d, parseInt(Math.random() * 30)]; });
@@ -123,6 +153,7 @@ $(document).ready(function() {
 			yAxis : [{ axisLabel:{rotate:-90,textStyle:{fontWeight:'bold',fontSize:14}}, splitLine:{show: false}, type : 'category', data : cls }],
 			series : ses
 		};
+		console.log(ses);
 		Init3(option1, id);
 	}
 	function listenZoom(pos, time){
