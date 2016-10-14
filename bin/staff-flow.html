@@ -66,12 +66,16 @@ th{ text-align: center}
 	<script src="../js/echarts.v3.min.js"></script>
 	<script src="../js/datazoom.js"></script>
 	<script src="../js/china.js"></script>
-
+	<script type="text/javascript" src="../js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
+	<script type="text/javascript" src="../js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
 <script language="javascript">
 "use strict";
 var pieSelectName = "nosel";
 var __myChart = null, __view1, __view2;
 var __myChart1 = null;
+var __current = 0;
+var __flow_data = null;
+var __table_create = false;
 
 $(document).ready(function() {
 	function cout(d){ console.log(d); }
@@ -82,6 +86,23 @@ $(document).ready(function() {
 	loadUnitInfo();
 	addTimeSel("flowt");
 
+	$('.form_date').datetimepicker({
+		language:  'zh-CN',
+		weekStart: 1,
+		todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		minView: 2,
+		forceParse: 0
+	}).on('changeDate', function(e){
+		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
+		getFlowData('view1', startDate, endDate)
+	});
+
+
+
+
 	//人员流动时间段选择
 	function addTimeSel(id){
 		var div = '<div style="float:right">', sel1 = '<select id="'+ id + 'sel1">',
@@ -90,30 +111,54 @@ $(document).ready(function() {
 		$("#" + id).append(div + sel1 + opt + '</select>' + sp + sel2 + opt + '</select>' + '</div>');
 		$("#" + id + 'sel1').val(8);
 		$("#" + id + 'sel2').val(9);
+		$("#" + id + 'sel1').change(timeSelClick);
+		$("#" + id + 'sel2').change(timeSelClick);
 	}
+	function timeSelClick(){
+		loadFlowDefault();
+	}
+	//createTable("view3");
+	//setTableHead("view3", []);
+	//setTableData("view3", []);
 
-	createTable("view3");
-	setTableHead("view3", []);
-	setTableData("view3", []);
-
-
-	loadFlowDataEx('view1');
+	//loadFlowDataEx('view1');
 	//loadFlow('view1');
-
-	function loadFlowDataEx(id){
-		__myChart1 = echarts.init(document.getElementById(id));
+	getFlowData('view1');
+	function loadFlowDefault(){
+		var hb = parseInt($("#flowtsel1").val()), he =parseInt( $("#flowtsel2").val()), weekday = __current;;
 		__myChart1.showLoading();
-		console.log('Hello');
+		loadFlowDataEx(__view1, weekday, hb, he);
+		//alert(hb );
+		__myChart1.hideLoading();
+	}
+	function getFlowData(id, dateStart, dateEnd){
+		$("#"+id).html("");
+		var datazoom = new Zoom(id);
+		var lsd = days.map(function(d){ return [d, parseInt(Math.random() * 30)]; });
+		datazoom.loadZoom(lsd, listenZoom);
+		__view1 = datazoom.did;
+		__myChart1 = echarts.init(document.getElementById(__view1));
+		__myChart1.showLoading();
+
+		dateStart = dateStart || '2015-09-22';
+		dateEnd = dateEnd || '2015-11-13';
 		$.ajax({
 			type:'GET',
 			url:'http://127.0.0.1:8000/get_flow/',
-			dataType:'jsonp',
-			jsonpCallback: 'call1back',
+			data:{'dateStart':dateStart, 'dateEnd':dateEnd},
+			dataType:'jsonp', jsonpCallback: 'call1back',
 			success:function(data)
 			{
-				//var dt = JSON.parse(data);
-				cout(data);
-				//dealUnitData(dt);
+				__flow_data = data['data'];
+				//console.log(data.weekday);
+				loadFlowDefault();
+				if(!__table_create){
+					createTable("view3");
+					setTableHead("view3", []);
+					__table_create = true;
+				}
+				setTableData("view3", []);
+				//loadFlowDataEx(__view1, 0, 8, 10);
 				__myChart1.hideLoading();
 			},
 			error:function(data)
@@ -123,8 +168,40 @@ $(document).ready(function() {
 			}
 		});
 	}
+	function loadFlowDataEx(id, weekday, hourBegin, hourEnd){
+		var cls = ['温江->成都', '成都->温江'], lsSrc = ['温江', '成都'];
+		var _dt = {};
+		//cout(__flow_data[weekday]);
+		for(var i=hourBegin; i<hourEnd; i++) {
+			for (var u in __flow_data[weekday][i]) {
+				if (!(u in _dt))_dt[u] = { "温江":0, "成都":0};
+				for (var srt in __flow_data[weekday][i][u])_dt[u][srt] += __flow_data[weekday][i][u][srt];
+			}
+		}
+		var units = Object.keys( _dt );
+		var udata = cls.map(function(d, i){
+			return units.map(function(u){ return _dt[u][lsSrc[i]]; } )
+		});
 
-
+		var ses = units.map(function(d, i){ return {
+			barWidth:60, name:d, type:'bar', stack: '总量', data:[udata[0][i], udata[1][i]],
+			itemStyle : { normal: {label : {show: true, position: 'insideRight'}}},
+		}; });
+		var lg = Object.keys(units.reduce(function(a, b, i){ if((udata[0][i]+udata[1][i])>0)a[b]=1; return a; }, {}));
+		var option1 = {
+			title : { subtext: '', x:'center', y:10 },
+			tooltip : { axisPointer : { type : 'shadow' } },
+			grid:{x2:13, x:40, y2:35 },
+			legend: { y:10, data: lg ,show:false },
+			calculable : true,
+			xAxis : [ { type : 'value' } ],
+			yAxis : [{ axisLabel:{rotate:-90,textStyle:{fontWeight:'bold',fontSize:14}}, splitLine:{show: false}, type : 'category', data : cls }],
+			series : ses
+		};
+		//console.log(ses);
+		Init3(option1, id);
+	}
+/*
 	function loadFlow(id){
 		var datazoom = new Zoom(id);
 		var lsd = days.map(function(d){ return [d, parseInt(Math.random() * 30)]; });
@@ -156,11 +233,14 @@ $(document).ready(function() {
 		console.log(ses);
 		Init3(option1, id);
 	}
+*/
 	function listenZoom(pos, time){
-		__myChart.showLoading();
-		//lsp = getProjectByTime(time[0][0], time[1][0]);
-		loadFlowData(__view1);
-		__myChart.hideLoading();
+		//var lsp = getProjectByTime(time[0][0], time[1][0]);
+		var _tp = ['一', '二', '三', '四', '五', '六', '日'].reduce(function(a, b, i){ a[b]=i; return a;}, {})
+		var d = time[0][0].substr(2);
+		d = d in _tp ? _tp[d] : 0;
+		__current = d;
+		loadFlowDefault();;
 	}
 	//**********************************图二相关代码****************************************************************************
 	$("#v2lb2").click(clickLabel);
@@ -232,6 +312,19 @@ $(document).ready(function() {
 	}
 
 	//********************************表格相关************************************************************************************
+	function getTableData(){
+		var data = [], lst = [7, 8, 9, 16, 17, 18, 7, 8, 9, 16, 17, 18], lsw = [0, 1, 2, 3, 4, 5, 6];
+		for(var i=0; i<lst.length; i++){
+			var line = [], src = i<6 ? '成都' : '温江';
+			for(var w in lsw){
+				line.push( !(lst[i] in __flow_data[w]) ? 0 : Object.keys(__flow_data[w][lst[i]]).reduce(function(a, b){
+					return a + __flow_data[w][lst[i]][b][src];
+				}, 0) );
+			}
+			data.push(line);
+		}
+		return data;
+	}
 	//加载数据
 	function setTableData(id, data){
 		var tp = [];
@@ -239,6 +332,8 @@ $(document).ready(function() {
 			tp.push([]);
 			for(var j=0; j<7; j++)tp[i].push(parseInt(Math.random() * 35)); //i + ':' + j
 		}
+		tp = getTableData();
+		//cout(tp);
 		$("#" + id + ' table tr td').each(function(d){
 			var i = parseInt(d / 7), j = d % 7;
 			$(this).text(tp[i][j]);
@@ -253,6 +348,7 @@ $(document).ready(function() {
 		for(var i=0; i<12; i++){
 			var th = i%6!=0 ? 'first' : 'nth-child(2)';
 			$("#" + id + ' table tr:nth-child('+ (i+2) +') th:' + th).text(rth[i%6]);
+			$("#" + id + ' table tr:nth-child('+ (i+2) +') th:' + th).css("width", "100");
 		}
 	}
 	//创建特殊表格

@@ -14,6 +14,7 @@ function Zoom(id, height_zoom){
 	this.tpzooms = 0;	//zoom temp start pos
 	this.tpzoome = 100;	//zoom temp end pos
 	this.zoomdata = [];
+	this.currentValue = 0;
 
 	this.zoomOption = {
 		dataZoom: { realtime: false, show: true, start: this.tpzooms, y: 0,  end:this.tpzoome, handleSize: 10, zoomLock: true, height: this.hz, shandleColor: 'rgba(70,130,180,0.8)',},
