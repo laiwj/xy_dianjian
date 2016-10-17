@@ -144,7 +144,7 @@ $(document).ready(function() {
 		dateEnd = dateEnd || '2015-11-13';
 		$.ajax({
 			type:'GET',
-			url:'http://127.0.0.1:8000/get_flow/',
+			url:'http://192.168.3.177:8000/get_flow/',
 			data:{'dateStart':dateStart, 'dateEnd':dateEnd},
 			dataType:'jsonp', jsonpCallback: 'call1back',
 			success:function(data)
