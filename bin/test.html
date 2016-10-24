@@ -19,10 +19,23 @@
 
 <script type="text/javascript" src="../js/jquery-1.9.1.js" charset="UTF-8"></script>
 <script type="text/javascript" src="../js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../js/public.js"></script>
 <script type="text/javascript" src="../js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
 <script type="text/javascript" src="../js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
 <script type="text/javascript">
-    
+    //console.log(DateM(new Date()));
+    var dt=new Date(0, 0, 0, 15, 26, 0);
+    cout(dt);
+    cout(TimeT("12:56"));
+    cout(TimeF(dt));
+    cout(TimeSTM("12:56"));
+    cout(DateSTM("2013-05-18 11:32:12"));
+    cout(DateSTD("2013-05-18 11:32:12"));
+    cout(DateSTDS("2013-05-18 11:32:12"));
+    cout((new Date()).getDate());
+
+
+
 	$('.form_date').datetimepicker({
         language:  'zh-CN',
         weekStart: 1,

@@ -25,7 +25,33 @@
 		var myChart = echarts.init(document.getElementById(id));
 		myChart.setOption(option);	 		
 	}
+	function DateDTS(date) { return date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds(); }
+	function DateDTM(date) { return date.getHours() * 60 + date.getMinutes(); }
+	function DateMTS(str){ return parseInt(date/60) + ":" + parseInt(date % 60); }
+	function DateSTM(str){ var sp = str.split(" ")[1].split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); }
+	function DateSTD(str){ var sp = str.split(/-| |:/); return new Date(parseInt(sp[0]), parseInt(sp[1]), parseInt(sp[2]),
+		parseInt(sp[3]), parseInt(sp[4]), parseInt(sp[5])); }
+	function DateSTDS(str){ return str.split(" ")[0]; }
+	function TimeT(str){ var sp = str.split(":"); return new Date(0, 0, 0, parseInt(sp[0]), parseInt(sp[1]), 0); }
+	function TimeF(date){ return date.getHours() + ":" + date.getMinutes(); }
+	function TimeSTM(str){ var sp = str.split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); }
 
+
+	function ajaxData(key, data, _callbackS, _callbackE){
+		$.ajax({
+			type:'GET', url:'http://192.168.3.177:8000/' + key + '/',
+			data:data, dataType:'jsonp', jsonpCallback: 'call1back',
+			success:function(data)
+			{
+				_callbackS(data);
+			},
+			error:function(data)
+			{
+				_callbackE(data);
+				alert("error");
+			}
+		});
+	}
 	function getNames(count){
 		var all = [], names = {};
 		var temp1 = ['赵','钱','孙','李','周','吴','郑','王','冯','陈','楚','卫','刘','何'];

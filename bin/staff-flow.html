@@ -142,30 +142,20 @@ $(document).ready(function() {
 
 		dateStart = dateStart || '2015-09-22';
 		dateEnd = dateEnd || '2015-11-13';
-		$.ajax({
-			type:'GET',
-			url:'http://192.168.3.177:8000/get_flow/',
-			data:{'dateStart':dateStart, 'dateEnd':dateEnd},
-			dataType:'jsonp', jsonpCallback: 'call1back',
-			success:function(data)
-			{
-				__flow_data = data['data'];
-				//console.log(data.weekday);
-				loadFlowDefault();
-				if(!__table_create){
-					createTable("view3");
-					setTableHead("view3", []);
-					__table_create = true;
-				}
-				setTableData("view3", []);
-				//loadFlowDataEx(__view1, 0, 8, 10);
-				__myChart1.hideLoading();
-			},
-			error:function(data)
-			{
-				__myChart1.hideLoading();
-				alert("error");
+		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd};
+		ajaxData('get_flow', adt, function(data)
+		{
+			__flow_data = data['data'];
+			//console.log(data.weekday);
+			loadFlowDefault();
+			if(!__table_create){
+				createTable("view3");
+				setTableHead("view3", []);
+				__table_create = true;
 			}
+			setTableData("view3", []);
+			//loadFlowDataEx(__view1, 0, 8, 10);
+			__myChart1.hideLoading();
 		});
 	}
 	function loadFlowDataEx(id, weekday, hourBegin, hourEnd){

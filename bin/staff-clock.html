@@ -69,12 +69,10 @@
 
 			//Init(option, "view1", "", null, ['heatmap']);
 
-			loadUnit();
+			//loadUnit();
 			addUnitSel('unitsel1');
-			loadUnusual("view2");
-
-
-
+			loadClock();
+			//loadUnusual("view2");
 
 
 			function addUnitSel(id){
@@ -89,15 +87,103 @@
 		});
 
 
-
-
 		//***********************************************函数区域*****************************************************************
 		function Init3(option, id){
 			var myChart = echarts.init(document.getElementById(id));
 			myChart.setOption(option);
 			return myChart;
 		}
+//		//散点图1
+//		function loadUnit(_unit){
+//			var dt1=[], dt2=[], tp= [4, 5, 11, 12, 18, 19, 25, 26], x=[];
+//			var ft = tp.reduce(function(a, b){ a[b]=1; return a; }, {});
+//			var p1 = 0.8, p2 =0.2;
+//			for(var p=0; p<71; p++){
+//				for(var i=0; i<31; i++){
+//					if(ft[i] == 1)continue;
+//					var tp1 = 0, tp2 = 0;
+//					var rd = Math.random(), dm = 540, dn = 18 * 60;
+//					if(rd>0.32 && rd<0.9)tp1 = - Math.random()* 30;
+//					if(rd>0.22 && rd<0.3)tp1 = -Math.random()* 90;
+//					if(rd>0.12 && rd<0.15)tp1 = Math.random()* 45;	//迟到
+//
+//					if(rd>0.48 && rd<0.8)tp2 = Math.random()* 40;
+//					if(rd>0.82 && rd<0.9)tp2 = Math.random()* 80 + 20;
+//					if(rd>0.99)tp2 = -Math.random()* 10;	//早退
+//					if(rd<0.12)tp2 = Math.random()* 30 + 110; //最晚
+//					if(i==3 || i==10 || i==17 || i==24){
+//						if(rd<0.88 )tp2 = Math.random()* 40;
+//					}
+//					if(i==6 || i==13 || i==11){
+//						if(rd>0.48 )tp1 = Math.random()* 20;
+//					}
+//					dm = tp1 + dm - 300; dn = tp2 + dn - 300;
+//					if(dm < 270)dt1.push([dm, i]); else dt2.push([dm, i]);
+//					if(dn >= 780)dt1.push([dn, i]); else dt2.push([dn, i]);
+//					x.push("3月" + (i+1) + "");
+//				}
+//			}
+//			function DateF(date){ return parseInt(date/60 + 5) + ":" + parseInt(date % 60); }
+//			_unit = _unit || '项目部';
+//			var option = {
+//				title : { text: '部门打卡时间分布', subtext: _unit, x:30 },
+//				tooltip : { trigger: 'item', formatter:function(p){
+//					return '李**' + (p.data[0]<510 ? "上班时间":"下班时间") + '<br />' + p.seriesName + ' ' + DateF(p.data[0]) ;}
+//				},
+//				legend: { data:['正常','异常'] },
+//				grid:{x2:15},
+//				calculable : true,
+//				xAxis : [{
+//					type : 'value', scale : true, min:40, axisLine:{show:false,onZero:false},
+//					axisLabel : { formatter: function(params){ return DateF(params);} },
+//				}],
+//				yAxis : [{
+//					type : 'value', scale : false, min:0,
+//					axisLabel : { formatter: function(params){ return "3月" + (params + 1) + "日";} } }
+//				],
+//				series : [
+//					{ name:'正常', type:'scatter', symbolSize:4, data: dt1 },
+//					{ name:'异常', type:'scatter', symbolSize:4, data: dt2 }
+//				]
+//			};
+//			$("#view1").html("");
+//			var ect = Init3(option, "view1");
+//			ect.on('click', function(p){
+//				loadPerson();
+//				var left = $("#view1").width() - 135;
+//				$("#view1").append('<div id="view1rtn" style="left:'+ left +'px" >返回</div>');
+//				$("#view1rtn").click(function(){
+//					$("#view1rtn").remove();
+//					loadUnit();
+//				});
+//			})
+//		}
 		//散点图1
+		function loadClock(){
+			var adt = {'dateStart':null, 'dateEnd':null};
+			ajaxData('get_clock', adt, function(data)
+			{
+				//__flow_data = data['data'];
+				console.log(data);
+				//TimeSTM();
+				formatData(data);
+
+
+				//__myChart1.hideLoading();
+			});
+		}
+		function formatData(dt){
+			dt.forEach(function(d){
+				var _d = DateSTD(d[1]), _day = _d.getDate(), _s = DateSTM(d[1]);
+				cout(_day);
+				cout(_s);
+				return;
+			});
+
+		}
+		function timeToSecond(tm){
+
+		}
 		function loadUnit(_unit){
 			var dt1=[], dt2=[], tp= [4, 5, 11, 12, 18, 19, 25, 26], x=[];
 			var ft = tp.reduce(function(a, b){ a[b]=1; return a; }, {});
@@ -127,7 +213,11 @@
 					x.push("3月" + (i+1) + "");
 				}
 			}
-			function DateF(date){ return parseInt(date/60 + 5) + ":" + parseInt(date % 60); }
+			//cout(dt1);
+			//cout(dt2);
+
+
+
 			_unit = _unit || '项目部';
 			var option = {
 				title : { text: '部门打卡时间分布', subtext: _unit, x:30 },
