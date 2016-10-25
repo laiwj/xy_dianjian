@@ -27,7 +27,6 @@
 	}
 	function DateDTS(date) { return date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds(); }
 	function DateDTM(date) { return date.getHours() * 60 + date.getMinutes(); }
-	function DateMTS(str){ return parseInt(date/60) + ":" + parseInt(date % 60); }
 	function DateSTM(str){ var sp = str.split(" ")[1].split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); }
 	function DateSTD(str){ var sp = str.split(/-| |:/); return new Date(parseInt(sp[0]), parseInt(sp[1]), parseInt(sp[2]),
 		parseInt(sp[3]), parseInt(sp[4]), parseInt(sp[5])); }
@@ -35,7 +34,7 @@
 	function TimeT(str){ var sp = str.split(":"); return new Date(0, 0, 0, parseInt(sp[0]), parseInt(sp[1]), 0); }
 	function TimeF(date){ return date.getHours() + ":" + date.getMinutes(); }
 	function TimeSTM(str){ var sp = str.split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); }
-
+	function TimeMTS(m){ return parseInt(m/60) + ":" + parseInt(m % 60); }
 
 	function ajaxData(key, data, _callbackS, _callbackE){
 		$.ajax({

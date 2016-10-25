@@ -71,8 +71,8 @@
 
 			//loadUnit();
 			addUnitSel('unitsel1');
-			loadClock();
-			//loadUnusual("view2");
+			//loadClockData();
+			loadIntervalData("view2");
 
 
 			function addUnitSel(id){
@@ -93,147 +93,39 @@
 			myChart.setOption(option);
 			return myChart;
 		}
-//		//散点图1
-//		function loadUnit(_unit){
-//			var dt1=[], dt2=[], tp= [4, 5, 11, 12, 18, 19, 25, 26], x=[];
-//			var ft = tp.reduce(function(a, b){ a[b]=1; return a; }, {});
-//			var p1 = 0.8, p2 =0.2;
-//			for(var p=0; p<71; p++){
-//				for(var i=0; i<31; i++){
-//					if(ft[i] == 1)continue;
-//					var tp1 = 0, tp2 = 0;
-//					var rd = Math.random(), dm = 540, dn = 18 * 60;
-//					if(rd>0.32 && rd<0.9)tp1 = - Math.random()* 30;
-//					if(rd>0.22 && rd<0.3)tp1 = -Math.random()* 90;
-//					if(rd>0.12 && rd<0.15)tp1 = Math.random()* 45;	//迟到
-//
-//					if(rd>0.48 && rd<0.8)tp2 = Math.random()* 40;
-//					if(rd>0.82 && rd<0.9)tp2 = Math.random()* 80 + 20;
-//					if(rd>0.99)tp2 = -Math.random()* 10;	//早退
-//					if(rd<0.12)tp2 = Math.random()* 30 + 110; //最晚
-//					if(i==3 || i==10 || i==17 || i==24){
-//						if(rd<0.88 )tp2 = Math.random()* 40;
-//					}
-//					if(i==6 || i==13 || i==11){
-//						if(rd>0.48 )tp1 = Math.random()* 20;
-//					}
-//					dm = tp1 + dm - 300; dn = tp2 + dn - 300;
-//					if(dm < 270)dt1.push([dm, i]); else dt2.push([dm, i]);
-//					if(dn >= 780)dt1.push([dn, i]); else dt2.push([dn, i]);
-//					x.push("3月" + (i+1) + "");
-//				}
-//			}
-//			function DateF(date){ return parseInt(date/60 + 5) + ":" + parseInt(date % 60); }
-//			_unit = _unit || '项目部';
-//			var option = {
-//				title : { text: '部门打卡时间分布', subtext: _unit, x:30 },
-//				tooltip : { trigger: 'item', formatter:function(p){
-//					return '李**' + (p.data[0]<510 ? "上班时间":"下班时间") + '<br />' + p.seriesName + ' ' + DateF(p.data[0]) ;}
-//				},
-//				legend: { data:['正常','异常'] },
-//				grid:{x2:15},
-//				calculable : true,
-//				xAxis : [{
-//					type : 'value', scale : true, min:40, axisLine:{show:false,onZero:false},
-//					axisLabel : { formatter: function(params){ return DateF(params);} },
-//				}],
-//				yAxis : [{
-//					type : 'value', scale : false, min:0,
-//					axisLabel : { formatter: function(params){ return "3月" + (params + 1) + "日";} } }
-//				],
-//				series : [
-//					{ name:'正常', type:'scatter', symbolSize:4, data: dt1 },
-//					{ name:'异常', type:'scatter', symbolSize:4, data: dt2 }
-//				]
-//			};
-//			$("#view1").html("");
-//			var ect = Init3(option, "view1");
-//			ect.on('click', function(p){
-//				loadPerson();
-//				var left = $("#view1").width() - 135;
-//				$("#view1").append('<div id="view1rtn" style="left:'+ left +'px" >返回</div>');
-//				$("#view1rtn").click(function(){
-//					$("#view1rtn").remove();
-//					loadUnit();
-//				});
-//			})
-//		}
-		//散点图1
-		function loadClock(){
+		function loadClockData(){
 			var adt = {'dateStart':null, 'dateEnd':null};
 			ajaxData('get_clock', adt, function(data)
 			{
 				//__flow_data = data['data'];
-				console.log(data);
-				//TimeSTM();
-				formatData(data);
-
-
+				loadUnit(data);
 				//__myChart1.hideLoading();
 			});
 		}
-		function formatData(dt){
-			dt.forEach(function(d){
-				var _d = DateSTD(d[1]), _day = _d.getDate(), _s = DateSTM(d[1]);
-				cout(_day);
-				cout(_s);
-				return;
+		function loadClock(data){
+			var dt1 = [], dt2 = [], month = 0;
+			data.forEach(function(d){
+				var _d = DateSTD(d[1]), _day = _d.getDate(), _m = DateSTM(d[1]);//月份-天， 时间距0点分钟数
+				dt1.push([_m, _day]);
+				if(month == 0)month = _d.getMonth();
 			});
-
-		}
-		function timeToSecond(tm){
-
-		}
-		function loadUnit(_unit){
-			var dt1=[], dt2=[], tp= [4, 5, 11, 12, 18, 19, 25, 26], x=[];
-			var ft = tp.reduce(function(a, b){ a[b]=1; return a; }, {});
-			var p1 = 0.8, p2 =0.2;
-			for(var p=0; p<71; p++){
-				for(var i=0; i<31; i++){
-					if(ft[i] == 1)continue;
-					var tp1 = 0, tp2 = 0;
-					var rd = Math.random(), dm = 540, dn = 18 * 60;
-					if(rd>0.32 && rd<0.9)tp1 = - Math.random()* 30;
-					if(rd>0.22 && rd<0.3)tp1 = -Math.random()* 90;
-					if(rd>0.12 && rd<0.15)tp1 = Math.random()* 45;	//迟到
-
-					if(rd>0.48 && rd<0.8)tp2 = Math.random()* 40;
-					if(rd>0.82 && rd<0.9)tp2 = Math.random()* 80 + 20;
-					if(rd>0.99)tp2 = -Math.random()* 10;	//早退
-					if(rd<0.12)tp2 = Math.random()* 30 + 110; //最晚
-					if(i==3 || i==10 || i==17 || i==24){
-						if(rd<0.88 )tp2 = Math.random()* 40;
-					}
-					if(i==6 || i==13 || i==11){
-						if(rd>0.48 )tp1 = Math.random()* 20;
-					}
-					dm = tp1 + dm - 300; dn = tp2 + dn - 300;
-					if(dm < 270)dt1.push([dm, i]); else dt2.push([dm, i]);
-					if(dn >= 780)dt1.push([dn, i]); else dt2.push([dn, i]);
-					x.push("3月" + (i+1) + "");
-				}
-			}
-			//cout(dt1);
-			//cout(dt2);
-
-
-
-			_unit = _unit || '项目部';
+			//_unit = _unit || '项目部';
+			var _unit = '项目部';
 			var option = {
 				title : { text: '部门打卡时间分布', subtext: _unit, x:30 },
 				tooltip : { trigger: 'item', formatter:function(p){
-					return '李**' + (p.data[0]<510 ? "上班时间":"下班时间") + '<br />' + p.seriesName + ' ' + DateF(p.data[0]) ;}
+					return '李**' + (p.data[0]<510 ? "上班时间":"下班时间") + '<br />' + p.seriesName + ' ' + TimeMTS(p.data[0]) ;}
 				},
 				legend: { data:['正常','异常'] },
 				grid:{x2:15},
 				calculable : true,
 				xAxis : [{
-					type : 'value', scale : true, min:40, axisLine:{show:false,onZero:false},
-					axisLabel : { formatter: function(params){ return DateF(params);} },
+					type : 'value', scale : true, min:-10, axisLine:{show:false,onZero:false},
+					axisLabel : { formatter: function(params){ return TimeMTS(params);} },
 				}],
 				yAxis : [{
 					type : 'value', scale : false, min:0,
-					axisLabel : { formatter: function(params){ return "3月" + (params + 1) + "日";} } }
+					axisLabel : { formatter: function(params){ return month + "月" + (params + 1) + "日";} } }
 				],
 				series : [
 					{ name:'正常', type:'scatter', symbolSize:4, data: dt1 },
@@ -308,6 +200,7 @@
 			Init3(option, "view1");
 		}
 		//***********************************************图2************************************************
+
 		function getRGB(hex){
 			hex = hex.toString().substr(1);
 			return [parseInt(hex.substr(0,2), 16), parseInt(hex.substr(2,2), 16), parseInt(hex.substr(4,2), 16)];
@@ -320,14 +213,20 @@
 			return parseInt(Math.random() * (_max - _min) + _min);
 		}
 		function range(_min, _max){ var rt=[]; for(var i=_min;i<_max;i++)rt.push(i); return rt; }
+		function loadIntervalData(){
+			var adt = {'dateStart':null, 'dateEnd':null};
+			ajaxData('get_interval', adt, function(data)
+			{
+				//__flow_data = data['data'];
+				//cout(data);
+				loadInterval("view2", data);
 
-		function loadUnusual(id){
+				//__myChart1.hideLoading();
+			});
+		}
+		function loadInterval(id, _data){
 			//r - max:75
 			//data : [[[p1,p2],[u1,u2],time,times],]
-			var data1 = [
-				[[28604,77,17096869,'Australia',1990],[31163,77.4,27662440,'Canada',1990],[1516,68,1154605773,'China',1990],[13670,74.7,10582082,'Cuba',1990],[28599,75,4986705,'Finland',1990],[29476,77.1,56943299,'France',1990],[31476,75.4,78958237,'Germany',1990],[28666,78.1,254830,'Iceland',1990],[1777,57.7,870601776,'India',1990],[29550,79.1,122249285,'Japan',1990],[2076,67.9,20194354,'North Korea',1990],[12087,72,42972254,'South Korea',1990],[24021,75.4,3397534,'New Zealand',1990],[43296,76.8,4240375,'Norway',1990],[10088,70.8,38195258,'Poland',1990],[19349,69.6,147568552,'Russia',1990],[10670,67.3,53994605,'Turkey',1990],[26424,75.7,57110117,'United Kingdom',1990],[37062,75.4,252847810,'United States',1990]],
-				[[44056,81.8,23968973,'Australia',2015],[43294,81.7,35939927,'Canada',2015],[13334,76.9,1376048943,'China',2015],[21291,78.5,11389562,'Cuba',2015],[38923,80.8,5503457,'Finland',2015],[37599,81.9,64395345,'France',2015],[44053,81.1,80688545,'Germany',2015],[42182,82.8,329425,'Iceland',2015],[5903,66.8,1311050527,'India',2015],[36162,83.5,126573481,'Japan',2015],[1390,71.4,25155317,'North Korea',2015],[34644,80.7,50293439,'South Korea',2015],[34186,80.6,4528526,'New Zealand',2015],[64304,81.6,5210967,'Norway',2015],[24787,77.3,38611794,'Poland',2015],[23038,73.13,143456918,'Russia',2015],[19360,76.5,78665830,'Turkey',2015],[38225,81.4,64715810,'United Kingdom',2015],[53354,79.1,321773631,'United States',2015]]
-			];
 			var source=[], names = getNames(150), lsU = names.reduce(function(a, b){ a[b] = units[parseInt(Math.random() * units.length)]; return a; }, {});
 			for(var i=0; i<30; i++){
 				var c = getRandDesc(2, 7), lsp=[], dicp = {};
@@ -342,25 +241,29 @@
 					Object.keys(d.reduce(function(a, b){  a[lsU[b]] = 1;return a; },{}))];
 			});
 			var colorS = d3.scale.category20(), rS = d3.scale.log().domain([1, 10]).range([5, 45]);
-			var all = getValues(data.reduce(function(a, b){
-				var u = b[4].length==1 ? b[4][0] : '多部门', item = [b[0], b[1], b[2], b[3], u, b[4]];
+
+			var all = getValues(_data.reduce(function(a, b){
+				cout(b[4]);
+				var u = b[4], item = [b[0], b[1], b[2], b[3], u, b[5]];
 				if(!a.hasOwnProperty(u))a[u] = [item]; else a[u].push(item);
 				return a;
 			}, {}));
+			cout(all);
 			//单颜色值随机增减 ： 0-255
 			function _randColor(c){
 				while(1) { var tp=c + (Math.random()>0.5 ? 1 : -1) * Math.random() * 50; if(tp>0 && tp<255)return parseInt(tp); }
 			}
 			var clrs = [['rgba(120, 36, 50, 0.5)', 'rgb(251, 118, 123)', 'rgb(204, 46, 72)'],
-				['rgba(25, 100, 150, 0.5)', 'rgb(129, 227, 238)', 'rgb(25, 183, 207)']];
-			range(0,20).forEach(function(i){
+				['rgba(25, 100, 150, 0.5)', 'rgb(129, 227, 238)', 'rgb(25, 183, 207)'], ['rgba(25, 100, 150, 0.5)', 'rgb(129, 227, 238)', 'rgb(25, 183, 207)']];
+			range(0,40).forEach(function(i){
 				var c = getRGB(colorS(i)), c1 = [_randColor(c[0]),_randColor(c[1]),_randColor(c[2])]
 						, c2 = [_randColor(c[0]),_randColor(c[1]),_randColor(c[2])];
 				clrs.push(['rgba('+ c1.join(',') + ',0.5)', 'rgb('+ c.join(',') +')', 'rgb('+ c2.join(',') +')']);
 			});
+
 			var ses = all.map(function(d, index){
 				return { name:d[0][4], data:d, type:'scatter',
-					symbolSize: function (data) {return rS(data[2]); },
+					symbolSize: function (c) {return rS(c[2]); },
 					label: { emphasis: { show: true, formatter: function (param) { return param.data[3];}, position: 'top' }},
 					itemStyle: { normal: {shadowBlur: 10, shadowColor: clrs[index][0], shadowOffsetY: 5,
 						color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{ offset: 0,  color: clrs[index][1]}, { offset: 1,  color: clrs[index][2] }]) }
@@ -369,15 +272,73 @@
 			});
 			var option = {
 				backgroundColor: new echarts.graphic.RadialGradient(0.3, 0.3, 0.8, [{ offset: 0,  color: '#f7f8fa'}, { offset: 1, color: '#cdd0d5'}]),
-				title: { text: '可能代打卡的员工' },
-				tooltip:{ formatter: function(d){ return d.data[3] + '<br />涉及部门：<br />' + d.data[5].join('，') ; }},
+				title: { text: '' },//可能代打卡的员工
+				tooltip:{ formatter: function(c){return c.data[3] + '<br />涉及部门：<br />' + c.data[5].join('，') ; }},
 				legend: { right: 10,  data: all.map(function(d){ return d[0][4]; }) },
 				xAxis: { splitLine: { lineStyle: { type: 'dashed' } } },
-				yAxis: { splitLine: { lineStyle: { type: 'dashed' } },  scale: true },
+				yAxis: { splitLine: { lineStyle: { type: 'dashed' } }, scale: true, min:1 },
 				series: ses
 			};
+
+			cout(option);
 			Init3(option, id);
 		}
-
+//		function loadUnusual(id){
+//			//r - max:75
+//			//data : [[[p1,p2],[u1,u2],time,times],]
+//			var data1 = [
+//				[[28604,77,17096869,'Australia',1990],[31163,77.4,27662440,'Canada',1990],[1516,68,1154605773,'China',1990],[13670,74.7,10582082,'Cuba',1990],[28599,75,4986705,'Finland',1990],[29476,77.1,56943299,'France',1990],[31476,75.4,78958237,'Germany',1990],[28666,78.1,254830,'Iceland',1990],[1777,57.7,870601776,'India',1990],[29550,79.1,122249285,'Japan',1990],[2076,67.9,20194354,'North Korea',1990],[12087,72,42972254,'South Korea',1990],[24021,75.4,3397534,'New Zealand',1990],[43296,76.8,4240375,'Norway',1990],[10088,70.8,38195258,'Poland',1990],[19349,69.6,147568552,'Russia',1990],[10670,67.3,53994605,'Turkey',1990],[26424,75.7,57110117,'United Kingdom',1990],[37062,75.4,252847810,'United States',1990]],
+//				[[44056,81.8,23968973,'Australia',2015],[43294,81.7,35939927,'Canada',2015],[13334,76.9,1376048943,'China',2015],[21291,78.5,11389562,'Cuba',2015],[38923,80.8,5503457,'Finland',2015],[37599,81.9,64395345,'France',2015],[44053,81.1,80688545,'Germany',2015],[42182,82.8,329425,'Iceland',2015],[5903,66.8,1311050527,'India',2015],[36162,83.5,126573481,'Japan',2015],[1390,71.4,25155317,'North Korea',2015],[34644,80.7,50293439,'South Korea',2015],[34186,80.6,4528526,'New Zealand',2015],[64304,81.6,5210967,'Norway',2015],[24787,77.3,38611794,'Poland',2015],[23038,73.13,143456918,'Russia',2015],[19360,76.5,78665830,'Turkey',2015],[38225,81.4,64715810,'United Kingdom',2015],[53354,79.1,321773631,'United States',2015]]
+//			];
+//			var source=[], names = getNames(150), lsU = names.reduce(function(a, b){ a[b] = units[parseInt(Math.random() * units.length)]; return a; }, {});
+//			for(var i=0; i<30; i++){
+//				var c = getRandDesc(2, 7), lsp=[], dicp = {};
+//				while(lsp.length<c){
+//					var np = names[getRandDesc(1, names.length)];
+//					if(!dicp.hasOwnProperty(np)){ dicp[np] = 1; lsp.push(np); }
+//				}
+//				source.push(lsp);
+//			}
+//			var data = source.map(function(d){
+//				return [parseInt(Math.random() * 40 + 1), parseInt(Math.random() * 12 + 3), d.length, d.join("，"),
+//					Object.keys(d.reduce(function(a, b){  a[lsU[b]] = 1;return a; },{}))];
+//			});
+//			var colorS = d3.scale.category20(), rS = d3.scale.log().domain([1, 10]).range([5, 45]);
+//			var all = getValues(data.reduce(function(a, b){
+//				var u = b[4].length==1 ? b[4][0] : '多部门', item = [b[0], b[1], b[2], b[3], u, b[4]];
+//				if(!a.hasOwnProperty(u))a[u] = [item]; else a[u].push(item);
+//				return a;
+//			}, {}));
+//			//单颜色值随机增减 ： 0-255
+//			function _randColor(c){
+//				while(1) { var tp=c + (Math.random()>0.5 ? 1 : -1) * Math.random() * 50; if(tp>0 && tp<255)return parseInt(tp); }
+//			}
+//			var clrs = [['rgba(120, 36, 50, 0.5)', 'rgb(251, 118, 123)', 'rgb(204, 46, 72)'],
+//				['rgba(25, 100, 150, 0.5)', 'rgb(129, 227, 238)', 'rgb(25, 183, 207)']];
+//			range(0,20).forEach(function(i){
+//				var c = getRGB(colorS(i)), c1 = [_randColor(c[0]),_randColor(c[1]),_randColor(c[2])]
+//						, c2 = [_randColor(c[0]),_randColor(c[1]),_randColor(c[2])];
+//				clrs.push(['rgba('+ c1.join(',') + ',0.5)', 'rgb('+ c.join(',') +')', 'rgb('+ c2.join(',') +')']);
+//			});
+//			var ses = all.map(function(d, index){
+//				return { name:d[0][4], data:d, type:'scatter',
+//					symbolSize: function (data) {return rS(data[2]); },
+//					label: { emphasis: { show: true, formatter: function (param) { return param.data[3];}, position: 'top' }},
+//					itemStyle: { normal: {shadowBlur: 10, shadowColor: clrs[index][0], shadowOffsetY: 5,
+//						color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{ offset: 0,  color: clrs[index][1]}, { offset: 1,  color: clrs[index][2] }]) }
+//					}
+//				};
+//			});
+//			var option = {
+//				backgroundColor: new echarts.graphic.RadialGradient(0.3, 0.3, 0.8, [{ offset: 0,  color: '#f7f8fa'}, { offset: 1, color: '#cdd0d5'}]),
+//				title: { text: '可能代打卡的员工' },
+//				tooltip:{ formatter: function(d){ return d.data[3] + '<br />涉及部门：<br />' + d.data[5].join('，') ; }},
+//				legend: { right: 10,  data: all.map(function(d){ return d[0][4]; }) },
+//				xAxis: { splitLine: { lineStyle: { type: 'dashed' } } },
+//				yAxis: { splitLine: { lineStyle: { type: 'dashed' } },  scale: true },
+//				series: ses
+//			};
+//			Init3(option, id);
+//		}
 	</script>
 </xmp>
