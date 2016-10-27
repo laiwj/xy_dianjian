@@ -15,6 +15,7 @@ function Zoom(id, height_zoom){
 	this.tpzoome = 100;	//zoom temp end pos
 	this.zoomdata = [];
 	this.currentValue = 0;
+	this.myChart = null;
 
 	this.zoomOption = {
 		dataZoom: { realtime: false, show: true, start: this.tpzooms, y: 0,  end:this.tpzoome, handleSize: 10, zoomLock: true, height: this.hz, shandleColor: 'rgba(70,130,180,0.8)',},
@@ -37,12 +38,13 @@ function Zoom(id, height_zoom){
 	};
 	this.loadZoom = function (data, callback){
 		this.zoomdata = data;
+		console.log(data);
 		this.zoomOption.dataZoom.end = 1/data.length * 100;
 		this.zoomOption.xAxis[0].data = data.map(function(d){ return d[0]; });
 		this.zoomOption.series[0].data = data.map(function(d){ return d[1]; });
-		var myChart = echarts.init(document.getElementById(this.zid));
-		myChart.setOption(this.zoomOption, true);
-		myChart.on("dataZoom", function(p){
+		this.myChart = echarts.init(document.getElementById(this.zid));
+		this.myChart.setOption(this.zoomOption, true);
+		this.myChart.on("dataZoom", function(p){
 			if(Math.abs(p.start - this.tpzooms)<1 && Math.abs(p.end - this.tpzoome)<1)return;
 			this.tpzooms = p.start;
 			this.tpzoome = p.end;
@@ -51,6 +53,10 @@ function Zoom(id, height_zoom){
 		});
 		this.loadLabel();
 		return this;
+	};
+	this.setData = function(list){
+		this.zoomOption.series[0].data = list.map(function(d){ return d; });
+		this.myChart.setOption(this.zoomOption, true);
 	}
 	this.addPlay = function(cb_click){
 		$("#" + this.zid + " div:first-child").append("<div id='" + this.tid + 

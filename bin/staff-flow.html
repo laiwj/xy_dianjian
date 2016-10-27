@@ -73,9 +73,16 @@ th{ text-align: center}
 var pieSelectName = "nosel";
 var __myChart = null, __view1, __view2;
 var __myChart1 = null;
+var __myChart2 = null;
+var __ChartDatazoom = null;
 var __current = 0;
 var __flow_data = null;
+var __trip_data = null;
 var __table_create = false;
+var __current_page = 0;
+var __current_month = 0;
+var __metux_view2 = false;
+var __datazoom_view2 = null;
 
 $(document).ready(function() {
 	function cout(d){ console.log(d); }
@@ -97,11 +104,16 @@ $(document).ready(function() {
 		forceParse: 0
 	}).on('changeDate', function(e){
 		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
-		getFlowData('view1', startDate, endDate)
+		//getFlowData('view1', startDate, endDate);
+		getTripData(__view2, startDate, endDate);
 	});
+	getFlowData('view1');
+	//loadTripImage('view2');
+	_loadMap('view2');
+	//getTripData('view2');
 
 
-
+	//-----------------------------------------函数部分-----------------------------------------------
 	//人员流动时间段选择
 	function addTimeSel(id){
 		var div = '<div style="float:right">', sel1 = '<select id="'+ id + 'sel1">',
@@ -122,7 +134,7 @@ $(document).ready(function() {
 
 	//loadFlowDataEx('view1');
 	//loadFlow('view1');
-	getFlowData('view1');
+
 
 	function getFlowData(id, dateStart, dateEnd){
 		$("#"+id).html("");
@@ -147,7 +159,7 @@ $(document).ready(function() {
 			}
 			setTableData("view3", []);
 			//loadFlowDataEx(__view1, 0, 8, 10);
-			__myChart1.hideLoading();
+			if(__myChart1)__myChart1.hideLoading();
 		});
 	}
 	function loadFlowDefault(){
@@ -197,45 +209,8 @@ $(document).ready(function() {
 		__current = d;
 		loadFlowDefault();;
 	}
+
 	//**********************************图二相关代码****************************************************************************
-	$("#v2lb2").click(clickLabel);
-	$("#v2lb1").click(clickLabel);
-	$(".lbf").click(clickDirection);
-	//loadMapView1();
-
-	//点击方向
-	function clickDirection(){
-		_listenZoomMap1();
-	}
-	function getTripData(id, dateStart, dateEnd){
-		$("#"+id).html("");
-		var datazoom = new Zoom(id);
-		var lsd = days.map(function(d){ return [d, parseInt(Math.random() * 30)]; });
-		datazoom.loadZoom(lsd, listenZoom);
-		__view1 = datazoom.did;
-		__myChart1 = echarts.init(document.getElementById(__view1)).showLoading();
-
-		dateStart = dateStart || '2015-09-22';
-		dateEnd = dateEnd || '2015-11-13';
-		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd};
-		ajaxData('get_flow', adt, function(data)
-		{
-			__flow_data = data['data'];
-			//console.log(data.weekday);
-
-			//loadTripDefault();
-			__myChart1.hideLoading();
-		});
-	}
-	function loadTripDefault(){
-		var hb = parseInt($("#flowtsel1").val()), he =parseInt( $("#flowtsel2").val()), weekday = __current;;
-		__myChart1.showLoading();
-		loadTripData(__view1, weekday, hb, he);
-		//alert(hb );
-		__myChart1.hideLoading();
-	}
-	//-------------------------------------------------------------------------------------
-
 	//统计图和地图切换
 	function clickLabel(){
 		var idn = this.id.substr(this.id.length-1), oid = idn == 1 ? 2 : 1, funcs = ['loadMapView1()', 'loadMapView2()'];
@@ -246,37 +221,90 @@ $(document).ready(function() {
 			eval(funcs[parseInt(idn)-1]);
 		}
 	}
+	//-------------------------------------------------------------------------------------
+	$("#v2lb2").click(clickLabel);
+	$("#v2lb1").click(clickLabel);
+	$(".lbf").click(clickDirection);
+	//loadMapView1();
 
+	//点击方向
+	function clickDirection(){
+		__current_page = this.id.substring(3)-1;
+		loadTripImage(__view2, __trip_data, __current_page, __current_month);
+		//_listenZoomMap1();
+	}
+	//外层·加时间轴和事件
 	function _loadMap(id, _index){
 		$("#"+ id).html("");
-		var datazoom = new Zoom(id), lsm = [], lsnfunc = _index ? _listenZoomMap2 : _listenZoomMap1,
-				loadfunc = _index ? _loadMapData2 : _loadMapData1;
+		__datazoom_view2 = new Zoom(id);
+		var lsm = [], lsnfunc = _index ? _listenZoomMap2 : _listenZoomMap1,
+				loadfunc = _index ? _loadMapData2 : getTripData;
 		for(var i=0; i<12; i++)lsm.push((i+1) + '月');
 		var lsd = lsm.map(function(d){ return [d, parseInt(Math.random() * 30)]; });
-		datazoom.loadZoom(lsd, lsnfunc);
-		__view2 = datazoom.did; 	//__myChart2 = echarts.init(document.getElementById(__view2));
+		__datazoom_view2.loadZoom(lsd, lsnfunc);
+		__view2 = __datazoom_view2.did; 	//__myChart2 = echarts.init(document.getElementById(__view2));
+		__ChartDatazoom = __datazoom_view2.myChart;
 		$("#" + __view2).css({'margin':'10','margin-left':22,'margin-right':30, 'margin-bottom':10 });
 		loadfunc(__view2);
 	}
 	function loadMapView1(){ _loadMap('view2'); }
 	function loadMapView2(){ _loadMap('view2', 1); }
-	function _listenZoomMap1(){ _loadMapData1(__view2); }	//监听函数1
+	function _listenZoomMap1(pos, val){
+		if(__metux_view2)return; //防止重复触发事件
+		__myChart2 = echarts.init(document.getElementById(__view2)).showLoading();
+		var month = parseInt(val[0][0].toString().replace("月", ""))-1;
+		__current_month = month;
+		loadTripImage(__view2, __trip_data, __current_page, month);
+		__myChart2.hideLoading();
+		if(__myChart2)__myChart2.hideLoading();
+	}	//监听函数1
 	function _listenZoomMap2(){ _loadMapData2(__view2); }	//监听函数2
 	//地图 - 主要代码
 	function _loadMapData2(id){
 		loadMapMove(id);
+		loadTripImage();
 	}
-
+	//***·一·**
+	function getTripData(id, dateStart, dateEnd){
+		__myChart2 = echarts.init(document.getElementById(id)).showLoading();
+		dateStart = dateStart || '2015-09-22';
+		dateEnd = dateEnd || '2015-11-13';
+		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd };
+		ajaxData('get_trip', adt, function(data)
+		{
+			__trip_data = data['trip'];
+			loadTripDefault();
+			__metux_view2 = false;
+			if(__myChart2)__myChart2.hideLoading();
+		});
+	}
+	//***·二·**
+	function loadTripDefault(){
+		if(__myChart2)__myChart2.showLoading();
+		var months = [], mall = [];
+		__trip_data.forEach(function(d, i){
+			mall.push(Object.keys(d).length);
+			if(Object.keys(d).length>0)months.push(i);
+		} );
+		__datazoom_view2.setData(mall);
+		loadTripImage(__view2, __trip_data, __current_page, months[0]);
+		if(__myChart2)__myChart2.hideLoading();
+	}
+	function getMonthPostion(m){ return [m/12*100, (m+1)/12*100]; }
+	//***·三·**
 	//堆积图 - 主要代码
-	function loadTripImage(id, month){
-		var names = getNames(150), lg = [], index = 0;
-		var temp = units.map(function(d, z){
-			if(Math.random()>0.85) return [];
+	function loadTripImage(id, _data, page, month){
+		__metux_view2 = true;
+		month = month || __current_month;
+		page = page || __current_page;
+		_data = __trip_data[month];
+		var units = Object.keys(_data), lg = [], mid = parseInt(units.length/2);
+		units = (page==0) ? units.slice(0, mid) : units.slice(mid-1, units.length);
+		var temp = units.map(function(d){
 			var lstp = [];
-			for(var i=0; i<parseInt(Math.random() * 10); i++){
-				var ram = parseInt(Math.random() * 8);
-				lstp.push(ram + 1);
-				lg.push([names[index++], d, ram + 1]);
+			for(var k in _data[d]){
+				lstp.push(_data[d][k]);
+				lg.push([k, d, _data[d][k]]);
 			}
 			return lstp;
 		});
@@ -288,43 +316,21 @@ $(document).ready(function() {
 			tooltip : { axisPointer:{ type : 'shadow' }, formatter:function(p){
 				return p.seriesName.split(',')[0] + ' : ' + p.data + '次<br/>' + p.name;
 			}},
-			grid: { x:20, x2:15, y:10, y2:40 },
+			grid: { x:30, x2:15, y:10, y2:40 },
 			calculable : true,
-			xAxis : [ { type : 'category', data : units, axisLabel: { interval:0 } } ],
+			xAxis : [ { type : 'category', data : units, axisLabel: { interval:0, rotate:45,
+				formatter: function (name) { return echarts.format.truncateText(name, 45, '12px Microsoft Yahei', '…'); }, tooltip: { show: true }}  } ],
 			yAxis : [ { type : 'value' } ],
 			series : data
 		};
-		Init3(option, id);
+		__myChart2 = Init3(option, id);
+		//设置时间轴位置
+		__ChartDatazoom.dispatchAction({
+			type: 'dataZoom', dataZoomIndex: 0, start: getMonthPostion(month)[0], end: getMonthPostion(month)[1]
+		});
+		__current_month = month;
+		__metux_view2 = false;
 	}
-//	//堆积图 - 主要代码
-//	function _loadMapData1(id, month){
-//		var names = getNames(150), lg = [], index = 0;
-//		var temp = units.map(function(d, z){
-//			if(Math.random()>0.85) return [];
-//			var lstp = [];
-//			for(var i=0; i<parseInt(Math.random() * 10); i++){
-//				var ram = parseInt(Math.random() * 8);
-//				lstp.push(ram + 1);
-//				lg.push([names[index++], d, ram + 1]);
-//			}
-//			return lstp;
-//		});
-//		var data = lg.map(function(d, i){
-//			return { name:d, type:'bar', stack:lg[0], data:units.map(function(rd){ return rd==d[1] ? d[2] : 0; }) }
-//		});
-//		var max = temp.reduce(function(a, b){ var e=b.reduce(function(c, d){ return c+d; }, 0); return a>e ? a : e  }, 0) ;
-//		var option = {
-//			tooltip : { axisPointer:{ type : 'shadow' }, formatter:function(p){
-//				return p.seriesName.split(',')[0] + ' : ' + p.data + '次<br/>' + p.name;
-//			}},
-//			grid: { x:20, x2:15, y:10, y2:40 },
-//			calculable : true,
-//			xAxis : [ { type : 'category', data : units, axisLabel: { interval:0 } } ],
-//			yAxis : [ { type : 'value' } ],
-//			series : data
-//		};
-//		Init3(option, id);
-//	}
 
 	//********************************表格相关************************************************************************************
 	function getTableData(){

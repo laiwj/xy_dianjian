@@ -158,7 +158,11 @@
 			var dt1 = [], dt2 = [], month = 0;
 			data.forEach(function(d){
 				var _d = DateSTD(d[1]), _day = _d.getDate(), _m = DateSTM(d[1]);//月份-天， 时间距0点分钟数
-				dt1.push([_m, _day]);
+				if(_m<330 || _m>1260) 	//异常
+					dt2.push([_m, _day]);
+				else		//正常
+					dt1.push([_m, _day]);
+
 				if(month == 0)month = _d.getMonth();
 			});
 			_unit = _unit || '所有部门';
