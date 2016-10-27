@@ -1,4 +1,13 @@
 // JavaScript Document
+	var public_time_select = "#public_time_select";
+	var init_date_start = "2016-09-22";
+	var init_date_end = "2016-11-13";
+	var init_date_month = "2016-5-1";
+	var init_unit_clock = "政治工作部";
+	var init_unit_common = "所有部门";
+	var init_unit_interval = "所有部门";
+
+
 	function getQueryString(name) { 
 		var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
 		var r = window.location.search.substr(1).match(reg); 
@@ -23,7 +32,8 @@
 	}
 	function Init3(option, id){
 		var myChart = echarts.init(document.getElementById(id));
-		myChart.setOption(option);	 		
+		myChart.setOption(option);
+		return myChart;
 	}
 	function DateDTS(date) { return date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds(); }
 	function DateDTM(date) { return date.getHours() * 60 + date.getMinutes(); }
@@ -34,19 +44,23 @@
 	function TimeT(str){ var sp = str.split(":"); return new Date(0, 0, 0, parseInt(sp[0]), parseInt(sp[1]), 0); }
 	function TimeF(date){ return date.getHours() + ":" + date.getMinutes(); }
 	function TimeSTM(str){ var sp = str.split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); }
-	function TimeMTS(m){ return parseInt(m/60) + ":" + parseInt(m % 60); }
+	function TimeMTS(m){
+		var h = parseInt(m/60), m = parseInt(m % 60), tm = h + ":" + (m>9 ? m : ("0" + m));
+		return m<0 || h>24 ? "" : tm;
+	}
 
 	function ajaxData(key, data, _callbackS, _callbackE){
+		var cbkf = (parseInt(Math.random() * 1000) + 1000).toString();
 		$.ajax({
 			type:'GET', url:'http://192.168.3.177:8000/' + key + '/',
-			data:data, dataType:'jsonp', jsonpCallback: 'call1back',
+			data:data, dataType:'jsonp', jsonpCallback: 'call1back' + cbkf + 'a',
 			success:function(data)
 			{
-				_callbackS(data);
+				if(_callbackS)_callbackS(data);
 			},
 			error:function(data)
 			{
-				_callbackE(data);
+				if(_callbackE)_callbackE(data);
 				alert("error");
 			}
 		});
