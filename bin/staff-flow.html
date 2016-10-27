@@ -83,6 +83,7 @@ var __current_page = 0;
 var __current_month = 0;
 var __metux_view2 = false;
 var __datazoom_view2 = null;
+var __select_create = false;
 
 $(document).ready(function() {
 	function cout(d){ console.log(d); }
@@ -104,9 +105,30 @@ $(document).ready(function() {
 		forceParse: 0
 	}).on('changeDate', function(e){
 		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
-		//getFlowData('view1', startDate, endDate);
+		getFlowData('view1', startDate, endDate);
 		getTripData(__view2, startDate, endDate);
 	});
+	//----------------------加载部门信息
+	function loadUnitList(){
+		ajaxData('get_units', {}, function(data)
+		{
+			units = data;
+			addUnitSel('flowt', data, null);
+			$("#unitsel2sel1").val(init_unit_interval);
+		});
+	}
+	function addUnitSel(id, _unit, clickFunc){
+		var div = '<div style="float:right; margin-right:15px;">', sel1 = '<select id="'+ id + 'sel1">', opt='';
+		_unit.forEach(function(d){ opt += '<option value ="'+ d +'">'+ d +'</option>'; });
+		$("#" + id).append(div + sel1 + opt + '</select>' + '</div>');
+		$("#" + id + 'sel1').val(init_unit_clock);
+		$("#" + id + 'sel1').change(function(){ if(clickFunc)clickFunc($(this).val()); });
+	}
+	if(!__select_create){
+		loadUnitList();
+		__select_create = true;
+	}
+	//---------------------------------------------------------------------------------
 	getFlowData('view1');
 	//loadTripImage('view2');
 	_loadMap('view2');
@@ -180,11 +202,17 @@ $(document).ready(function() {
 		var udata = cls.map(function(d, i){
 			return units.map(function(u){ return _dt[u][lsSrc[i]]; } )
 		});
-
 		var ses = units.map(function(d, i){ return {
 			barWidth:60, name:d, type:'bar', stack: '总量', data:[udata[0][i], udata[1][i]],
 			itemStyle : { normal: {label : {show: true, position: 'insideRight'}}},
 		}; });
+		var sum1 = udata[0].reduce(function(a, b){ return a+b; }, 0),
+			sum2 = udata[1].reduce(function(a, b){ return a+b; }, 0);
+		var point = {data : [
+				{name : '所有部门总和', value : sum1, xAxis: sum1+3, yAxis: 0},
+				{name : '所有部门总和', value : sum2, xAxis: sum2+3, yAxis: 1}
+			]};
+		ses[0]['markPoint'] = point;
 		var lg = Object.keys(units.reduce(function(a, b, i){ if((udata[0][i]+udata[1][i])>0)a[b]=1; return a; }, {}));
 		var option1 = {
 			title : { subtext: '', x:'center', y:10 },

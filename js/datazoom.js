@@ -38,7 +38,6 @@ function Zoom(id, height_zoom){
 	};
 	this.loadZoom = function (data, callback){
 		this.zoomdata = data;
-		console.log(data);
 		this.zoomOption.dataZoom.end = 1/data.length * 100;
 		this.zoomOption.xAxis[0].data = data.map(function(d){ return d[0]; });
 		this.zoomOption.series[0].data = data.map(function(d){ return d[1]; });
