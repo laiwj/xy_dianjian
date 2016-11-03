@@ -28,13 +28,9 @@
 	</div>
 
 	<div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto">
-		<div class="col col-sm-9">
-			<div class="title">事件画像</div>
-            <div id="view3" class="w-full" style="height:380px; "></div>
-		</div>
-		<div class="col col-sm-3">
-			<div class="title">查看详情</div>
-            <div id="view4" class="w-full" style="height:380px;">
+		<div class="col col-sm-12">
+			<div class="title">数据详情</div>
+            <div id="view3" class="w-full" style="height:380px; ">
 				<table id="table-data2" class="table" data-paging="true" data-sorting="true"></table>
 			</div>
 		</div>
@@ -67,6 +63,8 @@
 "use strict";
 var pieSelectName = "nosel";
 var units = [];
+var __myChart1 = null;
+var maxY = -1;
 $(document).ready(function() {
 
 	//function DateF(date){ return parseInt(date/60 + 5) + ":" + parseInt(date % 60); }
@@ -76,80 +74,85 @@ $(document).ready(function() {
 	loadUnitList();
 	loadPersonTime('view2');
 
-	loadOnlineData();
+	loadOnlineDataByUnit();
 
 	//----------------------加载部门信息
 	function loadUnitList(){
 		ajaxData('get_units', {}, function(data)
 		{
 			units = data;
-			addUnitSel('unitsel1', data, loadOnlineByUnit());
+			addUnitSel('unitsel1', data, loadOnlineDataByUnit);
 			//addUnitSel('unitsel2', data, selectUnitInterval);
-			$("#unitsel2sel1").val(init_unit_interval);
+			$("#unitsel1sel1 option:first").remove();
+			$("#unitsel1sel1").val(init_unit_online);
 		});
 	}
 	//-----------------------------------------------------------------------------
-	function loadOnlineByUnit(){
-
-	}
-
-	function loadOnlineData(){
+	function loadOnlineDataByUnit(_u){
 //		if(_u==undefined)_u = $("#unitsel1sel1").val() ;
 //		var datesel = getDateByMonth($("#pheadsel1").val()), //dateEnd = $("#pheadsel2").val();
 //				dateStart = datesel.dateStart || init_date_start, dateEnd = datesel.dateEnd || init_date_end;
-//		var __myChart1 = echarts.init(document.getElementById("view1")).showLoading();
-
+		__myChart1 = echarts.init(document.getElementById("view1")).showLoading();
+		_u = _u || init_unit_online;
 		var dateStart = init_date_start, dateEnd = init_date_end;
 		dateStart = "2015-02-02"; dateEnd = "2016-11-02";
-		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd};
-		ajaxData('get_online', adt, function(data)
+		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd, 'unit':_u};
+		ajaxData('get_online_unit', adt, function(data)
 		{
 			//__flow_data = data['data'];
-			cout(data.unit);
-
-			loadTimes(data.unit, data.types, data.scale);
+			cout(data);
+			loadTimes(data.unit, {'level':'unit', 'name':_u }, data.scale, data.maxCount);
+			loadTable(data.person, _u);
 			//loadTimes();
-			//loadClock(data, _u);
-			//__myChart1.hideLoading();
+			__myChart1.hideLoading();
 		});
 	}
+	function loadOnlineDataByPerson(_person, _name){
+//		if(_u==undefined)_u = $("#unitsel1sel1").val() ;
+//		var datesel = getDateByMonth($("#pheadsel1").val()), //dateEnd = $("#pheadsel2").val();
+//				dateStart = datesel.dateStart || init_date_start, dateEnd = datesel.dateEnd || init_date_end;
+		__myChart1 = echarts.init(document.getElementById("view1")).showLoading();
+		var dateStart = init_date_start, dateEnd = init_date_end;
+		dateStart = "2015-02-02"; dateEnd = "2016-11-02";
+		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd, 'person':_person};
+		ajaxData('get_online_person', adt, function(data)
+		{
+			loadTimes(data.data, {'level':'person', 'pid':_person, 'name':_name }, data.scale, data.maxCount);
+			__myChart1.hideLoading();
+		});
+	}
+	//上网数据规范化·需要
 	function formatDataTimes(scale, data){
-		var fmt = {}, x=[], flag = false;
+		var fmt = {}, x=[], flag = false, maxY = 0;
 		for(var t in data){
 			fmt[t] = []
 			for(var i=0; i<1440; i+=scale){
-				if(!flag)x.push(TimeMTS(i))
+				if(!flag)x.push(TimeMTS(i));
 				fmt[t].push(data[t].hasOwnProperty(i) ? data[t][i] : 0);
 			}
 			flag = true;
 		}
-		return {x:x, data:fmt};
+		return {x:x, data:fmt, maxValue:maxY };
 	}
-
-	function loadTimes(data, types, scale) {
-		var fmt = formatDataTimes(scale, data);
+	function loadTimes(data, opt, scale, maxC) {
+		var fmt = formatDataTimes(scale, data), maxY = parseInt(maxC);;
 		var dt = fmt.data, x = fmt.x;
-		var lstp = Object.keys(dt), lstm = [], source = {};
-		//source = lstp.reduce(function (a, b) { a[b] = []; return a; }, {});
-		//cout(lstp);
-		lstp.forEach(function (d) {
-			source[d] = dt[d];//.map(function(c){ return [TimeSTM(c[0]), c[1]]; });
-			//lstm.forEach(function (d2) { source[d].push([d2, parseInt(Math.random() * 50)]); })
-		});
-		cout(x);
-		//cout(source);
-		var ses = Object.keys(source).map(function (d) {
+		var lstp = Object.keys(dt);
+		var ses = Object.keys(dt).map(function (d) {
 			return {
 				name: d, type: 'line', areaStyle: {normal: {}}, //smooth: true, //stack: '总量',
 				data: dt[d]//.sort(function(a, b){ return parseInt(a[0])>parseInt(b[0]); })//source[d].reduce(function (a, b) { a.push(b[1]); return a; }, [])
 			};
 		});
-		//document.write(JSON.stringify(ses));
+		lstp.unshift('');
+		lstp.unshift('');
 		cout(ses);
+		var title = ' '+ (opt.level=='unit' ? '部门：' + opt.name : '员工：'+opt.name) + '时间分布';
 		var option = {
-			//title: {text: '员工时间分布'},
-			tooltip: {trigger: 'axis'}, //formatter :function(c){ return c.seriesName + "<br />" + TimeMTS(c.data[0]) + " " + c.data[0] + "次";}},
-				//formatter : '{b0}: {c0}<br />'},
+			title: {text: title, textStyle:{fontSize: 12}},
+			tooltip: {trigger: 'axis', //formatter :function(c){ cout(c); return c.seriesName + "<br />" + TimeMTS(c.data[0]) + " " + c.data[0] + "次";}
+				//formatter : '{a0}<br />{b0}: {c0}次<br />'
+			},
 			legend: {data: lstp},
 			grid: {left: '3%', right: '4%', bottom: '3%', containLabel: true},
 			xAxis: [{type: 'category', boundaryGap: false, min:'auto', data:x,
@@ -157,66 +160,11 @@ $(document).ready(function() {
 			yAxis: [{type: 'value'}],
 			series: ses
 		};
-		Init3(option, 'view1');
+		__myChart1 = Init3(option, 'view1');
+		__myChart1.dispatchAction({ type: 'legendUnSelect', name: '其它' })
 	}
-//	function loadTimes(data, types) {
-//		var dt = data;
-//		var lstp = Object.keys(dt), lstm = [], source = {};
-//		lstp.forEach(function (d) {
-//			source[d] = dt[d];//.map(function(c){ return [TimeSTM(c[0]), c[1]]; });
-//		});
-//		var ses = Object.keys(source).map(function (d) {
-//			return {
-//				name: d, type: 'line', areaStyle: {normal: {}}, //smooth: true, //stack: '总量',
-//				data: source[d]//.sort(function(a, b){ return parseInt(a[0])>parseInt(b[0]); })//source[d].reduce(function (a, b) { a.push(b[1]); return a; }, [])
-//			};
-//		});
-//		var option = {
-//			//title: {text: '员工时间分布'},
-//			tooltip: {trigger: 'item', formatter :function(c){ return c.seriesName + "<br />" + TimeMTS(c.data[0]) + " " + c.data[0] + "次";}},
-//			//formatter : '{b0}: {c0}<br />'},
-//			legend: {data: lstp},
-//			grid: {left: '3%', right: '4%', bottom: '3%', containLabel: true},
-//			xAxis: [{type: 'value', boundaryGap: false, min:'auto',
-//				axisLabel : { formatter: function(params){return TimeMTS(params);} } }],
-//			yAxis: [{type: 'value'}],
-//			series: ses
-//		};
-//		Init3(option, 'view1');
-//	}
-//
-//
-//	function loadTimes() {
-//		var lstp = ['OA', '专业网站', '邮件系统', '生活购物', '文学', '娱乐'], lstm = [],
-//				source = lstp.reduce(function (a, b) { a[b] = []; return a; }, {});
-//		range(9, 19).forEach(function (d) { lstm.push(d + ':00'); lstm.push(d + ':30'); });
-//		lstp.forEach(function (d) {
-//			lstm.forEach(function (d2) { source[d].push([d2, parseInt(Math.random() * 50)]); })
-//		});
-//		var ses = Object.keys(source).map(function (d) {
-//			return {
-//				name: d, type: 'line', stack: '总量', smooth: true, areaStyle: {normal: {}},
-//				data: source[d].reduce(function (a, b) { a.push(b[1]); return a; }, [])
-//			};
-//		});
-//		cout(ses);
-//		var option = {
-//			title: {text: '员工时间分布'},
-//			tooltip: {trigger: 'axis', formatter :'访问次数：<br />{a0}: {c0}<br />{a1}: {c1}<br />'+
-//				'{a2}: {c2}<br />{a3}: {c3}<br />{a4}: {c4}<br />{a5}: {c5}'},
-//			legend: {data: lstp},
-//			grid: {left: '3%', right: '4%', bottom: '3%', containLabel: true},
-//			xAxis: [{type: 'category', boundaryGap: false, data: lstm}],
-//			yAxis: [{type: 'value'}],
-//			series: ses
-//		};
-//		Init3(option, 'view1');
-//	}
 
-
-
-
-
+	//--------------------------------------图2------------------------------------------
 	function loadPersonTime(id){
 		$('#' + id).highcharts({
 			chart: { type: 'bar', marginLeft:25 },
@@ -247,8 +195,39 @@ $(document).ready(function() {
 			]
 		});	
 	}
+	//---------------------------------表格相关----------------------------------------
+	function formatDataTable(person, _u){
+		var dt = [];
+		for(var pid in person){
+			dt.push({"id":pid, "name":person[pid]['name'], "unit": _u, "flux":0,
+				"counts":person[pid]['sum'], "types":person[pid]['types'].join("、") });
+		}
+		return dt;
+	}
+	function loadTable(data, _u){
+		$('#table-data2').html("");
+		var columns = [
+			{"name":"id", "title":"ID", "visible":true},
+			{"name":"name","title":"姓名","breakpoints":"xs sm"},//,"style":{"width":80,"maxWidth":80}},
+			{"name":"unit", "title":"部门", "breakpoints":"xs sm"},
+			{"name":"flux","title":"访问流量", "type":"number"},
+			{"name":"counts", "title":"访问频次", "type":"number"},
+			{"name":"types", "title":"访问内容分类"}
+		];
+		$('#table-data2').footable({
+			"columns": columns, "rows": formatDataTable(data, _u),
+			"paging": { "size": 8 },
+		});
+		$('#table-data2 tbody tr').click(function(e){
+			var pid = $(this).find("td").first().html(), name = $(this).find("td:eq(1)").html();
+			$('#table-data2 tbody tr').css("background-color", '');
+			$('#table-data2 tbody tr').css("color", '');
+			$(this).css("background-color", "#FFF8D7");
+			$(this).css("color", "green");
+			loadOnlineDataByPerson(pid, name);
+		});
 
-	
+	}
 	
 });
 

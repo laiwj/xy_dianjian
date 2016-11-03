@@ -5,6 +5,7 @@
 	var init_date_month = "2016-5-1";
 	var init_unit_clock = "院长工作部";
 	var init_unit_common = "所有部门";
+	var init_unit_online = "水工处";
 	var init_unit_interval = "所有部门";
 
 
@@ -88,9 +89,12 @@
 
 	//---------------------------------一般通用函数--------------------------------------------------
 function addUnitSel(id, _unit, clickFunc){
-	var div = '<div style="float:right; margin-right:15px;">', sel1 = '<select id="'+ id + 'sel1">', opt='';
+	var div = '<div style="float:right; margin-right:15px;">', sel1 = '<select style="height:25px" id="'+ id + 'sel1">', opt='';
 	_unit.forEach(function(d){ opt += '<option value ="'+ d +'">'+ d +'</option>'; });
 	$("#" + id).append(div + sel1 + opt + '</select>' + '</div>');
 	$("#" + id + 'sel1').val(init_unit_clock);
 	$("#" + id + 'sel1').change(function(){ if(clickFunc)clickFunc($(this).val()); });
 }
+
+
+

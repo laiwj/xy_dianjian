@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BookmarkManager">
+    <bookmark url="file://$PROJECT_DIR$/bin/staff-time.html" line="30" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="e34e6279-a52d-4c6f-959e-84c6e4c38088" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/staff-time.html" afterPath="$PROJECT_DIR$/bin/staff-time.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/css/app.css" afterPath="$PROJECT_DIR$/css/app.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/public.js" afterPath="$PROJECT_DIR$/js/public.js" />
     </list>
     <ignored path="emergency.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -26,8 +32,8 @@
       <file leaf-file-name="staff-flow.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/staff-flow.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="211" column="61" selection-start-line="211" selection-start-column="61" selection-end-line="211" selection-end-column="61" />
+            <state vertical-scroll-proportion="-14.59375">
+              <caret line="420" column="4" selection-start-line="420" selection-start-column="4" selection-end-line="431" selection-end-column="5" />
               <folding>
                 <element signature="n#style#0;n#div#1;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#div#1;n#div#1;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
@@ -51,7 +57,7 @@
         <entry file="file://$PROJECT_DIR$/js/datazoom.js">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="39" column="29" selection-start-line="39" selection-start-column="29" selection-end-line="39" selection-end-column="29" />
+              <caret line="58" column="5" selection-start-line="58" selection-start-column="5" selection-end-line="58" selection-end-column="5" />
               <folding>
                 <marker date="1477591551625" expanded="true" signature="1258:1294" placeholder="..." />
                 <marker date="1477591551625" expanded="true" signature="1458:1473" placeholder="..." />
@@ -76,8 +82,8 @@
       <file leaf-file-name="staff-clock.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/staff-clock.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-4.564516">
-              <caret line="17" column="61" selection-start-line="17" selection-start-column="16" selection-end-line="17" selection-end-column="61" />
+            <state vertical-scroll-proportion="-6.419355">
+              <caret line="267" column="65" selection-start-line="267" selection-start-column="16" selection-end-line="267" selection-end-column="65" />
               <folding>
                 <marker date="1478058683824" expanded="true" signature="2983:3014" placeholder="..." />
                 <marker date="1478058683824" expanded="true" signature="2983:3030" placeholder="..." />
@@ -90,10 +96,11 @@
       <file leaf-file-name="public.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/public.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-18.464285">
-              <caret line="47" column="98" selection-start-line="47" selection-start-column="27" selection-end-line="47" selection-end-column="98" />
+            <state vertical-scroll-proportion="-21.75">
+              <caret line="94" column="46" selection-start-line="94" selection-start-column="4" selection-end-line="94" selection-end-column="46" />
               <folding>
-                <marker date="1478058658602" expanded="true" signature="4005:4036" placeholder="..." />
+                <marker date="1478166607701" expanded="true" signature="4036:4067" placeholder="..." />
+                <marker date="1478166607701" expanded="true" signature="4095:4106" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -102,8 +109,8 @@
       <file leaf-file-name="staff-time.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bin/staff-time.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.6764361">
-              <caret line="152" column="33" selection-start-line="152" selection-start-column="33" selection-end-line="152" selection-end-column="33" />
+            <state vertical-scroll-proportion="0.636695">
+              <caret line="218" column="36" selection-start-line="218" selection-start-column="36" selection-end-line="218" selection-end-column="36" />
               <folding />
             </state>
           </provider>
@@ -134,8 +141,9 @@
         <option value="$PROJECT_DIR$/bin/test.html" />
         <option value="$PROJECT_DIR$/js/datazoom.js" />
         <option value="$PROJECT_DIR$/bin/staff-flow.html" />
-        <option value="$PROJECT_DIR$/js/public.js" />
         <option value="$PROJECT_DIR$/bin/staff-clock.html" />
+        <option value="$PROJECT_DIR$/css/app.css" />
+        <option value="$PROJECT_DIR$/js/public.js" />
         <option value="$PROJECT_DIR$/bin/staff-time.html" />
       </list>
     </option>
@@ -207,6 +215,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="js" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="emergency" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="emergency" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="css" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -353,20 +375,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/js/datazoom.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="39" column="29" selection-start-line="39" selection-start-column="29" selection-end-line="39" selection-end-column="29" />
-          <folding>
-            <marker date="1477591551625" expanded="true" signature="1258:1294" placeholder="..." />
-            <marker date="1477591551625" expanded="true" signature="1458:1473" placeholder="..." />
-            <marker date="1477591551625" expanded="true" signature="1679:1714" placeholder="..." />
-            <marker date="1477591551625" expanded="true" signature="1771:1806" placeholder="..." />
-            <marker date="1477591551625" expanded="false" signature="2861:2947" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/bin/index3.html">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -392,7 +400,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1478058658602" expanded="true" signature="4005:4036" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4036:4067" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4095:4106" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -452,7 +461,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="48" column="16" selection-start-line="48" selection-start-column="16" selection-end-line="48" selection-end-column="16" />
           <folding>
-            <marker date="1478058658602" expanded="true" signature="4005:4036" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4036:4067" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4095:4106" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -512,7 +522,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="48" column="16" selection-start-line="48" selection-start-column="16" selection-end-line="48" selection-end-column="16" />
           <folding>
-            <marker date="1478058658602" expanded="true" signature="4005:4036" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4036:4067" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4095:4106" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -572,7 +583,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1478058658602" expanded="true" signature="4005:4036" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4036:4067" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4095:4106" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -685,7 +697,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="30" column="53" selection-start-line="30" selection-start-column="53" selection-end-line="30" selection-end-column="53" />
           <folding>
-            <marker date="1478058658602" expanded="true" signature="4005:4036" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4036:4067" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4095:4106" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -746,7 +759,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="25" column="37" selection-start-line="25" selection-start-column="8" selection-end-line="25" selection-end-column="37" />
           <folding>
-            <marker date="1478058658602" expanded="true" signature="4005:4036" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4036:4067" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4095:4106" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -807,7 +821,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="25" column="37" selection-start-line="25" selection-start-column="8" selection-end-line="25" selection-end-column="37" />
           <folding>
-            <marker date="1478058658602" expanded="true" signature="4005:4036" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4036:4067" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4095:4106" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -841,10 +856,40 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/bin/staff-flow.html">
+    <entry file="file://$PROJECT_DIR$/bin/index3.html">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="211" column="61" selection-start-line="211" selection-start-column="61" selection-end-line="211" selection-end-column="61" />
+          <caret line="67" column="17" selection-start-line="67" selection-start-column="17" selection-end-line="67" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bin/test.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.9375">
+          <caret line="28" column="23" selection-start-line="28" selection-start-column="14" selection-end-line="28" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/datazoom.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="58" column="5" selection-start-line="58" selection-start-column="5" selection-end-line="58" selection-end-column="5" />
+          <folding>
+            <marker date="1477591551625" expanded="true" signature="1258:1294" placeholder="..." />
+            <marker date="1477591551625" expanded="true" signature="1458:1473" placeholder="..." />
+            <marker date="1477591551625" expanded="true" signature="1679:1714" placeholder="..." />
+            <marker date="1477591551625" expanded="true" signature="1771:1806" placeholder="..." />
+            <marker date="1477591551625" expanded="false" signature="2861:2947" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bin/staff-flow.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-14.59375">
+          <caret line="420" column="4" selection-start-line="420" selection-start-column="4" selection-end-line="431" selection-end-column="5" />
           <folding>
             <element signature="n#style#0;n#div#1;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#1;n#div#1;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
@@ -863,40 +908,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/datazoom.js">
+    <entry file="file://$PROJECT_DIR$/css/app.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="39" column="29" selection-start-line="39" selection-start-column="29" selection-end-line="39" selection-end-column="29" />
-          <folding>
-            <marker date="1477591551625" expanded="true" signature="1258:1294" placeholder="..." />
-            <marker date="1477591551625" expanded="true" signature="1458:1473" placeholder="..." />
-            <marker date="1477591551625" expanded="true" signature="1679:1714" placeholder="..." />
-            <marker date="1477591551625" expanded="true" signature="1771:1806" placeholder="..." />
-            <marker date="1477591551625" expanded="false" signature="2861:2947" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bin/index3.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="67" column="17" selection-start-line="67" selection-start-column="17" selection-end-line="67" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bin/test.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.9375">
-          <caret line="28" column="23" selection-start-line="28" selection-start-column="14" selection-end-line="28" selection-end-column="23" />
+        <state vertical-scroll-proportion="0.080890976">
+          <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/staff-clock.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-4.564516">
-          <caret line="17" column="61" selection-start-line="17" selection-start-column="16" selection-end-line="17" selection-end-column="61" />
+        <state vertical-scroll-proportion="-6.419355">
+          <caret line="267" column="65" selection-start-line="267" selection-start-column="16" selection-end-line="267" selection-end-column="65" />
           <folding>
             <marker date="1478058683824" expanded="true" signature="2983:3014" placeholder="..." />
             <marker date="1478058683824" expanded="true" signature="2983:3030" placeholder="..." />
@@ -907,18 +930,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/public.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-18.464285">
-          <caret line="47" column="98" selection-start-line="47" selection-start-column="27" selection-end-line="47" selection-end-column="98" />
+        <state vertical-scroll-proportion="-21.75">
+          <caret line="94" column="46" selection-start-line="94" selection-start-column="4" selection-end-line="94" selection-end-column="46" />
           <folding>
-            <marker date="1478058658602" expanded="true" signature="4005:4036" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4036:4067" placeholder="..." />
+            <marker date="1478166607701" expanded="true" signature="4095:4106" placeholder="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/staff-time.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6764361">
-          <caret line="152" column="33" selection-start-line="152" selection-start-column="33" selection-end-line="152" selection-end-column="33" />
+        <state vertical-scroll-proportion="0.636695">
+          <caret line="218" column="36" selection-start-line="218" selection-start-column="36" selection-end-line="218" selection-end-column="36" />
           <folding />
         </state>
       </provider>
