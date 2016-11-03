@@ -16,7 +16,7 @@
 <div class="m-sm bg-main">  
 	<div class="hbox hbox-auto-xs hbox-auto-xs bg-white">
 		<div class="col col-sm-6 p-n">
-			<div class="title">工作时间分析</div>
+			<div class="title" id="unitsel1">工作时间分析</div>
             <div id="view1" class="w-full" style="height:380px"></div>
 		</div>
 		<div class="col col-sm-6">
@@ -66,42 +66,157 @@
 <script language="javascript">
 "use strict";
 var pieSelectName = "nosel";
+var units = [];
 $(document).ready(function() {
 
 	//function DateF(date){ return parseInt(date/60 + 5) + ":" + parseInt(date % 60); }
-	loadTimes();
+	//loadTimes();
 
-	function loadTimes() {
-		var lstp = ['OA', '专业网站', '邮件系统', '生活购物', '文学', '娱乐'], lstm = [],
-				source = lstp.reduce(function (a, b) { a[b] = []; return a; }, {});
-		range(9, 19).forEach(function (d) { lstm.push(d + ':00'); lstm.push(d + ':30'); });
+
+	loadUnitList();
+	loadPersonTime('view2');
+
+	loadOnlineData();
+
+	//----------------------加载部门信息
+	function loadUnitList(){
+		ajaxData('get_units', {}, function(data)
+		{
+			units = data;
+			addUnitSel('unitsel1', data, loadOnlineByUnit());
+			//addUnitSel('unitsel2', data, selectUnitInterval);
+			$("#unitsel2sel1").val(init_unit_interval);
+		});
+	}
+	//-----------------------------------------------------------------------------
+	function loadOnlineByUnit(){
+
+	}
+
+	function loadOnlineData(){
+//		if(_u==undefined)_u = $("#unitsel1sel1").val() ;
+//		var datesel = getDateByMonth($("#pheadsel1").val()), //dateEnd = $("#pheadsel2").val();
+//				dateStart = datesel.dateStart || init_date_start, dateEnd = datesel.dateEnd || init_date_end;
+//		var __myChart1 = echarts.init(document.getElementById("view1")).showLoading();
+
+		var dateStart = init_date_start, dateEnd = init_date_end;
+		dateStart = "2015-02-02"; dateEnd = "2016-11-02";
+		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd};
+		ajaxData('get_online', adt, function(data)
+		{
+			//__flow_data = data['data'];
+			cout(data.unit);
+
+			loadTimes(data.unit, data.types, data.scale);
+			//loadTimes();
+			//loadClock(data, _u);
+			//__myChart1.hideLoading();
+		});
+	}
+	function formatDataTimes(scale, data){
+		var fmt = {}, x=[], flag = false;
+		for(var t in data){
+			fmt[t] = []
+			for(var i=0; i<1440; i+=scale){
+				if(!flag){ x.push(TimeMTS(i)); flag = true}
+				fmt[t].push(data[t].hasOwnProperty(i) ? data[t][i] : 0);
+			}
+		}
+		return {x:x, data:fmt};
+	}
+
+//	function loadTimes(data, types, scale) {
+//		cout(data);
+//		var fmt = formatDataTimes(scale, data);
+//		var dt = fmt.data;
+//		var lstp = Object.keys(dt), lstm = [], source = {};
+////				source = lstp.reduce(function (a, b) { a[b] = []; return a; }, {});
+//		//cout(lstp);
+//		lstp.forEach(function (d) {
+//			source[d] = dt[d];//.map(function(c){ return [TimeSTM(c[0]), c[1]]; });
+//			//lstm.forEach(function (d2) { source[d].push([d2, parseInt(Math.random() * 50)]); })
+//		});
+//		cout(dt);
+//		//cout(source);
+//		var ses = Object.keys(source).map(function (d) {
+//			return {
+//				name: d, type: 'line', areaStyle: {normal: {}}, //smooth: true, //stack: '总量',
+//				data: source[d]//.sort(function(a, b){ return parseInt(a[0])>parseInt(b[0]); })//source[d].reduce(function (a, b) { a.push(b[1]); return a; }, [])
+//			};
+//		});
+//		//document.write(JSON.stringify(ses));
+//		cout(ses);
+//		var option = {
+//			//title: {text: '员工时间分布'},
+//			tooltip: {trigger: 'item', formatter :function(c){ return c.seriesName + "<br />" + TimeMTS(c.data[0]) + " " + c.data[0] + "次";}},
+//				//formatter : '{b0}: {c0}<br />'},
+//			legend: {data: lstp},
+//			grid: {left: '3%', right: '4%', bottom: '3%', containLabel: true},
+//			xAxis: [{type: 'value', boundaryGap: false, min:'auto',
+//				axisLabel : { formatter: function(params){return TimeMTS(params);} } }],
+//			yAxis: [{type: 'value'}],
+//			series: ses
+//		};
+//		Init3(option, 'view1');
+//	}
+	function loadTimes(data, types) {
+		var dt = data;
+		var lstp = Object.keys(dt), lstm = [], source = {};
 		lstp.forEach(function (d) {
-			lstm.forEach(function (d2) { source[d].push([d2, parseInt(Math.random() * 50)]); })
+			source[d] = dt[d];//.map(function(c){ return [TimeSTM(c[0]), c[1]]; });
 		});
 		var ses = Object.keys(source).map(function (d) {
 			return {
-				name: d, type: 'line', stack: '总量', smooth: true, areaStyle: {normal: {}},
-				data: source[d].reduce(function (a, b) { a.push(b[1]); return a; }, [])
+				name: d, type: 'line', areaStyle: {normal: {}}, //smooth: true, //stack: '总量',
+				data: source[d]//.sort(function(a, b){ return parseInt(a[0])>parseInt(b[0]); })//source[d].reduce(function (a, b) { a.push(b[1]); return a; }, [])
 			};
 		});
-		cout(ses);
 		var option = {
-			title: {text: '员工时间分布'},
-			tooltip: {trigger: 'axis', formatter :'访问次数：<br />{a0}: {c0}<br />{a1}: {c1}<br />'+
-				'{a2}: {c2}<br />{a3}: {c3}<br />{a4}: {c4}<br />{a5}: {c5}'},
+			//title: {text: '员工时间分布'},
+			tooltip: {trigger: 'item', formatter :function(c){ return c.seriesName + "<br />" + TimeMTS(c.data[0]) + " " + c.data[0] + "次";}},
+			//formatter : '{b0}: {c0}<br />'},
 			legend: {data: lstp},
 			grid: {left: '3%', right: '4%', bottom: '3%', containLabel: true},
-			xAxis: [{type: 'category', boundaryGap: false, data: lstm}],
+			xAxis: [{type: 'value', boundaryGap: false, min:'auto',
+				axisLabel : { formatter: function(params){return TimeMTS(params);} } }],
 			yAxis: [{type: 'value'}],
 			series: ses
 		};
 		Init3(option, 'view1');
 	}
+//
+//
+//	function loadTimes() {
+//		var lstp = ['OA', '专业网站', '邮件系统', '生活购物', '文学', '娱乐'], lstm = [],
+//				source = lstp.reduce(function (a, b) { a[b] = []; return a; }, {});
+//		range(9, 19).forEach(function (d) { lstm.push(d + ':00'); lstm.push(d + ':30'); });
+//		lstp.forEach(function (d) {
+//			lstm.forEach(function (d2) { source[d].push([d2, parseInt(Math.random() * 50)]); })
+//		});
+//		var ses = Object.keys(source).map(function (d) {
+//			return {
+//				name: d, type: 'line', stack: '总量', smooth: true, areaStyle: {normal: {}},
+//				data: source[d].reduce(function (a, b) { a.push(b[1]); return a; }, [])
+//			};
+//		});
+//		cout(ses);
+//		var option = {
+//			title: {text: '员工时间分布'},
+//			tooltip: {trigger: 'axis', formatter :'访问次数：<br />{a0}: {c0}<br />{a1}: {c1}<br />'+
+//				'{a2}: {c2}<br />{a3}: {c3}<br />{a4}: {c4}<br />{a5}: {c5}'},
+//			legend: {data: lstp},
+//			grid: {left: '3%', right: '4%', bottom: '3%', containLabel: true},
+//			xAxis: [{type: 'category', boundaryGap: false, data: lstm}],
+//			yAxis: [{type: 'value'}],
+//			series: ses
+//		};
+//		Init3(option, 'view1');
+//	}
 
 
 
 
-	loadPersonTime('view2');
+
 	function loadPersonTime(id){
 		$('#' + id).highcharts({
 			chart: { type: 'bar', marginLeft:25 },

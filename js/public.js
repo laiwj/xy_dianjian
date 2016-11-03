@@ -17,6 +17,7 @@
 	function set(){this.data={};this.keys=[];this.add=function(e){if(!this.data.hasOwnProperty(e))this.keys.push(e);this.data[e]=1;};}
 	function cout(d){ console.log(d); }
 	function values(obj){ return Object.keys(obj).map(function(k){ return obj[k]; })}
+	function items(obj){ return Object.keys(obj).map(function(k){ return [k, obj[k]]; })}
 
 	function Init(option, id, eventName, callback, otherLibs){
 		id=id || "main";
@@ -84,3 +85,12 @@
 		}
 		return all;
 	}
+
+	//---------------------------------一般通用函数--------------------------------------------------
+function addUnitSel(id, _unit, clickFunc){
+	var div = '<div style="float:right; margin-right:15px;">', sel1 = '<select id="'+ id + 'sel1">', opt='';
+	_unit.forEach(function(d){ opt += '<option value ="'+ d +'">'+ d +'</option>'; });
+	$("#" + id).append(div + sel1 + opt + '</select>' + '</div>');
+	$("#" + id + 'sel1').val(init_unit_clock);
+	$("#" + id + 'sel1').change(function(){ if(clickFunc)clickFunc($(this).val()); });
+}

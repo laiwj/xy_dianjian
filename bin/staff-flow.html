@@ -209,8 +209,8 @@ $(document).ready(function() {
 		var sum1 = udata[0].reduce(function(a, b){ return a+b; }, 0),
 			sum2 = udata[1].reduce(function(a, b){ return a+b; }, 0);
 		var point = {data : [
-				{name : '所有部门总和', value : sum1, xAxis: sum1+3, yAxis: 0},
-				{name : '所有部门总和', value : sum2, xAxis: sum2+3, yAxis: 1}
+				{name : '所有部门总和', value : sum1, xAxis: sum1+2, yAxis: 0},
+				{name : '所有部门总和', value : sum2, xAxis: sum2+2, yAxis: 1}
 			]};
 		ses[0]['markPoint'] = point;
 		var lg = Object.keys(units.reduce(function(a, b, i){ if((udata[0][i]+udata[1][i])>0)a[b]=1; return a; }, {}));

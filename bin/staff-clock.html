@@ -67,13 +67,7 @@
 			});
 		}
 		//-----------------------------增加部门选择列表---------------------------------
-		function addUnitSel(id, _unit, clickFunc){
-			var div = '<div style="float:right; margin-right:15px;">', sel1 = '<select id="'+ id + 'sel1">', opt='';
-			_unit.forEach(function(d){ opt += '<option value ="'+ d +'">'+ d +'</option>'; });
-			$("#" + id).append(div + sel1 + opt + '</select>' + '</div>');
-			$("#" + id + 'sel1').val(init_unit_clock);
-			$("#" + id + 'sel1').change(function(){ if(clickFunc)clickFunc($(this).val()); });
-		}
+
 		function loadNewUnits(selId, _unit){
 			$("#" + selId).html("");
 			$("#" + selId).append('<option value ="'+ "所有部门" +'">'+ "所有部门" +'</option>');
