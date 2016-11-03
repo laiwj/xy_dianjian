@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e34e6279-a52d-4c6f-959e-84c6e4c38088" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/staff-clock.html" afterPath="$PROJECT_DIR$/bin/staff-clock.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/staff-flow.html" afterPath="$PROJECT_DIR$/bin/staff-flow.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/staff-time.html" afterPath="$PROJECT_DIR$/bin/staff-time.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/public.js" afterPath="$PROJECT_DIR$/js/public.js" />
     </list>
     <ignored path="emergency.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -106,8 +102,8 @@
       <file leaf-file-name="staff-time.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bin/staff-time.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.83821803">
-              <caret line="185" column="5" selection-start-line="161" selection-start-column="0" selection-end-line="185" selection-end-column="5" />
+            <state vertical-scroll-proportion="0.6764361">
+              <caret line="152" column="33" selection-start-line="152" selection-start-column="33" selection-end-line="152" selection-end-column="33" />
               <folding />
             </state>
           </provider>
@@ -921,8 +917,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/staff-time.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.83821803">
-          <caret line="185" column="5" selection-start-line="161" selection-start-column="0" selection-end-line="185" selection-end-column="5" />
+        <state vertical-scroll-proportion="0.6764361">
+          <caret line="152" column="33" selection-start-line="152" selection-start-column="33" selection-end-line="152" selection-end-column="33" />
           <folding />
         </state>
       </provider>

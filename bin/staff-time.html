@@ -118,38 +118,63 @@ $(document).ready(function() {
 		for(var t in data){
 			fmt[t] = []
 			for(var i=0; i<1440; i+=scale){
-				if(!flag){ x.push(TimeMTS(i)); flag = true}
+				if(!flag)x.push(TimeMTS(i))
 				fmt[t].push(data[t].hasOwnProperty(i) ? data[t][i] : 0);
 			}
+			flag = true;
 		}
 		return {x:x, data:fmt};
 	}
 
-//	function loadTimes(data, types, scale) {
-//		cout(data);
-//		var fmt = formatDataTimes(scale, data);
-//		var dt = fmt.data;
+	function loadTimes(data, types, scale) {
+		var fmt = formatDataTimes(scale, data);
+		var dt = fmt.data, x = fmt.x;
+		var lstp = Object.keys(dt), lstm = [], source = {};
+		//source = lstp.reduce(function (a, b) { a[b] = []; return a; }, {});
+		//cout(lstp);
+		lstp.forEach(function (d) {
+			source[d] = dt[d];//.map(function(c){ return [TimeSTM(c[0]), c[1]]; });
+			//lstm.forEach(function (d2) { source[d].push([d2, parseInt(Math.random() * 50)]); })
+		});
+		cout(x);
+		//cout(source);
+		var ses = Object.keys(source).map(function (d) {
+			return {
+				name: d, type: 'line', areaStyle: {normal: {}}, //smooth: true, //stack: '总量',
+				data: dt[d]//.sort(function(a, b){ return parseInt(a[0])>parseInt(b[0]); })//source[d].reduce(function (a, b) { a.push(b[1]); return a; }, [])
+			};
+		});
+		//document.write(JSON.stringify(ses));
+		cout(ses);
+		var option = {
+			//title: {text: '员工时间分布'},
+			tooltip: {trigger: 'axis'}, //formatter :function(c){ return c.seriesName + "<br />" + TimeMTS(c.data[0]) + " " + c.data[0] + "次";}},
+				//formatter : '{b0}: {c0}<br />'},
+			legend: {data: lstp},
+			grid: {left: '3%', right: '4%', bottom: '3%', containLabel: true},
+			xAxis: [{type: 'category', boundaryGap: false, min:'auto', data:x,
+				}],
+			yAxis: [{type: 'value'}],
+			series: ses
+		};
+		Init3(option, 'view1');
+	}
+//	function loadTimes(data, types) {
+//		var dt = data;
 //		var lstp = Object.keys(dt), lstm = [], source = {};
-////				source = lstp.reduce(function (a, b) { a[b] = []; return a; }, {});
-//		//cout(lstp);
 //		lstp.forEach(function (d) {
 //			source[d] = dt[d];//.map(function(c){ return [TimeSTM(c[0]), c[1]]; });
-//			//lstm.forEach(function (d2) { source[d].push([d2, parseInt(Math.random() * 50)]); })
 //		});
-//		cout(dt);
-//		//cout(source);
 //		var ses = Object.keys(source).map(function (d) {
 //			return {
 //				name: d, type: 'line', areaStyle: {normal: {}}, //smooth: true, //stack: '总量',
 //				data: source[d]//.sort(function(a, b){ return parseInt(a[0])>parseInt(b[0]); })//source[d].reduce(function (a, b) { a.push(b[1]); return a; }, [])
 //			};
 //		});
-//		//document.write(JSON.stringify(ses));
-//		cout(ses);
 //		var option = {
 //			//title: {text: '员工时间分布'},
 //			tooltip: {trigger: 'item', formatter :function(c){ return c.seriesName + "<br />" + TimeMTS(c.data[0]) + " " + c.data[0] + "次";}},
-//				//formatter : '{b0}: {c0}<br />'},
+//			//formatter : '{b0}: {c0}<br />'},
 //			legend: {data: lstp},
 //			grid: {left: '3%', right: '4%', bottom: '3%', containLabel: true},
 //			xAxis: [{type: 'value', boundaryGap: false, min:'auto',
@@ -159,31 +184,6 @@ $(document).ready(function() {
 //		};
 //		Init3(option, 'view1');
 //	}
-	function loadTimes(data, types) {
-		var dt = data;
-		var lstp = Object.keys(dt), lstm = [], source = {};
-		lstp.forEach(function (d) {
-			source[d] = dt[d];//.map(function(c){ return [TimeSTM(c[0]), c[1]]; });
-		});
-		var ses = Object.keys(source).map(function (d) {
-			return {
-				name: d, type: 'line', areaStyle: {normal: {}}, //smooth: true, //stack: '总量',
-				data: source[d]//.sort(function(a, b){ return parseInt(a[0])>parseInt(b[0]); })//source[d].reduce(function (a, b) { a.push(b[1]); return a; }, [])
-			};
-		});
-		var option = {
-			//title: {text: '员工时间分布'},
-			tooltip: {trigger: 'item', formatter :function(c){ return c.seriesName + "<br />" + TimeMTS(c.data[0]) + " " + c.data[0] + "次";}},
-			//formatter : '{b0}: {c0}<br />'},
-			legend: {data: lstp},
-			grid: {left: '3%', right: '4%', bottom: '3%', containLabel: true},
-			xAxis: [{type: 'value', boundaryGap: false, min:'auto',
-				axisLabel : { formatter: function(params){return TimeMTS(params);} } }],
-			yAxis: [{type: 'value'}],
-			series: ses
-		};
-		Init3(option, 'view1');
-	}
 //
 //
 //	function loadTimes() {
