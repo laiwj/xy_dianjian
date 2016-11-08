@@ -6,7 +6,10 @@
 	var init_unit_clock = "院长工作部";
 	var init_unit_common = "所有部门";
 	var init_unit_online = "水工处";
+	var init_unit_social = "水工处";
+	var init_style_social = "邮箱";
 	var init_unit_interval = "所有部门";
+
 
 
 	function getQueryString(name) { 
