@@ -148,14 +148,7 @@ $(document).ready(function() {
 			"columns": columns, "rows": formatDataTable(data),
 			"paging": { "size": 8 },
 		});
-		$("#" + tbId +" tbody tr").click(function(e){
-			var pid = $(this).find("td").first().html(), name = $(this).find("td:eq(1)").html();
-			$("#" + tbId +" tbody tr").css("background-color", '');
-			$("#" + tbId +" tbody tr").css("color", '');
-			$(this).css("background-color", "#FFF8D7");
-			$(this).css("color", "green");
-			//loadOnlineDataByPerson(pid, name);
-		});
+		tableClick(tbId);
 	}
 	//-------------------------------------------------------------------------------------------
 

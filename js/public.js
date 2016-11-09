@@ -1,7 +1,7 @@
 // JavaScript Document
 	var public_time_select = "#public_time_select";
-	var init_date_start = "2016-09-22";
-	var init_date_end = "2016-11-13";
+	var init_date_start = "2015-10-22";
+	var init_date_end = "2015-11-13";
 	var init_date_month = "2016-5-1";
 	var init_unit_clock = "院长工作部";
 	var init_unit_common = "所有部门";
@@ -19,6 +19,7 @@
 	}
 	function range(_min, _max){ var rt=[]; for(var i=_min;i<_max;i++)rt.push(i); return rt; }
 	function set(){this.data={};this.keys=[];this.add=function(e){if(!this.data.hasOwnProperty(e))this.keys.push(e);this.data[e]=1;};}
+	function sets(e){this.data=e?{e:1}:{};this.keys=e?[e]:[];this.add=function(e){if(!this.data.hasOwnProperty(e))this.keys.push(e);this.data[e]=1;};}
 	function cout(d){ console.log(d); }
 	function values(obj){ return Object.keys(obj).map(function(k){ return obj[k]; })}
 	function items(obj){ return Object.keys(obj).map(function(k){ return [k, obj[k]]; })}
@@ -46,6 +47,7 @@
 	function DateSTM(str){ var sp = str.split(" ")[1].split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); }
 	function DateSTD(str){ var sp = str.split(/-| |:/); return new Date(parseInt(sp[0]), parseInt(sp[1]), parseInt(sp[2]),
 		parseInt(sp[3]), parseInt(sp[4]), parseInt(sp[5])); }
+	function DateDSTD(str){ var sp = str.split(/-| |:/); return new Date(parseInt(sp[0]), parseInt(sp[1])-1, parseInt(sp[2])); }
 	function DateSTDS(str){ return str.split(" ")[0]; }
 	function TimeT(str){ var sp = str.split(":"); return new Date(0, 0, 0, parseInt(sp[0]), parseInt(sp[1]), 0); }
 	function TimeF(date){ return date.getHours() + ":" + date.getMinutes(); }
@@ -99,5 +101,16 @@ function addUnitSel(id, _unit, clickFunc){
 	$("#" + id + 'sel1').change(function(){ if(clickFunc)clickFunc($(this).val()); });
 }
 
+function tableClick(tbId, _callback){
+	$("#" + tbId +" tbody tr").click(function(e){
+		$("#" + tbId +" tbody tr").css("background-color", '');
+		$("#" + tbId +" tbody tr").css("color", '');
+		$(this).css("background-color", "#FFF8D7");
+		$(this).css("color", "green");
+		var v1 = $(this).find("td").first().html(), v2 = $(this).find("td:eq(1)").html()
+			, v3 = $(this).find("td:eq(2)").html();
+		if(_callback)_callback(v1, v2, v3);
+	});
+}
 
 

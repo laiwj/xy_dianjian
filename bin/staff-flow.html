@@ -15,6 +15,8 @@ th{ text-align: center}
 .lb{ cursor: pointer; padding: 5px; font-size: 13px; padding: 5px; border: 1px solid #ccc; margin-left: 2px }
 .lbf{ cursor: pointer; padding: 2px 5px; font-size: 16px; border: 1px solid #ccc;  }
 .activL{ background-color: #ccc }
+table tr th{background-color: #f0f0f2;border:1px solid #ccc}
+table tr td{border:1px solid #ccc;}
 
 </style>
 <div class="m-sm bg-main">  
@@ -24,7 +26,7 @@ th{ text-align: center}
             <div id="view1" class="w-full" style="height:380px"></div>
 		</div>
 		<div class="col col-sm-6">
-			<div class="title">出差流动分析</div>
+			<div class="title" id="unitsel2">出差流动分析</div>
             <div id="view2p" class="w-full p-l-sm" style="height:380px; padding-top:0px">
 				<div style="padding: 10px 0 0 20px; height: 40px">
 					<label class="lb activL" id="v2lb1" style="cursor: pointer">出差统计</label>
@@ -84,55 +86,61 @@ var __current_month = 0;
 var __metux_view2 = false;
 var __datazoom_view2 = null;
 var __select_create = false;
+var __trip_data_all = {};
 
 $(document).ready(function() {
 	function cout(d){ console.log(d); }
 	var days = [ "一", "二", "三", "四", "五", "六", "日" ];
-	var units = ['水资源规划处', '项目部', '征地移民处', '人力资源部', '采购部', '海外事务部', '科技质量部', '造价中心', '施工处'];
 	days = days.map(function(d){ return "星期" + d; });
 
-	loadUnitInfo();
 	addTimeSel("flowt");
 
-	$('.form_date').datetimepicker({
-		language:  'zh-CN',
-		weekStart: 1,
-		todayBtn:  1,
-		autoclose: 1,
-		todayHighlight: 1,
-		startView: 2,
-		minView: 2,
-		forceParse: 0
-	}).on('changeDate', function(e){
-		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
-		getFlowData('view1', startDate, endDate);
-		getTripData(__view2, startDate, endDate);
-	});
+	Init();
+
+	getFlowData('view1');
+	//loadTripImage('view2');
+	_loadMap('view2');
+	getTripDataEx();
+	//getTripData('view2');
+
+
+	function Init(){
+		$('.form_date').datetimepicker({
+			language:  'zh-CN', weekStart: 1, todayBtn:  1, autoclose: 1, todayHighlight: 1, startView: 2, minView: 2, forceParse: 0,
+		}).on('changeDate', function(e){
+			var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
+			getFlowData('view1', startDate, endDate);
+			getTripData(__view2, startDate, endDate);
+			getTripDataEx(startDate, endDate, "所有部门");
+		});
+		$('.form_date:eq(0)').datetimepicker('setDate', DateDSTD(init_date_start));
+		$('.form_date:eq(1)').datetimepicker('setDate', DateDSTD(init_date_end));
+		if(!__select_create){
+			loadUnitList();
+			__select_create = true;
+		}
+	}
+
 	//----------------------加载部门信息
 	function loadUnitList(){
 		ajaxData('get_units', {}, function(data)
 		{
-			units = data;
-			addUnitSel('flowt', data, null);
-			$("#unitsel2sel1").val(init_unit_interval);
+			addUnitSel('flowt', data, selUnit1);
+			addUnitSel('unitsel2', data, selUnit2);
+			//$("#unitsel2sel1").val(init_unit_interval);
 		});
 	}
-	function addUnitSel(id, _unit, clickFunc){
-		var div = '<div style="float:right; margin-right:15px;">', sel1 = '<select id="'+ id + 'sel1">', opt='';
-		_unit.forEach(function(d){ opt += '<option value ="'+ d +'">'+ d +'</option>'; });
-		$("#" + id).append(div + sel1 + opt + '</select>' + '</div>');
-		$("#" + id + 'sel1').val(init_unit_clock);
-		$("#" + id + 'sel1').change(function(){ if(clickFunc)clickFunc($(this).val()); });
+	//图2选择部门响应事件
+	function selUnit1(_u){
+		console.log(_u);
+		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
+
+		getFlowData('view1', startDate, endDate, 1, _u);
+
 	}
-	if(!__select_create){
-		loadUnitList();
-		__select_create = true;
+	function selUnit2(_u){
+		loadTable2(__trip_data_all, "table-data2", _u)
 	}
-	//---------------------------------------------------------------------------------
-	getFlowData('view1');
-	//loadTripImage('view2');
-	_loadMap('view2');
-	//getTripData('view2');
 
 
 	//-----------------------------------------函数部分-----------------------------------------------
@@ -150,15 +158,9 @@ $(document).ready(function() {
 	function timeSelClick(){
 		loadFlowDefault();
 	}
-	//createTable("view3");
-	//setTableHead("view3", []);
-	//setTableData("view3", []);
 
-	//loadFlowDataEx('view1');
-	//loadFlow('view1');
-
-
-	function getFlowData(id, dateStart, dateEnd){
+	//图1获取数据主要代码
+	function getFlowData(id, dateStart, dateEnd, index, _unit){
 		$("#"+id).html("");
 		var datazoom = new Zoom(id);
 		var lsd = days.map(function(d){ return [d, parseInt(Math.random() * 30)]; });
@@ -166,13 +168,16 @@ $(document).ready(function() {
 		__view1 = datazoom.did;
 		__myChart1 = echarts.init(document.getElementById(__view1)).showLoading();
 
-		dateStart = dateStart || '2015-09-22';
-		dateEnd = dateEnd || '2015-11-13';
+		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
+		dateStart = dateStart || startDate;
+		dateEnd = dateEnd || endDate;
+
 		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd};
-		ajaxData('get_flow', adt, function(data)
+		var key = index ? "get_flow_unit" : "get_flow";
+		if(index)adt['unit'] = _unit;
+		ajaxData(key, adt, function(data)
 		{
 			__flow_data = data['data'];
-			//console.log(__flow_data);
 			loadFlowDefault();
 			if(!__table_create){
 				createTable("view3");
@@ -180,7 +185,6 @@ $(document).ready(function() {
 				__table_create = true;
 			}
 			setTableData("view3", []);
-			//loadFlowDataEx(__view1, 0, 8, 10);
 			if(__myChart1)__myChart1.hideLoading();
 		});
 	}
@@ -292,20 +296,40 @@ $(document).ready(function() {
 		loadMapMove(id);
 		loadTripImage();
 	}
+
 	//***·一·**
 	function getTripData(id, dateStart, dateEnd){
 		__myChart2 = echarts.init(document.getElementById(id)).showLoading();
-		dateStart = dateStart || '2015-09-22';
-		dateEnd = dateEnd || '2015-11-13';
+
+		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
+		dateStart = dateStart || startDate;
+		dateEnd = dateEnd || endDate;
+
 		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd };
 		ajaxData('get_trip', adt, function(data)
 		{
 			__trip_data = data['trip'];
 			loadTripDefault();
+
 			__metux_view2 = false;
 			if(__myChart2)__myChart2.hideLoading();
 		});
 	}
+	function getTripDataEx(dateStart, dateEnd, _u){
+		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
+		dateStart = dateStart || startDate;
+		dateEnd = dateEnd || endDate;
+		_u = _u || "所有部门";
+
+		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd, 'unit':_u };
+		ajaxData('get_trip_data', adt, function(data)
+		{
+			if(_u=='所有部门')__trip_data_all = data['data'];
+			loadTable2(__trip_data_all, "table-data2", "所有部门")
+		});
+	}
+
+	//--------------------------------------------------------------------------------------------------
 	//***·二·**
 	function loadTripDefault(){
 		if(__myChart2)__myChart2.showLoading();
@@ -416,25 +440,34 @@ $(document).ready(function() {
 		view.html(tb);
 		return tb;
 	}
-	//************************************************************************************
-
-	function loadUnitInfo(){
-		var columns = [
-			{"name":"id","title":"工号","breakpoints":"xs sm","type":"number","style":{"width":80,"maxWidth":80}},
-			{"name":"name", "title":"姓名"},
-			{"name":"unit", "title":"部门", "breakpoints":"xs sm"},
-			{"name":"years","title":"从业时间","type":"number"},
-		];
-		$('#table-data2').footable({
-			"columns": columns, "rows": $.get("content/people.json"),
-			"paging": { "size": 8 }
-		});
+	//------------------------------------------------------------------------------------------------------------------
+	//-------------------------------------------------表格2---------------------------------------------
+	function formatDataTable2(_dt, _unit){
+		function formatStr(str){ return (str.length>21)?str.substr(0, 21)+'...':str}
+		var dt = [];
+		for(var u in _dt){
+			if(_unit!=undefined && _unit!='所有部门' && _unit!=u )continue;
+			for(var k in _dt[u])dt.push({"id":k, "name":_dt[u][k].name, "unit":u,
+					"dates":formatStr(_dt[u][k].dates.join(",")), "counts":_dt[u][k].dates.length});
+		};
+		dt.sort(function(a, b){ return b.counts - a.counts; });
+		return dt;
 	}
-
-
-
-
-
+	function loadTable2(data, tbId, _unit){
+		$('#'+tbId).html("");
+		var columns = [
+			{"name":"id","title":"ID", "visible":false},//,"style":{"width":80,"maxWidth":80}},
+			{"name":"name","title":"姓名"},
+			{"name":"unit", "title":"部门"},
+			{"name":"dates","title":"出差日期", "breakpoints":"xs sm"},
+			{"name":"counts", "title":"累计频次", "type":"number", "visible":true},
+		];
+		$('#'+tbId).footable({
+			"columns": columns, "rows": formatDataTable2(data, _unit), "paging": { "size": 7 },
+		});
+		tableClick(tbId);
+	}
+	//-----------------------------------------------------------------------------------------------------
 
 
 function loadMapMove(id) {
