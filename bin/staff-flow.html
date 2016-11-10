@@ -591,7 +591,7 @@ function loadMapMove(id) {
 	};
 
 	var BJData = [
-		[{name: '成都'}, {name: '上海', value: 95}],
+		[{name: '成都'}, {name: '北京', value: 95}],
 		[{name: '成都'}, {name: '广州', value: 90}],
 		[{name: '成都'}, {name: '大连', value: 80}],
 		[{name: '成都'}, {name: '南宁', value: 70}],
@@ -623,8 +623,29 @@ function loadMapMove(id) {
 
 	var color = ['#a6c84c', '#ffa022', '#46bee9'];
 	var series = [];
-	[['北京', BJData]].forEach(function (item, i) {
+	[['成都', BJData]].forEach(function (item, i) {
 		series.push(
+				{
+					name: item[0] + ' Top10',
+					type: 'lines',
+					zlevel: 2,
+					effect: {
+						show: true,
+						period: 6,
+						trailLength: 0,
+						symbol: planePath,
+						symbolSize: 15
+					},
+					lineStyle: {
+						normal: {
+							color: color[i],
+							width: 1,
+							opacity: 0.4,
+							curveness: 0.2
+						}
+					},
+					data: convertData(item[1])
+				},
 				{
 					name: item[0] + ' Top10',
 					type: 'effectScatter',
@@ -661,7 +682,7 @@ function loadMapMove(id) {
 		title: { text: '出差流动', subtext: '电建集团', left: 'center', textStyle: { color: '#fff' }},
 		tooltip: { trigger: 'item' },
 		legend: { orient: 'vertical', top: 'top', left: 'right',
-			data: ['北京 Top10'], textStyle: { color: '#fff' },  selectedMode: 'single'
+			data: ['成都 Top10'], textStyle: { color: '#fff' },  selectedMode: 'single'
 		},calculable: false,
 		geo: {
 			map: 'china', roam: true, label: { emphasis: { show: false } },
