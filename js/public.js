@@ -9,7 +9,7 @@
 	var init_unit_social = "水工处";
 	var init_style_social = "邮箱";
 	var init_unit_interval = "所有部门";
-
+	var init_unit_flow = "所有部门";
 
 
 	function getQueryString(name) { 
@@ -98,7 +98,7 @@ function addUnitSel(id, _unit, clickFunc){
 	_unit.forEach(function(d){ opt += '<option value ="'+ d +'">'+ d +'</option>'; });
 	$("#" + id).append(div + sel1 + opt + '</select>' + '</div>');
 	$("#" + id + 'sel1').val(init_unit_clock);
-	$("#" + id + 'sel1').change(function(){ if(clickFunc)clickFunc($(this).val()); });
+	$("#" + id + 'sel1').change(function(){ if(clickFunc!=undefined)clickFunc($(this).val()); });
 }
 
 function tableClick(tbId, _callback){
