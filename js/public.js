@@ -60,7 +60,7 @@
 	function ajaxData(key, data, _callbackS, _callbackE){
 		var cbkf = (parseInt(Math.random() * 1000) + 1000).toString();
 		$.ajax({
-			type:'GET', url:'http://192.168.3.177:8000/' + key + '/',
+			type:'GET', url:'http://127.0.0.1:8000/' + key + '/',
 			//type:'GET', url:'http://118.123.173.86:8000/' + key + '/',
 			data:data, dataType:'jsonp', jsonpCallback: 'call1back' + cbkf + 'a',
 			success:function(data)
@@ -109,7 +109,7 @@ function tableClick(tbId, _callback){
 		$(this).css("color", "green");
 		var v1 = $(this).find("td").first().html(), v2 = $(this).find("td:eq(1)").html()
 			, v3 = $(this).find("td:eq(2)").html();
-		if(_callback)_callback(v1, v2, v3);
+		if(_callback)_callback($(this),v1, v2, v3);
 	});
 }
 

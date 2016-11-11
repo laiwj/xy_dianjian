@@ -5,7 +5,13 @@
     <title></title>
     <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="../css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+    <link rel="stylesheet" href="../css/jquery-ui.css">
+
+
 </head>
+<style type="text/css">
+
+</style>
 
 <body>
 
@@ -16,20 +22,23 @@
                 </div>
 				<input type="hidden" id="dtp_input2" value="" /><br/>
            
-
+            <label id="lb1" title="okkakd">Hello </label>
 <script type="text/javascript" src="../js/jquery-1.9.1.js" charset="UTF-8"></script>
 <script type="text/javascript" src="../js/bootstrap.min.js"></script>
+                <script src="../js/jquery-ui.js"></script>
 <script type="text/javascript" src="../js/public.js"></script>
 <script type="text/javascript" src="../js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
 <script type="text/javascript" src="../js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
 <script type="text/javascript">
     //console.log(DateM(new Date()));
+    $("#lb1").tooltip({});
 
+    /*
     function sss(d){
         if(d==undefined)alert("O");
     }
     sss(0);
-    /*
+
     var dt=new Date(0, 0, 0, 15, 26, 0);
     cout(dt);
     cout(TimeT("12:56"));

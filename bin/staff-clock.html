@@ -61,6 +61,7 @@
 		var __myChart2 = null;
 		var __errText = [];
 		var __interval_data = [];
+		var __dataClock = {};
 
 		//----------------------加载部门信息
 		function loadUnitList(){
@@ -144,7 +145,8 @@
 				//__flow_data = data['data'];
 				cout(data);
 				__errText = data.error.text;
-				loadClock(data, _u);
+				__dataClock = data;
+				loadClock(__dataClock, _u);
 
 				__myChart1.hideLoading();
 
@@ -193,10 +195,11 @@
 			__myChart1.on('click', function(p){
 				loadPerson();
 				var left = $("#view1").width() - 135;
-				$("#view1").append('<div id="view1rtn" style="left:'+ left +'px" >返回</div>');
+				$("#view1").append('<div id="view1rtn" style="cursor: pointer;top:5px;z-index:999;position: absolute;width:60px;left:'+ left +'px" >返回</div>');
 				$("#view1rtn").click(function(){
 					$("#view1rtn").remove();
-					loadUnit();
+					var _u = $("#unitsel1sel1").val() ;
+					loadClock(__dataClock, _u);
 				});
 			})
 		}
@@ -206,18 +209,24 @@
 			var sum = {};
 			_dt.forEach(function(line, i){
 				line.forEach(function(d){
-					if(!sum.hasOwnProperty(d[0]))
-						sum[d[0]] = {"id": d[0], "name":d[4], "unit": d[5], "value":1, "text":new sets(__errText[i])};
+					var key = __errText[i];
+					if(!sum.hasOwnProperty(d[0])){
+						sum[d[0]] = {"id": d[0], "name":d[4], "unit": d[5], "value":1, "text":{} };
+						sum[d[0]].text[key] = 1;
+					}
 					else{
 						sum[d[0]].value++;
-						sum[d[0]].text.add(__errText[i]);
+						if(!sum[d[0]].text.hasOwnProperty(key))sum[d[0]].text[key]=0;
+						sum[d[0]].text[key]++;
+						//sum[d[0]].text.add(__errText[i]);
 					}
 				});
 			});
 			var dt = values(sum).sort(function(a, b){ return b.value - a.value; }), maxV = dt[0].value;
 			dt.forEach(function(d){
 				d.value = parseInt((d.value / maxV) * 10);
-				d.text = d.text.keys.join("，")});
+				d.text = Object.keys(d.text).reduce(function(a, b){ a+=b + ":" + d.text[b] + "次  "; return a;  }, "");
+				});
 			return dt;
 		}
 		function loadTable1(data, tbId){
@@ -232,7 +241,10 @@
 			$('#'+tbId).footable({
 				"columns": columns, "rows": formatDataTable1(data), "paging": { "size": 7 },
 			});
-			tableClick(tbId);
+			tableClick(tbId, function(obj){
+				obj.attr("title", obj.find("td:eq(4)").html());
+
+			});
 		}
 		//-------------------------------------------------表格2---------------------------------------------
 		function formatDataTable2(_dt, _unit){
@@ -281,7 +293,7 @@
 				tooltip : { trigger: 'axis' },
 				legend: { data:['上班时间','下班时间'], y :30 },
 				calculable : true,
-				xAxis : [ { type : 'category', data:x, boundaryGap : false, axisLabel: { rotate: 60, interval:0 }, }],
+				xAxis : [ {type : 'category', data:x, boundaryGap : false, axisLabel: { rotate: 60, interval:0 }, }],
 				yAxis : [ { type : 'value', axisLabel : { formatter: function(params){ return DateF(params);} } } ],
 				series : [
 					{
@@ -390,8 +402,8 @@
 				tooltip:{ formatter: function(c){return c.data[3] + '<br />涉及部门：<br />' + c.data[5].join('，') ; }},
 				legend: { formatter: function (name) { return echarts.format.truncateText(name, 60, '14px Microsoft Yahei', '…'); }, tooltip: { show: true },right: 10,  data: lgData },
 				grid: {x:25},
-				xAxis: { max:maxX, min:0, splitLine: { lineStyle: { type: 'dashed' } } },
-				yAxis: { max:maxY, min:0, splitLine: { lineStyle: { type: 'dashed' } }, scale: true },
+				xAxis: { name:'间隔时间（s）', nameLocation:'middle', max:maxX, min:0, splitLine: { lineStyle: { type: 'dashed' } } },
+				yAxis: { name:'频次', nameLocation:'middle', max:maxY, min:0, splitLine: { lineStyle: { type: 'dashed' } }, scale: true },
 				series: ses
 			};
 			loadTable2(_data, "table-data2");
