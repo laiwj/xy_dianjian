@@ -34,7 +34,7 @@ function Zoom(id, height_zoom){
 		var ml = ';padding-left:' + this.margin_left + 'px';
 		this.parent.html();
 		this.parent.append("<div id='" + this.did + "' style='width:100%;height:" + this.hd + "px'></div>").
-			append("<div id='" + this.zid + "' style='width:100%;height:" + this.hz + "px"+ ml +"'></div>");
+			append("<div id='" + this.zid + "' style='width:100%;padding-right:10px;height:" + this.hz + "px"+ ml +"'></div>");
 	};
 	this.loadZoom = function (data, callback){
 		this.zoomdata = data;
@@ -43,10 +43,14 @@ function Zoom(id, height_zoom){
 		this.zoomOption.series[0].data = data.map(function(d){ return d[1]; });
 		this.myChart = echarts.init(document.getElementById(this.zid));
 		this.myChart.setOption(this.zoomOption, true);
+		var _myChart = this.myChart;
 		this.myChart.on("dataZoom", function(p){
 			if(Math.abs(p.start - this.tpzooms)<1 && Math.abs(p.end - this.tpzoome)<1)return;
 			this.tpzooms = p.start;
 			this.tpzoome = p.end;
+			var uw =100/data.length, index = parseInt(p.end / uw) - 1 + ((p.end % uw)>(uw/2) ? 1 : 0) ;
+			if(index>6)index=6;
+			_myChart.dispatchAction({ type: 'dataZoom', start: uw*index, end: uw*(index+1)-2});
 			if(callback)callback([p.start, p.end], 
 				[data[Math.round(data.length * p.start / 100)], data[Math.round(data.length * p.end / 100)-1]]);
 		});

@@ -128,7 +128,7 @@
 
             <script id="tm_menu1" type="text/html">
               <% menu.forEach(function(d, i){ %>
-              <li>
+              <li id="<%= d.id %>">
                 <a href class="auto">
 					  <span class="pull-right text-muted">
 						<i class="fa fa-fw fa-angle-right text"></i>
@@ -190,12 +190,10 @@
   <!-- / menu -->
 
   <!-- content -->
-  <div
+  <div>
 
-  <div id="frame1" class="app-content m-a">
+  <div id="frame1" class="app-content m-a" style="padding-right: 10px">
     <!-- head end here -->
-
-
 
 
     <!-- tail start here -->
@@ -225,26 +223,29 @@
 <script type="text/javascript">
   "use strict";
 
-  function goHref(obj){
-    var target = (obj != undefined && obj.title != "") ? obj.title : "test3";
-
+  function loadMain(){
+    var target = getQueryString("key") || "staff-flow";
+    var human=["staff-flow", "staff-clock", "staff-time", "staff-people"];
+    if(human.indexOf(target)!=-1)$("#p_human").toggleClass('active');
     $.ajaxSetup({ cache:false });
     $.ajaxSetup({ async: false });
-
     $("<div></div>").load(target + ".html", function(){
       $("#frame1").html("");
       $("#frame1").html(this.innerHTML.match(/<xmp>([\s\S]*?)<\/xmp>/)[1]);
     });
-    //*/
+  }
+
+  function goHref(obj){
+    var target = (obj != undefined && obj.title != "") ? obj.title : "staff-flow";
+    var url= window.location.href;
+    url = url.substring(0, url.lastIndexOf('.html') + 5);
+    window.location.href = url + "?key=" + target;
   }
   +function ($) {
     $(function(){
-/*
-      $('.form_date').datetimepicker(language:  'zh-CN',weekStart: 1,todayBtn:  1,autoclose: 1,todayHighlight: 1,startView: 2,minView: 2,forceParse: 0
-      });
-*/
-      var menus = [{ name:"员工行为分析", icon:'user text-info-dker', chlidren:[
-        {name:'办公流动分析', url:'staff-flow'}, {name:'异常分析', url:'staff-clock'}, {name:'工作时间分布', url:'staff-time'},
+      var menus = [{ name:"员工行为分析", icon:'user text-info-dker', id:'p_human', chlidren:[
+        {name:'办公流动分析', url:'staff-flow'}, {name:'出差流动分析', url:'staff-trip'},
+        {name:'打卡异常分析', url:'staff-clock'}, {name:'工作时间分布', url:'staff-time'},
         {name:'员工关系分析', url:'staff-people'}
       ]},
         {name:"绩效分析", icon:'time text-success', chlidren:[
@@ -254,7 +255,7 @@
           {name:'暂未开放', url:''}
         ]},
       ];
-      var datas = [{name:"数据样例", icon:'file', chlidren:[
+      var datas = [{name:"数据样例", icon:'file', id:'p_data', chlidren:[
         {name:'人力资源数据1', url:''}
       ]}];
 
@@ -262,7 +263,7 @@
       $("#bar-human").after(ejs.render(tm_menu, { menu: menus }));
       $("#bar-data").after(ejs.render(tm_menu, { menu: datas }));
 
-
+      //------------------------------------------------------------------------
       $(document).on('click', '[data-toggle^="class"]', function(e){
         e && e.preventDefault();
         var $this = $(e.target), $class , $target, $tmp, $classes, $targets;
@@ -306,10 +307,10 @@
 
         setTimeout(function(){ $(document).trigger('updateNav'); }, 300);
       });
+      loadMain();
     });
-    goHref();
-    //setFrame();
 
+    //setFrame();
 
 
   }(jQuery);
