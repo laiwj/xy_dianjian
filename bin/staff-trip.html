@@ -24,13 +24,22 @@ table tfoot td{border:0px;}
 		<div class="col col-sm-12">
 			<div class="title" id="unitsel2">出差流动分析</div>
             <div id="view2p" class="w-full" style="height:380px; padding-top:0px">
+				<div style="height:42px; font-size: 12px;">
+					<ul id="myTab" class="nav nav-tabs">
+						<li class="active source"><a href="#出差统计" data-toggle="tab">出差统计</a></li>
+						<li class="source"><a href="#流动地图" data-toggle="tab">流动地图</a></li>
+					</ul>
+
+				</div>
+				<!--
 				<div style="padding: 10px 0 0 20px; height: 40px">
 					<label class="lb activL" id="v2lb1" style="cursor: pointer">出差统计</label>
 					<label class="lb" id="v2lb2">流动地图</label>
 					<div style="float: right; padding-right: 20px" >
-						<label class="lbf" id="lbf1">&nbsp;<&nbsp;</label><label class="lbf" id="lbf2">&nbsp;>&nbsp;</label>
+
 					</div>
 				</div>
+				-->
 				<div id="view2" style="height:340px"></div>
 			</div>
 		</div>
@@ -65,19 +74,17 @@ table tfoot td{border:0px;}
 "use strict";
 var pieSelectName = "nosel";
 var __myChart = null, __view1, __view2;
-var __myChart1 = null;
 var __myChart2 = null;
 var __ChartDatazoom = null;
-var __current = 0;
-var __flow_data = null;
 var __trip_data = null;
-var __table_create = false;
-var __current_page = 0;
 var __current_month = 0;
 var __metux_view2 = false;
 var __datazoom_view2 = null;
 var __select_create = false;
 var __trip_data_all = {};
+var __init_datazoom = false;
+var __current_view = 0;
+var __current_unit = '';
 
 $(document).ready(function() {
 	function cout(d){ console.log(d); }
@@ -97,18 +104,30 @@ $(document).ready(function() {
 			getTripData(__view2, startDate, endDate);
 			getTripDataEx(startDate, endDate, "所有部门");
 		});
-		$('.form_date:eq(0)').datetimepicker('setDate', DateDSTD(init_date_start));
-		$('.form_date:eq(1)').datetimepicker('setDate', DateDSTD(init_date_end));
+		$('.form_date:eq(0)').datetimepicker('setDate', DateDSTD(init_trip_date_start));
+		$('.form_date:eq(1)').datetimepicker('setDate', DateDSTD(init_trip_date_end));
 		if(!__select_create){
 			loadUnitList();
 			__select_create = true;
 		}
+		$(".source").click(function(){
+			var src = $(this).children("a:eq(0)").html();
+			var funcs = {'出差统计':'loadBarView()', '流动地图':'loadMapView1()'};
+			if($(this).hasClass('active'))
+			{ loadTripDefault();}
+			else
+				eval(funcs[src]);
+		});
 	}
-
+	function loadBarView(){ _loadMap('view2'); }
+	function loadMapView1(){ InitMapViews('view2'); }
+	//---------------------------------加载部门信息----------------------------------------
 	function selUnit2(_u){
+		__current_view = 1;
+		__current_unit = _u;
+		loadTripImageUnit(__view2, __trip_data, __current_month, _u);
 		loadTable2(__trip_data_all, "table-data2", _u)
 	}
-	//----------------------加载部门信息
 	function loadUnitList(){
 		ajaxData('get_units', {}, function(data)
 		{
@@ -116,63 +135,31 @@ $(document).ready(function() {
 			$("#unitsel2sel1").val(init_unit_flow);
 		});
 	}
-
-
-	//**********************************图二相关代码****************************************************************************
-	//统计图和地图切换
-	function clickLabel(){
-		var idn = this.id.substr(this.id.length-1), oid = idn == 1 ? 2 : 1, funcs = ['loadMapView1()', 'loadMapView2()'];
-		if($(this).hasClass('activL'))return;
-		else{
-			$("#v2lb" + oid).removeClass('activL');
-			$(this).addClass('activL');
-			eval(funcs[parseInt(idn)-1]);
-		}
-	}
 	//-------------------------------------------------------------------------------------
-	$("#v2lb2").click(clickLabel);
-	$("#v2lb1").click(clickLabel);
-	$(".lbf").click(clickDirection);
-	//loadMapView1();
 
-	//点击方向
-	function clickDirection(){
-		__current_page = this.id.substring(3)-1;
-		loadTripImage(__view2, __trip_data, __current_page, __current_month);
-		//_listenZoomMap1();
-	}
-	//外层·加时间轴和事件
-	function _loadMap(id, _index){
+	function _loadMap(id){
+		__init_datazoom = false;
 		$("#"+ id).html("");
+		$("#"+ id).css("background-color", "transparent");
 		__datazoom_view2 = new Zoom(id);
-		var lsm = [], lsnfunc = _index ? _listenZoomMap2 : _listenZoomMap1,
-				loadfunc = _index ? _loadMapData2 : getTripData;
-		for(var i=0; i<12; i++)lsm.push((i+1) + '月');
-		var lsd = lsm.map(function(d){ return [d, parseInt(Math.random() * 30)]; });
-		__datazoom_view2.loadZoom(lsd, lsnfunc);
-		__view2 = __datazoom_view2.did; 	//__myChart2 = echarts.init(document.getElementById(__view2));
+		var lsm = range(0, 12).map(function(d){ return (d+1) + '月'; });
+		var lsd = lsm.map(function(d){ return [d, 0]; });
+		__datazoom_view2.loadZoom(lsd, _listenZoomMap1);
+		__view2 = __datazoom_view2.did;
 		__ChartDatazoom = __datazoom_view2.myChart;
 		$("#" + __view2).css({'margin':'10','margin-left':0,'margin-right':10, 'margin-bottom':10 });
-		loadfunc(__view2);
+		getTripData(__view2);
 	}
-	function loadMapView1(){ _loadMap('view2'); }
-	function loadMapView2(){ _loadMap('view2', 1); }
 	function _listenZoomMap1(pos, val){
 		if(__metux_view2)return; //防止重复触发事件
 		__myChart2 = echarts.init(document.getElementById(__view2)).showLoading();
-		var month = parseInt(val[0][0].toString().replace("月", ""))-1;
-		__current_month = month;
-		loadTripImage(__view2, __trip_data, __current_page, month);
-		__myChart2.hideLoading();
+		__current_month = parseInt(val[0][0].toString().replace("月", ""))-1;
+		if(__current_view==0 || __current_unit=="")loadTripImageAll(__view2, __trip_data, __current_month);
+		else loadTripImageUnit(__view2, __trip_data, __current_month, __current_unit);
 		if(__myChart2)__myChart2.hideLoading();
-	}	//监听函数1
-	function _listenZoomMap2(){ _loadMapData2(__view2); }	//监听函数2
-	//地图 - 主要代码
-	function _loadMapData2(id){
-		loadMapMove(id);
-		loadTripImage();
 	}
 
+	//------------------------------------------------------------------------------------------------------------------
 	//***·一·**
 	function getTripData(id, dateStart, dateEnd){
 		__myChart2 = echarts.init(document.getElementById(id)).showLoading();
@@ -206,6 +193,9 @@ $(document).ready(function() {
 	}
 
 	//--------------------------------------------------------------------------------------------------
+
+	//-------------------------------------------------柱状图主要代码----------------------------------------------------------
+	function getMonthPostion(m){ return [m/12*100, (m+1)/12*100]; }
 	//***·二·**
 	function loadTripDefault(){
 		if(__myChart2)__myChart2.showLoading();
@@ -215,78 +205,64 @@ $(document).ready(function() {
 			if(Object.keys(d).length>0)months.push(i);
 		} );
 		__datazoom_view2.setData(mall);
-		loadTripImage(__view2, __trip_data, __current_page, months[0]);
+		loadTripImageAll(__view2, __trip_data, months[0]);
 		if(__myChart2)__myChart2.hideLoading();
+		loadTable2(__trip_data_all, "table-data2", "所有部门")
 	}
-	function getMonthPostion(m){ return [m/12*100, (m+1)/12*100]; }
 	//***·三·**
-	//堆积图 - 主要代码
-	function loadTripImage2(id, _data, page, month){
-		__metux_view2 = true;
-		month = month || __current_month;
-		page = page || __current_page;
-		_data = __trip_data[month];
-		var units = Object.keys(_data), lg = [], mid = parseInt(units.length/2);
-		//units = (page==0) ? units.slice(0, mid) : units.slice(mid-1, units.length);
-		var temp = units.map(function(d){
-			var lstp = [];
-			for(var k in _data[d]){
-				lstp.push(_data[d][k]);
-				lg.push([k, d, _data[d][k]]);
-			}
-			return lstp;
-		});
-		var data = lg.map(function(d, i){
-			return { name:d, type:'bar', stack:lg[0], data:units.map(function(rd){ return rd==d[1] ? d[2] : 0; }) }
-		});
-		var max = temp.reduce(function(a, b){ var e=b.reduce(function(c, d){ return c+d; }, 0); return a>e ? a : e  }, 0) ;
-		var option = {
-			tooltip : { axisPointer:{ type : 'shadow' }, formatter:function(p){
-				return p.seriesName.split(',')[0] + ' : ' + p.data + '次<br/>' + p.name;
-			}},
-			grid: { x:30, x2:15, y:10, y2:40 },
-			calculable : true,
-			xAxis : [ { type : 'category', data : units, axisLabel: { interval:0, rotate:45,
+	function getOptionBar(x, data, style){
+		var colorStyle = [{offset: 0, color: '#EE8262'}, {offset: 0.5, color: '#EE8262'}, {offset: 1, color: '#EE8262'}];
+		if(!style) colorStyle = [{offset: 0, color: '#83bff6'}, {offset: 0.5, color: '#188df0'}, {offset: 1, color: '#188df0'}];
+		var maxY = data.reduce(function(a, b){ return a>b ? a : b; }, 1) + 1;
+		return {
+			tooltip : {},
+			grid: { x:35, x2:15, y:10, y2:40 },
+			xAxis : [ { type : 'category', data : x, axisLabel: { interval:0, rotate:45,
 				formatter: function (name) { return echarts.format.truncateText(name, 45, '12px Microsoft Yahei', '…'); }, tooltip: { show: true }}  } ],
-			yAxis : [ { type : 'value' } ],
-			series : data
-		};
-		__myChart2 = Init3(option, id);
-		//设置时间轴位置
-		__ChartDatazoom.dispatchAction({
-			type: 'dataZoom', dataZoomIndex: 0, start: getMonthPostion(month)[0], end: getMonthPostion(month)[1]
-		});
-		__current_month = month;
-		__metux_view2 = false;
-	}
-	function loadTripImage(id, _data, page, month){
-		__metux_view2 = true;
-		month = month || __current_month;
-		_data = __trip_data[month];
-		var units = Object.keys(_data), lg = [], mid = parseInt(units.length/2);
-		var data = units.map(function(u){ return values(_data[u]).reduce(function(a, b){ return a + b;}, 0); });
-		var option = {
-			grid: { x:30, x2:15, y:10, y2:40 },
-			xAxis : [ { type : 'category', data : units, axisLabel: { interval:0, rotate:45,
-				formatter: function (name) { return echarts.format.truncateText(name, 45, '12px Microsoft Yahei', '…'); }, tooltip: { show: true }}  } ],
-			yAxis: [{ name:"频次", nameLocation:"end", axisTick: { show: false }, axisLabel: { textStyle: { color: '#999' } } }],
+			yAxis: [{ max:maxY, nameGap:25, name:"频次", nameLocation:"middle", axisTick: { show: false }, axisLabel: { textStyle: { color: '#999' } } }],
 			dataZoom: [ { type: 'inside' } ],
 			series: [{
-					type: 'bar', data: data,
-					itemStyle: {normal: { color: new echarts.graphic.LinearGradient( 0, 0, 0, 1,
-									[{offset: 0, color: '#83bff6'}, {offset: 0.5, color: '#188df0'}, {offset: 1, color: '#188df0'}]
-					)}}
+				type: 'bar', data: data, label: {normal: {show: true, position: 'insideTop'}}, barMaxWidth:120,
+				itemStyle: {normal: { color: new echarts.graphic.LinearGradient( 0, 0, 0, 1, colorStyle )}}
 			}]
 		};
+	}
+	//*通用加载过程*
+	function loadTripImage(id, _dt, month, units, data, viewIndex, clickF) {
+		__metux_view2 = true;
+		__current_view = viewIndex;
+		month = month || __current_month;
+		if(!data || data.length==0){ __myChart2 = Init3(getOptionBar(['暂无数据'], []), id); __metux_view2 = false; return; }
+		var option = getOptionBar(units, data, __current_view);
 		__myChart2 = Init3(option, id);
-		//设置时间轴位置
-		__ChartDatazoom.dispatchAction({
-			type: 'dataZoom', dataZoomIndex: 0, start: getMonthPostion(month)[0], end: getMonthPostion(month)[1]
-		});
+		__myChart2.on('click', clickF);
+		if(!__init_datazoom){
+			__ChartDatazoom.dispatchAction({type: 'dataZoom', dataZoomIndex: 0, start: getMonthPostion(month)[0], end: getMonthPostion(month)[1]});
+			__init_datazoom = true;
+		}
 		__current_month = month;
 		__metux_view2 = false;
 	}
-
+	//加载所有部门信息
+	function loadTripImageAll(id, data, month){
+		month = month || __current_month;
+		var _data = __trip_data[month];
+		var units = Object.keys(_data), data = units.map(function(u){ return values(_data[u]).reduce(function(a, b){ return a + b;}, 0); });
+		loadTripImage(id, data, month, units, data, 0, function(p){ if(p.seriesType!='bar')return; selUnit2(p.name); });
+	}
+	//加载指定部门信息
+	function loadTripImageUnit(id, data, month, _unit){
+		month = month || __current_month;
+		if(_unit==public_all_unit)return loadTripImageAll(id, data, month);
+		var _data = __trip_data[month][_unit];
+		if(!_data){	Init3(getOptionBar(['暂无数据'], []), id); __metux_view2 = false; return; }
+		var persons = Object.keys(_data), data = persons.map(function(p){ return _data[p]; });
+		loadTripImage(id, data, month, persons, data, 1, function(p){
+			if(p.seriesType!='bar')return;
+			alert(p.name);
+		});
+	}
+	//-----------------------------------------------------------------------------------------------------------
 
 
 
@@ -318,8 +294,68 @@ $(document).ready(function() {
 		});
 		tableClick(tbId);
 	}
-	//-----------------------------------------------------------------------------------------------------
+	//--------------------------------------------地图相关---------------------------------------------------------
 
+	function InitMapViews(id){
+		var $p = $("#"+id);
+		$p.html("");
+		var w = parseInt($p.width()), h = parseInt($p.height());
+		$p.append('<div id="'+ id +'map1" style="float:left;width:50%; height:100%"></div>');
+		$p.append('<div id="'+ id +'map2" style="float:left;width:50%; height:100%"></div>');
+		cout(w);
+		cout(h);
+
+		loadMapMove(id + 'map1');
+		showProvince(id + 'map2');
+	}
+	function showProvince(id) {
+		var name = "河南省";
+
+		// myChart.showLoading();
+/*
+		name: item[0] + ' Top10',
+				type: 'effectScatter',
+				coordinateSystem: 'geo',
+				zlevel: 2,
+				rippleEffect: {
+			brushType: 'stroke'
+		},
+		label: {
+			normal: {
+				show: true,
+						position: 'right',
+						formatter: '{b}'
+			}
+		},
+		symbolSize: function (val) {
+			return val[2] / 8;
+		},
+		*/
+
+		$.get('../json/map/' + name + '.json', function (geoJson) {
+			cout(22222);
+			// myChart.hideLoading();
+			echarts.registerMap(name, geoJson);
+			var option = {
+				backgroundColor: '#D9B3B3',
+				title: { text: "河南", left: 'center', textStyle: { color: '#fff' } },
+				geo: { map: '河南省', roam: true },
+				series: [
+					{
+						type: 'effectScatter', coordinateSystem: 'geo', mapType: name,
+						label: { normal: { show: true, position: 'right', formatter: '{b}' }  },
+						itemStyle: {
+							normal: { borderColor: '#389BB7', areaColor: '#fff', },
+							emphasis: { areaColor: '#389BB7', borderWidth: 0 }
+						},
+						data:[{name:'郑州', value:[113.4668, 34.6234, 5]}],
+						animation: false
+					}
+				]
+			};
+			Init3(option, id);
+		});
+	}
 
 function loadMapMove(id) {
 	var geoCoordMap = {
@@ -467,6 +503,7 @@ function loadMapMove(id) {
 				});
 			}
 		}
+		cout(res);
 		return res;
 	};
 
@@ -519,6 +556,7 @@ function loadMapMove(id) {
 						}
 					},
 					data: item[1].map(function (dataItem) {
+						cout({name: dataItem[1].name, value: geoCoordMap[dataItem[1].name].concat([dataItem[1].value])});
 						return {
 							name: dataItem[1].name, value: geoCoordMap[dataItem[1].name].concat([dataItem[1].value])
 						};
@@ -544,5 +582,47 @@ function loadMapMove(id) {
 }
 });
 
+
+/*
+//堆积图 - 主要代码
+function loadTripImage2(id, _data, page, month){
+	__metux_view2 = true;
+	month = month || __current_month;
+	page = page || __current_page;
+	_data = __trip_data[month];
+	var units = Object.keys(_data), lg = [], mid = parseInt(units.length/2);
+	//units = (page==0) ? units.slice(0, mid) : units.slice(mid-1, units.length);
+	var temp = units.map(function(d){
+		var lstp = [];
+		for(var k in _data[d]){
+			lstp.push(_data[d][k]);
+			lg.push([k, d, _data[d][k]]);
+		}
+		return lstp;
+	});
+	var data = lg.map(function(d, i){
+		return { name:d, type:'bar', stack:lg[0], data:units.map(function(rd){ return rd==d[1] ? d[2] : 0; }) }
+	});
+	var max = temp.reduce(function(a, b){ var e=b.reduce(function(c, d){ return c+d; }, 0); return a>e ? a : e  }, 0) ;
+	var option = {
+		tooltip : { axisPointer:{ type : 'shadow' }, formatter:function(p){
+			return p.seriesName.split(',')[0] + ' : ' + p.data + '次<br/>' + p.name;
+		}},
+		grid: { x:30, x2:15, y:10, y2:40 },
+		calculable : true,
+		xAxis : [ { type : 'category', data : units, axisLabel: { interval:0, rotate:45,
+			formatter: function (name) { return echarts.format.truncateText(name, 45, '12px Microsoft Yahei', '…'); }, tooltip: { show: true }}  } ],
+		yAxis : [ { type : 'value' } ],
+		series : data
+	};
+	__myChart2 = Init3(option, id);
+	//设置时间轴位置
+	__ChartDatazoom.dispatchAction({
+		type: 'dataZoom', dataZoomIndex: 0, start: getMonthPostion(month)[0], end: getMonthPostion(month)[1]
+	});
+	__current_month = month;
+	__metux_view2 = false;
+}
+*/
 </script>
 </xmp>

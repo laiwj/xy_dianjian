@@ -49,10 +49,10 @@ function Zoom(id, height_zoom){
 			this.tpzooms = p.start;
 			this.tpzoome = p.end;
 			var uw =100/data.length, index = parseInt(p.end / uw) - 1 + ((p.end % uw)>(uw/2) ? 1 : 0) ;
-			if(index>6)index=6;
+			if(index>(data.length-1))index=data.length-1;
 			_myChart.dispatchAction({ type: 'dataZoom', start: uw*index, end: uw*(index+1)-2});
 			if(callback)callback([p.start, p.end], 
-				[data[Math.round(data.length * p.start / 100)], data[Math.round(data.length * p.end / 100)-1]]);
+				[data[index], index]);
 		});
 		this.loadLabel();
 		return this;

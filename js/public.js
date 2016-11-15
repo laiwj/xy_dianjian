@@ -2,8 +2,10 @@
 	var public_time_select = "#public_time_select";
 	var init_flow_date_start = "2015-10-22";
 	var init_flow_date_end = "2016-06-13";
-	var init_date_start = "2015-10-22";
-	var init_date_end = "2015-11-13";
+	var init_trip_date_start = "2001-04-13";
+	var init_trip_date_end = "2016-10-22";
+	var init_date_start = "2015-10-02";
+	var init_date_end = "2015-12-13";
 	var init_date_month = "2016-5-1";
 	var init_unit_clock = "院长工作部";
 	var init_unit_common = "所有部门";
@@ -12,7 +14,7 @@
 	var init_style_social = "邮箱";
 	var init_unit_interval = "所有部门";
 	var init_unit_flow = "所有部门";
-
+	var public_all_unit = "所有部门";
 
 	function getQueryString(name) { 
 		var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
