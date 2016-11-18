@@ -2,7 +2,7 @@
 	var public_time_select = "#public_time_select";
 	var init_flow_date_start = "2015-10-22";
 	var init_flow_date_end = "2016-06-13";
-	var init_trip_date_start = "2001-04-13";
+	var init_trip_date_start = "2014-04-13";
 	var init_trip_date_end = "2016-10-22";
 	var init_date_start = "2015-10-02";
 	var init_date_end = "2015-12-13";

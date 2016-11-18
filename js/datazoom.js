@@ -72,6 +72,3 @@ function Zoom(id, height_zoom){
 	//this.loadZoom();
 
 }
-
-
-function cout(obj){ console.log(obj); }
