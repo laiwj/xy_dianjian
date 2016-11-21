@@ -323,16 +323,35 @@ $(document).ready(function() {
 		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd, 'unit':_u };
 		ajaxData('get_trip_map', adt, function(data)
 		{
-			if(_u=='所有部门')__trip_data_map = data['data'];
-			var _udt = __trip_data_map['水工处'];
-			//cout(_udt);
 			InitMapViews('view2');
-			loadMapMove(__view_map1, getTop10(_udt));
-
+			var _udt = data['data'].hasOwnProperty(_u) ? data['data'][_u] : {};
+			if(_u=='所有部门'){
+				__trip_data_map = data['data'];
+				_udt = sumUnitData(__trip_data_map);
+			}
+			var top10 = getTop10(_udt);
+			loadMapMove(__view_map1, top10);
+			if(top10.length==0)top10 = [[['北京市', '北京市'], 0]];
+			cout([[['北京市', '北京市'], 0]][0]);
+			cout(top10[0]);
 			//cout(__trip_data_map);
-
 			//loadTable2(__trip_data_all, "table-data2", "所有部门")
 		});
+	}
+	//部门综合
+	function sumUnitData(_dt){
+		var sumD = {};
+		for(var u in _dt){
+			for(var p in _dt[u]) {
+				if(!sumD.hasOwnProperty(p)) sumD[p]= { "name":p, "value":0, "children":{} };
+				sumD[p].value += _dt[u][p].value;
+				for(var c in _dt[u][p].children) {
+					if(!sumD[p].children.hasOwnProperty(c)) sumD[p].children[c]= { "name":c, "value":0, "children":{} };
+					sumD[p].children[c].value += _dt[u][p].children[c].value;
+				}
+			}
+		}
+		return sumD;
 	}
 	function getTop10(_dt){
 		var data = [];
@@ -388,8 +407,9 @@ $(document).ready(function() {
 	}
 
 function loadMapMove(id, _dt) {
-	var _pCache = {}, pDsp = {"新疆维吾尔自治区":1, "西藏自治区":1, "云南省":1, "内蒙古自治区":1};
+	var _pCache = {}, pDsp = {"新疆维吾尔自治区":1, "西藏自治区":1, "云南省":1, "内蒙古自治区":1, "青海省":1};
 	var pData = _dt.map(function(d){
+		cout(d);
 		return {fromName:'成都', toName:d[0][1], coords:[[104.07, 30.67], getProvince(d[0][0])['citys'][d[0][1]][d[0][1]]]};
 	});
 	var dData = _dt.map(function(d){
@@ -399,7 +419,8 @@ function loadMapMove(id, _dt) {
 	});
 	var planePath = 'path://M1705.06,1318.313v-89.254l-319.9-221.799l0.073-208.063c0.521-84.662-26.629-121.796-63.961-121.491c-37.332-0.305-64.482,36.829-63.961,121.491l0.073,208.063l-319.9,221.799v89.254l330.343-157.288l12.238,241.308l-134.449,92.931l0.531,42.034l175.125-42.917l175.125,42.917l0.531-42.034l-134.449-92.931l12.238-241.308L1705.06,1318.313z';
 	var color = ['#a6c84c', '#ffa022', '#46bee9'];
-	var series = [];
+	var series = [], maxV = _dt[0][1];
+	var scaleS = function(v){ return parseInt(13 * v / maxV); };
 	[['成都', []]].forEach(function (item, i) {
 		series.push(
 				{
@@ -412,7 +433,7 @@ function loadMapMove(id, _dt) {
 					rippleEffect: { brushType: 'stroke' }, data: dData,
 					label: { normal: { show: true, position: 'right', formatter:
 							function(p){ return (p.name.length>2 && !pDsp.hasOwnProperty(_pCache[p.name])) ? p.name.substr(0,2)+"." : p.name;}  } },
-					symbolSize: function (val) { return val[2] / 8; },
+					symbolSize: function (val) { return scaleS(val[2]); },
 					itemStyle: { normal: { color: color[i] } },
 				});
 	});
