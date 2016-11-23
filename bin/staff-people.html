@@ -26,6 +26,7 @@
 					<li class="source"><a href="#考勤" data-toggle="tab">考勤</a></li>
 					<li class="source"><a href="#就餐" data-toggle="tab">就餐</a></li>
 					<li class="source"><a href="#邮箱" data-toggle="tab">邮箱</a></li>
+					<li class="source"><a href="#腾讯通" data-toggle="tab">腾讯通</a></li>
 				</ul>
 
 			</div>
@@ -72,7 +73,9 @@
 <script src="../js/ie10-viewport-bug-workaround.js"></script>
 <script src="../js/moment.min.js"></script>
 <script src="../js/footable.min.js"></script>
-	<script src="../js/d3.v3.min.js"></script>
+<script src="../js/d3.v3.min.js"></script>
+<script type="text/javascript" src="../js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
+<script type="text/javascript" src="../js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
 
 <script language="javascript">
 "use strict";
@@ -81,22 +84,35 @@ var __myChart1 = null;
 var __nodes = [];
 var __links = [];
 
-function cout(d){ console.log(d); }
-function set(){this.data={};this.keys=[];this.add=function(e){if(!this.data.hasOwnProperty(e))this.keys.push(e);this.data[e]=1;};}
-var units = ['水资源规划处', '项目部', '征地移民处', '人力资源部', '采购部', '海外事务部', '科技质量部', '造价中心', '施工处'];
+//function cout(d){ console.log(d); }
+//function set(){this.data={};this.keys=[];this.add=function(e){if(!this.data.hasOwnProperty(e))this.keys.push(e);this.data[e]=1;};}
+var units = [];
+
 $(document).ready(function() {
 	$('#view1').height(document.body.clientHeight - $("#view2").offset().top-52-3-42);
 
-	loadUnitList();
+	Init();
 
-
-	$(".source").click(function(){
-		var source = ["全部", "考勤", "就餐", "工作"];
-		//var src = $('li.source.active>a').html();
-		var src = $(this).children("a:eq(0)").html()
-		var unit = $("#unitsel1sel1").find("option:selected").text();
-		getDataNet(unit, src);
-	});
+	function Init() {
+		$('.form_date').datetimepicker({
+			language: 'zh-CN', weekStart: 1, todayBtn: 1, autoclose: 1, todayHighlight: 1, startView: 2, minView: 2, forceParse: 0,
+		}).on('changeDate', function (e) {
+			var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();
+			//$("#flowsel1").val();
+			//getFlowData('view1', startDate, endDate);
+		});
+		$('.form_date:eq(0)').datetimepicker('setDate', DateDSTD(init_people_date_start));
+		$('.form_date:eq(1)').datetimepicker('setDate', DateDSTD(init_people_date_end));
+		$(".source").click(function () {
+			var source = ["全部", "考勤", "就餐", "邮箱", "腾讯通"];
+			//var src = $('li.source.active>a').html();
+			var src = $(this).children("a:eq(0)").html();
+			var unit = $("#unitsel1sel1").find("option:selected").text();
+			getDataNet(unit, src);
+		});
+		loadUnitList();
+	}
+});
 	//alert($('#myTab a[href="#邮箱"]').html());
 	//alert('#myTab a[href="#'+init_style_social+'"]');
 	//$('#myTab a[href="#'+init_style_social+'"]').tab('show');
@@ -164,7 +180,7 @@ $(document).ready(function() {
 		ajaxData('get_social_style', adt, function(data)
 		{
 			//__flow_data = data['data'];
-			//cout(data);
+			cout(data);
 			__nodes = data.nodes;
 			__links = data.links;
 			loadNet(__links, __nodes, data.units);
@@ -208,7 +224,7 @@ $(document).ready(function() {
 			}]
 		};
 		__myChart1 = Init3(option, 'view1');
-		cout(__myChart1);
+		//cout(option);
 	}
 
 
@@ -220,7 +236,7 @@ $(document).ready(function() {
 
 
 
-});
+
 
 
 

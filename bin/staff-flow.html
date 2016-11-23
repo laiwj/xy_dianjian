@@ -76,7 +76,7 @@ $(document).ready(function() {
 			language:  'zh-CN', weekStart: 1, todayBtn:  1, autoclose: 1, todayHighlight: 1, startView: 2, minView: 2, forceParse: 0,
 		}).on('changeDate', function(e){
 			var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();
-			$("#flowsel1").val(public_all_unit);
+			$("#flowsel1").val();
 			getFlowData('view1', startDate, endDate);
 		});
 		$('.form_date:eq(0)').datetimepicker('setDate', DateDSTD(init_flow_date_start));

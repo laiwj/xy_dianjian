@@ -15,6 +15,7 @@ th{ text-align: center}
 .lb{ cursor: pointer; padding: 5px; font-size: 13px; padding: 5px; border: 1px solid #ccc; margin-left: 2px }
 .lbf{ cursor: pointer; padding: 2px 5px; font-size: 16px; border: 1px solid #ccc;  }
 .activL{ background-color: #ccc }
+.hide{display: none}
 table tr th{background-color: #f0f0f2;border:1px solid #ccc}
 table tr td{border:1px solid #ccc;}
 table tfoot td{border:0px;}
@@ -40,7 +41,8 @@ table tfoot td{border:0px;}
 					</div>
 				</div>
 				-->
-				<div id="view2" style="height:340px"></div>
+				<div id="view2" style="height:340px;"></div>
+				<div id="view3" class="hide" style="height:340px;"></div>
 			</div>
 		</div>
 	</div>
@@ -48,7 +50,7 @@ table tfoot td{border:0px;}
 	<div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto">
 		<div class="col col-sm-12">
 			<div class="title"></div>
-			<div id="view4" class="w-full" style="height:430px">
+			<div id="view4" class="w-full" style="height:430px; margin-bottom: 45px">
 				<table id="table-data2" class="table" data-paging="true" data-sorting="false"></table>
 			</div>
 		</div>
@@ -75,12 +77,13 @@ table tfoot td{border:0px;}
 <script language="javascript">
 "use strict";
 var pieSelectName = "nosel";
-var __myChart = null, __view1, __view2;
-var __myChart2 = null;
+var __myChart2 = null, __view1, __view2;
+var __myChart3C = null, __myChart3P = null;
 var __ChartDatazoom = null;
 var __trip_data = null;
 var __current_month = 0;
 var __metux_view2 = false;
+var __metux_load_map = false;
 var __datazoom_view2 = null;
 var __select_create = false;
 var __trip_data_all = {};
@@ -90,6 +93,7 @@ var __current_unit = '';
 var __view_map1 = null;
 var __view_map2 = null;
 var __trip_data_map = {};
+var __trip_data_map_sum = {};
 
 $(document).ready(function() {
 
@@ -105,6 +109,7 @@ $(document).ready(function() {
 		$('.form_date').datetimepicker({
 			language:  'zh-CN', weekStart: 1, todayBtn:  1, autoclose: 1, todayHighlight: 1, startView: 2, minView: 2, forceParse: 0,
 		}).on('changeDate', function(e){
+			__metux_load_map = false;
 			var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
 			getTripData(__view2, startDate, endDate);
 			getTripDataEx(startDate, endDate, "所有部门");
@@ -119,14 +124,20 @@ $(document).ready(function() {
 		$(".source").click(function(){
 			var src = $(this).children("a:eq(0)").html();
 			var funcs = {'出差统计':'loadBarView()', '流动地图':'loadMapView1()'};
-			if($(this).hasClass('active'))
-			{ loadTripDefault();}
-			else
-				eval(funcs[src]);
+			var ids = {'出差统计':['view2', 0], '流动地图':['view3', 1]}, temp = ['出差统计', '流动地图'];
+			if($(this).hasClass('active'))return;
+			$("#" + ids[src][0]).removeClass('hide');
+			$("#" + ids[temp[(ids[src][1]^1)]][0]).addClass('hide');
+			if(!__metux_load_map && src=="流动地图")
+				__myChart3C = echarts.init(document.getElementById("view3")).showLoading();
+			else{
+				if(__myChart3P)__myChart3P.resize();
+				if(__myChart3C)__myChart3C.resize();
+			}
 		});
 	}
 	function loadBarView(){ _loadMap('view2'); }
-	function loadMapView1(){ getTripMapData(); }
+	function loadMapView1(){ loadMapImages(); }
 	//---------------------------------加载部门信息----------------------------------------
 	function selUnit2(_u){
 		__current_view = 1;
@@ -164,12 +175,11 @@ $(document).ready(function() {
 		else loadTripImageUnit(__view2, __trip_data, __current_month, __current_unit);
 		if(__myChart2)__myChart2.hideLoading();
 	}
-
 	//------------------------------------------------------------------------------------------------------------------
 	//***·一·**
+	//主图数据
 	function getTripData(id, dateStart, dateEnd){
 		__myChart2 = echarts.init(document.getElementById(id)).showLoading();
-
 		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
 		dateStart = dateStart || startDate;
 		dateEnd = dateEnd || endDate;
@@ -184,6 +194,7 @@ $(document).ready(function() {
 			if(__myChart2)__myChart2.hideLoading();
 		});
 	}
+	//表格数据
 	function getTripDataEx(dateStart, dateEnd, _u){
 		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
 		dateStart = dateStart || startDate;
@@ -265,7 +276,7 @@ $(document).ready(function() {
 		var persons = Object.keys(_data), data = persons.map(function(p){ return _data[p]; });
 		loadTripImage(id, data, month, persons, data, 1, function(p){
 			if(p.seriesType!='bar')return;
-			alert(p.name);
+
 		});
 	}
 	//-----------------------------------------------------------------------------------------------------------
@@ -300,6 +311,8 @@ $(document).ready(function() {
 		});
 		tableClick(tbId);
 	}
+
+
 	//--------------------------------------------地图相关---------------------------------------------------------
 	function InitMapViews(id){
 		var $p = $("#"+id);
@@ -308,13 +321,10 @@ $(document).ready(function() {
 		__view_map2 = id + 'map2';
 		$p.append('<div id="'+ __view_map1 +'" style="float:left;width:50%; height:100%"></div>');
 		$p.append('<div id="'+ __view_map2 +'" style="float:left;width:50%; height:100%"></div>');
-
-
-		//
-		showProvince(__view_map2);
 	}
 	//获取地图数据
-	function getTripMapData(dateStart, dateEnd, _u){
+	function getTripMapData(dateStart, dateEnd, _u, display){
+		__myChart3C = echarts.init(document.getElementById("view3")).showLoading();
 		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
 		dateStart = dateStart || startDate;
 		dateEnd = dateEnd || endDate;
@@ -323,20 +333,25 @@ $(document).ready(function() {
 		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd, 'unit':_u };
 		ajaxData('get_trip_map', adt, function(data)
 		{
-			InitMapViews('view2');
-			var _udt = data['data'].hasOwnProperty(_u) ? data['data'][_u] : {};
-			if(_u=='所有部门'){
-				__trip_data_map = data['data'];
-				_udt = sumUnitData(__trip_data_map);
-			}
-			var top10 = getTop10(_udt);
-			loadMapMove(__view_map1, top10);
-			if(top10.length==0)top10 = [[['北京市', '北京市'], 0]];
-			cout([[['北京市', '北京市'], 0]][0]);
-			cout(top10[0]);
-			//cout(__trip_data_map);
-			//loadTable2(__trip_data_all, "table-data2", "所有部门")
+			__metux_load_map = true;
+			if(__myChart3C)__myChart3C.hideLoading();
+			if(_u=='所有部门')__trip_data_map = data['data'];
+			cout("map data ok.");
+			loadMapImages(_u);
 		});
+	}
+	function loadMapImages(_u){
+		_u = _u || $("#unitsel2sel1").val();
+		InitMapViews('view3');
+		var _udt = __trip_data_map.hasOwnProperty(_u) ? __trip_data_map[_u] : {};
+		if(_u=='所有部门')_udt = __trip_data_map_sum = sumUnitData(__trip_data_map);
+		var top10 = getTop10(_udt);
+		loadMapMove(__view_map1, top10);
+		if(top10.length==0)top10 = [[['北京市', '北京市'], 0]];
+		//top10 = [[['北京市', '北京市'], 0]];
+		//top10 = [[['陕西省', '西安市'], 0]];
+		cout(top10[0]);
+		showProvince(__view_map2, top10[0][0][0]);
 	}
 	//部门综合
 	function sumUnitData(_dt){
@@ -371,93 +386,101 @@ $(document).ready(function() {
 		return data;
 	}
 	function showProvince(id, p) {
-		$("#"+id).html("");
-		if(!p)p = "北京";
+		$("#" + id).html("");
 		var name = mapToProvince(p), city = getProvinceCapital(name);
-		//name = "河南省";
-		var maxV = 10;
-		var scaleS = function(v){ return parseInt(20 * v / maxV); }
+		var temp = {}, dData = [], maxV = 5, _pcd = {};
+		if (__trip_data_map_sum.hasOwnProperty(name)) {
+			temp = __trip_data_map_sum[name];
+			dData = items(temp.children).map(function (d) {
+				var c = d[0].replace("市", "");
+				_pcd[c] = d[1].value;
+				if(maxV<d[1].value)maxV = d[1].value;
+				return {name: c, value: getProvince(temp.name)['citys'][d[0]][d[0]].concat(d[1].value)};
+			});
+		}
+		if(dData.length==0)dData.push({name:city[0], value:[city[1], city[2], 1]});
+		var scaleS = function(v){ return Math.ceil(13 * v / maxV); }
 		// myChart.showLoading();
 
-		//cout(p);
-		//cout(name);
-		//cout(city);
 		$.get('../json/map/' + name + '.json', function (geoJson) {
 			// myChart.hideLoading();
 			echarts.registerMap(name, geoJson);
 			var option = {
 				backgroundColor: '#D9B3B3',
+				tooltip: { trigger: 'item', formatter:function(p){return p.name + " " + ((_pcd.hasOwnProperty(p.name)) ? _pcd[p.name]: 0) + "次"; } },
 				title: { text: p, left: 'center', textStyle: { color: '#fff' } },
-				geo: { map: name, roam: true },
+				geo: { map: name, roam: true, label: { emphasis: { show: false } }  },
 				series: [
 					{//rippleEffect: { brushType: 'stroke'},
-						type: 'effectScatter', coordinateSystem: 'geo', mapType: name,
+						type: 'effectScatter', coordinateSystem: 'geo', mapType: name, zlevel: 5,
 						label: { normal: { show: true, position: 'right', formatter: '{b}' }  },
 						itemStyle: {
 							normal: { borderColor: '#389BB7', areaColor: '#fff', },
 							emphasis: { areaColor: '#389BB7', borderWidth: 0 }
 						},
-						data:[{name:city[0], value:[city[1], city[2], 5]}],
-						animation: false,symbolSize: function (val) { return 1 + val[2]-val[2]; }
+						data:dData,
+						animation: false,symbolSize: function (val) { return scaleS(val[2]); }
 					}
 				]
 			};
-			Init3(option, id);
+			__myChart3C = Init3(option, id);
+			__myChart3C.on('mouseover', function(p){
+				$("#").tooltip();
+				cout(p);
+			});
+			if(__myChart3C)__myChart3C.hideLoading();
 		});
 	}
 
 function loadMapMove(id, _dt) {
-	var _pCache = {}, pDsp = {"新疆维吾尔自治区":1, "西藏自治区":1, "云南省":1, "内蒙古自治区":1, "青海省":1};
+	var _pCache = {}, pDsp = {"新疆维吾尔自治区":1, "西藏自治区":1, "云南省":1, "内蒙古自治区":1, "青海省":1}, _pcd = {};
 	var pData = _dt.map(function(d){
-		cout(d);
 		return {fromName:'成都', toName:d[0][1], coords:[[104.07, 30.67], getProvince(d[0][0])['citys'][d[0][1]][d[0][1]]]};
 	});
 	var dData = _dt.map(function(d){
 		var c = d[0][1].replace("市", "");
-		_pCache[c] = d[0][0];
+		_pcd[c] = d[1];
 		return {name: c, value:getProvince(d[0][0])['citys'][d[0][1]][d[0][1]].concat(d[1])};
 	});
 	var planePath = 'path://M1705.06,1318.313v-89.254l-319.9-221.799l0.073-208.063c0.521-84.662-26.629-121.796-63.961-121.491c-37.332-0.305-64.482,36.829-63.961,121.491l0.073,208.063l-319.9,221.799v89.254l330.343-157.288l12.238,241.308l-134.449,92.931l0.531,42.034l175.125-42.917l175.125,42.917l0.531-42.034l-134.449-92.931l12.238-241.308L1705.06,1318.313z';
 	var color = ['#a6c84c', '#ffa022', '#46bee9'];
-	var series = [], maxV = _dt[0][1];
-	var scaleS = function(v){ return parseInt(13 * v / maxV); };
-	[['成都', []]].forEach(function (item, i) {
-		series.push(
-				{
-					name: item[0] + ' Top10', type: 'lines', zlevel: 2, data: pData,
-					effect: { show: true, period: 6, trailLength: 0, symbol: planePath, symbolSize: 15 },
-					lineStyle: { normal: { color: color[i], width: 1, opacity: 0.4, curveness: 0.2 } },
-				},
-				{
-					name: item[0] + ' Top10', type: 'effectScatter', coordinateSystem: 'geo', zlevel: 2,
-					rippleEffect: { brushType: 'stroke' }, data: dData,
-					label: { normal: { show: true, position: 'right', formatter:
-							function(p){ return (p.name.length>2 && !pDsp.hasOwnProperty(_pCache[p.name])) ? p.name.substr(0,2)+"." : p.name;}  } },
-					symbolSize: function (val) { return scaleS(val[2]); },
-					itemStyle: { normal: { color: color[i] } },
-				});
-	});
-
+	var maxV = _dt.length==0 ? 1 : _dt[0][1];
+	var scaleS = function(v){ return Math.ceil(13 * v / maxV); };
 	var option1 = {
 		backgroundColor: '#404a59',
 		title: { text: '出差流动', subtext: '电建集团', left: 'center', textStyle: { color: '#fff' }},
-		tooltip: { trigger: 'item' },
+		tooltip: { trigger: 'item', formatter:function(p){
+			cout(p);
+			return p.name + " " + ((_pcd.hasOwnProperty(p.name)) ? _pcd[p.name]: 0) + "次"; } },
 		legend: { orient: 'vertical', top: 'top', left: 'right',
 			data: ['成都 Top10'], textStyle: { color: '#fff' },  selectedMode: 'single'
 		},calculable: false,
 		geo: {
-			map: 'china', roam: true, label: { emphasis: { show: false } },
-			itemStyle: { normal: { areaColor: '#323c48', borderColor: '#404a59' },  emphasis: { areaColor: '#2a333d' }}
+			map: 'china', roam: true, label: { emphasis: { show: true } },
+			itemStyle: { normal: { areaColor: '#323c48', borderColor: '#404a59' },  emphasis: { areaColor: '#3f338d' }}
+			//itemStyle: { normal: { areaColor: '#323c48', borderColor: '#404a59' },  emphasis: { areaColor: '#2a333d' }}
 		},
-		series: series
+		series: [{
+			name: 'Top10', type: 'lines', zlevel: 2, data: pData,
+			effect: { show: true, period: 6, trailLength: 0, symbol: planePath, symbolSize: 15 },
+			lineStyle: { normal: { color: color[0], width: 1, opacity: 0.4, curveness: 0.2 } },
+		}, {
+			name: 'Top10', type: 'effectScatter', coordinateSystem: 'geo', zlevel: 2,
+			rippleEffect: { brushType: 'stroke' }, data: dData,
+			label: { normal: { show: true, position: 'right', formatter:
+			function(p){ return (p.name.length>2 && !pDsp.hasOwnProperty(_pCache[p.name])) ? p.name.substr(0,2)+"." : p.name;}  } },
+			symbolSize: function (val) { return scaleS(val[2]); },
+			itemStyle: { normal: { color: color[0] } },
+		}]
 	};
 	cout(option1);
-	var mp = Init3(option1, id);
-	mp.on('click', function(p){
+	__myChart3P = Init3(option1, id);
+	__myChart3P.on('click', function(p){
 		if(p.componentType!='geo')return;
 		showProvince(__view_map2, p.name);
 
 	});
+
 	//$("#" + id).css('background-color', '#fff');
 }
 });

@@ -1,0 +1,279 @@
+<xmp>
+
+	<link href="../css/bootstrap-theme.min.css" rel="stylesheet">
+	<!-- Prism -->
+	<link href="../css/prism.css" rel="stylesheet">
+	<link href="../css/footable.bootstrap.min.css" rel="stylesheet">
+	<!--[if lt IE 9]>
+	<script src="../js/html5shiv.min.js"></script>
+	<script src="../js/respond.min.js"></script>
+	<![endif]-->
+	<style type="text/css">
+		.bd{ border: 1px solid #ccc}
+		#view1rtn{border: 1px solid #ccc; padding: 2px 18px;position:absolute;z-index:100; top:25px; cursor: pointer}
+		table tr td:nth-child(4),table tr th:nth-child(4){ text-align: center; }
+		table tr th{ border:1px solid #ccc;background-color: #f0f0f2;border:1px solid #ccc }
+	</style>
+	<div class="m-sm bg-main">
+		<div class="hbox hbox-auto-xs hbox-auto-xs bg-white">
+			<div class="col  col-sm-12">
+				<div class="title" id="unitsel1">考勤时间统计</div>
+				<div id="view1" class="w-full" style="height:380px"></div>
+			</div>
+		</div>
+		<div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto">
+			<div class="col  col-sm-12">
+				<div class="title">考勤异常数据</div>
+				<div id="view3" class="w-full" style="height:380px; margin-bottom: 45px">
+					<table id="table-data1" align="center" class="table" data-paging="true" data-sorting="true"></table>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<script src="../js/jquery-1.9.1.js"></script>
+	<script src="../js/bootstrap.min.js"></script>
+	<script src="../js/prism.js"></script>
+	<script src="../js/ie10-viewport-bug-workaround.js"></script>
+	<script src="../js/moment.min.js"></script>
+	<script src="../js/footable.min.js"></script>
+	<script src="../js/d3.v3.min.js"></script>
+	<script src="../js/echarts.v3.min.js"></script>
+
+	<script language="javascript">
+		"use strict";
+		var pieSelectName = "nosel";
+		function cout(d){ console.log(d); }
+		var units = []; //['水资源规划处', '项目部', '征地移民处', '人力资源部', '采购部', '海外事务部', '科技质量部', '造价中心', '施工处'];
+		var __select_create = false;
+		var __myChart1 = null;
+		var __myChart2 = null;
+		var __errText = [];
+		var __interval_data = [];
+		var __dataClock = {};
+
+		//----------------------加载部门信息
+		function loadUnitList(){
+			ajaxData('get_units', {}, function(data)
+			{
+				units = data;
+				addUnitSel('unitsel1', data, loadClockData);
+			});
+		}
+
+		//-----------------------------增加部门选择列表---------------------------------
+		function addPublicTimeSel(clickFunc){
+			$(public_time_select).html("");
+			var dateList = [], id = "phead";
+			var div = '<div style="float:right; margin-right:15px;margin-top: 2px;">', sel1 = '<select id="'+ id + 'sel1">', opt1='',
+					sel2 = '<select id="'+ id + 'sel2">', opt2='';
+			["2015", "2016"].forEach(function(y){
+				range(1,13).forEach(function(m){ dateList.push([y, m]); });
+			});
+			dateList.forEach(function(d){ opt1 += '<option value ="'+ (d[0]+'-'+d[1]+'-1') + '">'+ d[0] + '年' + d[1] + '月' +'</option>'; });
+			opt2 = opt1;
+			//$(public_time_select).append(div + sel2 + opt2 + '</select>' + '</div>');
+			$(public_time_select).append(div + sel1 + opt1 + '</select>' + '</div>');
+			$("#phead" + 'sel1').val(getMonthFirstDay(init_date_month));
+			//$("#phead" + 'sel2').val(getMonthFirstDay(init_date_end));
+			$("#phead" + 'sel1').change(function(d){ if(clickFunc)clickFunc($(this).val()); });
+			//$("#phead" + 'sel2').change(function(d){ if(clickFunc)clickFunc($(this).val()); });
+		}
+		function getMonthFirstDay(date){ var sp = date.split("-"); return parseInt(sp[0])+'-'+parseInt(sp[1])+'-1';  }
+		function getDateByMonth(date){ var sp = date.split("-");
+			return {'dateStart': date, 'dateEnd': sp[0] + '-' + sp[1] + '-' + (new Date(2016, 12,0)).getDate()}
+		}
+		//全局时间选择改变，重新加载所有
+		function loadDataByDateSel(){
+			loadClockData();
+			//loadIntervalData("view2");
+		}
+
+		//---------------------------------------Document Ready----------------------------------------------------
+		$(document).ready(function() {
+			if(!__select_create){
+				loadUnitList();
+				addPublicTimeSel(loadDataByDateSel);
+				__select_create = true;
+			}
+			loadClockData(init_unit_clock);
+			//loadIntervalData("view2");
+
+		});
+
+		//***********************************************函数区域*****************************************************************
+		function loadClockData(_u){
+			if(_u==undefined)_u = $("#unitsel1sel1").val() ;
+			var datesel = getDateByMonth($("#pheadsel1").val()), //dateEnd = $("#pheadsel2").val();
+					dateStart = datesel.dateStart, dateEnd = datesel.dateEnd;
+			__myChart1 = echarts.init(document.getElementById("view1")).showLoading();
+			var adt = {'dateStart':dateStart, 'dateEnd':dateEnd, 'unit':_u};
+			ajaxData('get_clock', adt, function(data)
+			{
+				//__flow_data = data['data'];
+				cout(data);
+				__errText = data.error.text;
+				__dataClock = data;
+				loadClock(__dataClock, _u);
+
+				__myChart1.hideLoading();
+
+			});
+		}
+		//*******版本更新，将异常改为一般异常，正常数据替换成特殊异常
+		function loadClock(data, _unit){
+			var dt1 = [], dt2 = [], month = 0;
+			data.error.data.forEach(function(err, i){
+				err.forEach(function(d){
+					var _d = DateSTD(d[1]), _day = _d.getDate(), _m = DateSTM(d[1]);//月份-天， 时间距0点分钟数
+					dt2.push([_m, _day, d[0], d[3], d[4], i]);
+				});
+			});
+			data.normal.forEach(function(d){
+				var _d = DateSTD(d[1]), _day = _d.getDate(), _m = DateSTM(d[1]);//月份-天， 时间距0点分钟数
+				dt1.push([_m, _day, d[0], d[3], d[4]]);
+				if(month == 0)month = _d.getMonth();
+			});
+			_unit = _unit || '所有部门';
+			var option = {
+				title : { text: '打卡时间分布', subtext: _unit, x:30 },
+				tooltip : { trigger: 'item', formatter:function(p) {
+					if (p.data.length == 5)
+						return p.data[4] + "<br />" + "正常" + "<br />" + (p.data[3] == 0 ? "上" : "下") + "班时间：" + TimeMTS(p.data[0]);
+					return p.data[4] + "<br />" + "异常：" + __errText[p.data[5]] + "<br />时间：" + TimeMTS(p.data[0]);
+				}},
+				legend: { data:['正常','异常'] },
+				grid:{x:55, x2:15},
+				calculable : true,
+				xAxis : [{
+					type : 'value', name:"- 时间轴 -", nameGap:35 , nameLocation:'middle', scale : true, min:-30, interval:120, axisLine:{show:false,onZero:false},
+					axisLabel : { formatter: function(params){ return TimeMTS(params);} },
+				}],
+				yAxis : [{
+					type : 'value', scale : false, min:0, axisLine:{show:true,onZero:false},
+					axisLabel : { formatter: function(params){ return month + "月" + (params + 1) + "日";} } }
+				],
+				series : [
+					{ name:'正常', type:'scatter', symbolSize:4, data: dt1 },
+					{ name:'异常', type:'scatter', symbolSize:4, data: dt2 }
+				]
+			};
+			loadTable1(data.error.data, "table-data1");
+			$("#view1").html("");
+			__myChart1 = Init3(option, "view1");
+			__myChart1.on('click', function(p){
+				//********************************************暂不开放查看详情将问题复杂化********************************************
+				return;
+				loadPerson();
+				var left = $("#view1").width() - 135;
+				$("#view1").append('<div id="view1rtn" style="cursor: pointer;top:5px;z-index:999;position: absolute;width:60px;left:'+ left +'px" >返回</div>');
+				$("#view1rtn").click(function(){
+					$("#view1rtn").remove();
+					var _u = $("#unitsel1sel1").val() ;
+					loadClock(__dataClock, _u);
+				});
+			})
+		}
+
+		//-------------------------------------------------表格1-------------------------------------
+		function formatDataTable1(_dt){
+			var sum = {};
+			_dt.forEach(function(line, i){
+				line.forEach(function(d){
+					var key = __errText[i];
+					if(!sum.hasOwnProperty(d[0])){
+						sum[d[0]] = {"id": d[0], "name":d[4], "unit": d[5], "value":1, "text":{} };
+						sum[d[0]].text[key] = 1;
+					}
+					else{
+						sum[d[0]].value++;
+						if(!sum[d[0]].text.hasOwnProperty(key))sum[d[0]].text[key]=0;
+						sum[d[0]].text[key]++;
+						//sum[d[0]].text.add(__errText[i]);
+					}
+				});
+			});
+			var dt = values(sum).sort(function(a, b){ return b.value - a.value; }), maxV = dt[0].value;
+			dt.forEach(function(d){
+				d.value = parseInt((d.value / maxV) * 10);
+				d.text = Object.keys(d.text).reduce(function(a, b){ a+=b + ":" + d.text[b] + "次  "; return a;  }, "");
+				});
+			return dt;
+		}
+		function loadTable1(data, tbId){
+			$('#'+tbId).html("");
+			var columns = [
+				{"name":"id", "title":"ID", "visible":false},
+				{"name":"name","title":"姓名","breakpoints":"xs sm"},//,"style":{"width":80,"maxWidth":80}},
+				{"name":"unit", "title":"部门", "breakpoints":"xs sm"},
+				{"name":"value","title":"异常指数", "type":"number"},
+				{"name":"text", "title":"异常情况", "breakpoints":"xs sm", "visible":false},
+			];
+			$('#'+tbId).footable({
+				"columns": columns, "rows": formatDataTable1(data), "paging": { "size": 7 },
+			});
+			tableClick(tbId, function(obj){
+				obj.attr("title", obj.find("td:eq(4)").html());
+
+			});
+		}
+
+		//-----------------------------------------------------------------------------------------------------
+
+		function loadPerson(){
+			var dt=[];
+			for(var i=0; i<22; i++){
+				var dm = parseInt(Math.random()*(125)) + 35, dn = parseInt(Math.random()*(245)) + 45;
+				dt.push({ 'morning':415 + dm - 300, 'night':17 * 60 + dn - 300});
+			}
+			function DateF(date){ return parseInt(date/60 + 5) + ":" + date % 60; }
+			var m = dt.map(function(d, i){ return d.morning; });
+			var n = dt.map(function(d, i){ return d.night; });
+			var x = dt.map(function(d, i){ return "第" + (i+1) +"天"; });
+			var mpm = [], mpn = [];
+			dt.forEach(function(d, i){
+				if(d.morning > 270)mpm.push({coord:[i, d.morning], name: '迟到'});
+				if(d.night < 780)mpn.push({coord:[i, d.night], name: '早退'});
+			});
+
+			var option = {
+				title : { text: '员工打卡分布', subtext: '李某某-3月', y : 'top', x : '50' },
+				tooltip : { trigger: 'axis' },
+				legend: { data:['上班时间','下班时间'], y :30 },
+				calculable : true,
+				xAxis : [ {type : 'category', data:x, boundaryGap : false, axisLabel: { rotate: 60, interval:0 }, }],
+				yAxis : [ { type : 'value', axisLabel : { formatter: function(params){ return DateF(params);} } } ],
+				series : [
+					{
+						name:'上班时间', type:'line', data: m,
+						markPoint : { data : mpm, label: { normal:{ formatter: "迟到" } } },
+						markLine : {
+							data : [
+								[{
+									symbol: 'circle', coord:[0, 270], name: '上班时间',
+									label: { normal: { formatter: '9:00 上班点' }},	lineStyle:{ normal: { color:'red' } },
+								},
+									{ symbol: 'arrow', coord:[x.length-1, 270],}
+								]]}
+					},
+					{
+						name:'下班时间', type:'line',
+						data:n,
+						markPoint : { data : mpn, label: { normal:{ formatter: "早退" } } },
+						lineStyle:{ emphasis:{color:'rgb(128, 128, 128)'} },
+						markLine : {
+							data : [
+								[{
+									symbol: 'circle', coord:[0, 780], name: '下班时间',
+									label: { normal: { formatter: '18:00 下班点' }},	lineStyle:{ normal: { color:'red' } },
+								},
+									{ symbol: 'arrow', coord:[x.length-1, 780],}
+								]]
+						}}]
+			};
+			$("#view1").html("");
+			Init3(option, "view1");
+		}
+
+	</script>
+</xmp>

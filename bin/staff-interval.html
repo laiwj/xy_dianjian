@@ -1,0 +1,226 @@
+<xmp>
+
+	<link href="../css/bootstrap-theme.min.css" rel="stylesheet">
+	<!-- Prism -->
+	<link href="../css/prism.css" rel="stylesheet">
+	<link href="../css/footable.bootstrap.min.css" rel="stylesheet">
+	<!--[if lt IE 9]>
+	<script src="../js/html5shiv.min.js"></script>
+	<script src="../js/respond.min.js"></script>
+	<![endif]-->
+	<style type="text/css">
+		.bd{ border: 1px solid #ccc}
+		#view1rtn{border: 1px solid #ccc; padding: 2px 18px;position:absolute;z-index:100; top:25px; cursor: pointer}
+		table tr td:nth-child(4),table tr th:nth-child(4){ text-align: center; }
+		table tr th{ border:1px solid #ccc;background-color: #f0f0f2;border:1px solid #ccc }
+	</style>
+	<div class="m-sm bg-main">
+		<div class="hbox hbox-auto-xs hbox-auto-xs bg-white">
+			<div class="col">
+				<div class="title" id="unitsel2">代打卡异常</div>
+				<div id="view2" class="w-full p-l-sm" style="height:380px"></div>
+			</div>
+		</div>
+
+		<div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto">
+			<div class="col col-sm-12">
+				<div class="title">代打卡异常数据</div>
+				<div id="view4" class="w-full" style="height:380px; margin-bottom: 45px">
+					<table id="table-data2" class="table" data-paging="true" data-sorting="true"></table>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<script src="../js/jquery-1.9.1.js"></script>
+	<script src="../js/bootstrap.min.js"></script>
+	<script src="../js/prism.js"></script>
+	<script src="../js/ie10-viewport-bug-workaround.js"></script>
+	<script src="../js/moment.min.js"></script>
+	<script src="../js/footable.min.js"></script>
+	<script src="../js/d3.v3.min.js"></script>
+	<script src="../js/echarts.v3.min.js"></script>
+
+	<script language="javascript">
+		"use strict";
+		var pieSelectName = "nosel";
+		function cout(d){ console.log(d); }
+		var units = []; //['水资源规划处', '项目部', '征地移民处', '人力资源部', '采购部', '海外事务部', '科技质量部', '造价中心', '施工处'];
+		var __select_create = false;
+		var __myChart1 = null;
+		var __myChart2 = null;
+		var __errText = [];
+		var __interval_data = [];
+		var __dataClock = {};
+
+		//----------------------加载部门信息
+		function loadUnitList(){
+			ajaxData('get_units', {}, function(data)
+			{
+				units = data;
+				addUnitSel('unitsel2', data, selectUnitInterval);
+				$("#unitsel2sel1").val(init_unit_interval);
+			});
+		}
+		//-----------------------------增加部门选择列表---------------------------------
+
+		function loadNewUnits(selId, _unit){
+			$("#" + selId).html("");
+			$("#" + selId).append('<option value ="'+ "所有部门" +'">'+ "所有部门" +'</option>');
+			_unit.forEach(function(d){
+				$("#" + selId).append('<option value ="'+ d +'">'+ d +'</option>');
+			});
+		}
+		//-----------------------------增加部门选择列表---------------------------------
+		function addPublicTimeSel(clickFunc){
+			$(public_time_select).html("");
+			var dateList = [], id = "phead";
+			var div = '<div style="float:right; margin-right:15px;margin-top: 2px;">', sel1 = '<select id="'+ id + 'sel1">', opt1='',
+					sel2 = '<select id="'+ id + 'sel2">', opt2='';
+			["2015", "2016"].forEach(function(y){
+				range(1,13).forEach(function(m){ dateList.push([y, m]); });
+			});
+			dateList.forEach(function(d){ opt1 += '<option value ="'+ (d[0]+'-'+d[1]+'-1') + '">'+ d[0] + '年' + d[1] + '月' +'</option>'; });
+			opt2 = opt1;
+			//$(public_time_select).append(div + sel2 + opt2 + '</select>' + '</div>');
+			$(public_time_select).append(div + sel1 + opt1 + '</select>' + '</div>');
+			$("#phead" + 'sel1').val(getMonthFirstDay(init_date_month));
+			//$("#phead" + 'sel2').val(getMonthFirstDay(init_date_end));
+			$("#phead" + 'sel1').change(function(d){ if(clickFunc)clickFunc($(this).val()); });
+			//$("#phead" + 'sel2').change(function(d){ if(clickFunc)clickFunc($(this).val()); });
+		}
+		function getMonthFirstDay(date){ var sp = date.split("-"); return parseInt(sp[0])+'-'+parseInt(sp[1])+'-1';  }
+		function getDateByMonth(date){ var sp = date.split("-");
+			return {'dateStart': date, 'dateEnd': sp[0] + '-' + sp[1] + '-' + (new Date(2016, 12,0)).getDate()}
+		}
+		//全局时间选择改变，重新加载所有
+		function loadDataByDateSel(){
+			//loadClockData();
+			loadIntervalData("view2");
+		}
+
+		//---------------------------------------Document Ready----------------------------------------------------
+		$(document).ready(function() {
+			if(!__select_create){
+				loadUnitList();
+				addPublicTimeSel(loadDataByDateSel);
+				__select_create = true;
+			}
+			//loadClockData(init_unit_clock);
+			loadIntervalData("view2");
+
+		});
+
+		//-------------------------------------------------表格2---------------------------------------------
+		function formatDataTable2(_dt, _unit){
+			var dt = [];
+			if(_unit!=undefined && _unit!='所有部门')_dt = _dt.filter(function(d){ return d[4]==_unit; });
+			_dt.forEach(function(d){
+				dt.push({"name":d[3], "unit": d[4], "seconds":d[0], "counts":d[1] });
+			});
+			dt.sort(function(a, b){ return b.counts - a.counts; });
+			return dt;
+		}
+		function loadTable2(data, tbId, _unit){
+			$('#'+tbId).html("");
+			var columns = [
+				{"name":"name","title":"姓名","breakpoints":"xs sm"},//,"style":{"width":80,"maxWidth":80}},
+				{"name":"unit", "title":"部门", "breakpoints":"xs sm"},
+				{"name":"seconds","title":"间隔时间", "type":"number"},
+				{"name":"counts", "title":"频次", "breakpoints":"xs sm", "visible":true},
+			];
+			$('#'+tbId).footable({
+				"columns": columns, "rows": formatDataTable2(data, _unit), "paging": { "size": 7 },
+			});
+			//_unit
+			tableClick(tbId);
+		}
+
+		//***********************************************图2************************************************
+		function getRGB(hex){
+			hex = hex.toString().substr(1);
+			return [parseInt(hex.substr(0,2), 16), parseInt(hex.substr(2,2), 16), parseInt(hex.substr(4,2), 16)];
+		}
+		function getRgbStr(hex){ var r = getRGB(hex); return 'rgb('+ r.join(',' + ')'); }
+		function getValues(dict){ var rt=[]; for(var k in dict)rt.push(dict[k]); return rt;  }
+		function getRandDesc(_min, _max){
+			var n = parseInt(_min), m = parseInt(_max);
+			for(var i=n; i<m; i++){ if(Math.random() < 0.2)return i; }
+			return parseInt(Math.random() * (_max - _min) + _min);
+		}
+		function range(_min, _max){ var rt=[]; for(var i=_min;i<_max;i++)rt.push(i); return rt; }
+		function selectUnitInterval(_u){
+			__myChart2.showLoading();
+			var lgs = __myChart2.getOption().legend[0].data;
+			lgs.forEach(function(d){
+				var sel = (d==_u || _u=='所有部门') ? 'legendSelect' : 'legendUnSelect';
+				__myChart2.dispatchAction({ type: sel, name: d })
+			});
+			$("#table-data2").html("");
+			loadTable2(__interval_data, "table-data2", _u);
+			__myChart2.hideLoading();
+		}
+		function loadIntervalData(){
+			var datesel = getDateByMonth($("#pheadsel1").val()), //dateEnd = $("#pheadsel2").val();
+					dateStart = datesel.dateStart, dateEnd = datesel.dateEnd;
+			var adt = {'dateStart':dateStart, 'dateEnd':dateEnd};
+			__myChart2 = echarts.init(document.getElementById("view2")).showLoading();
+			ajaxData('get_interval', adt, function(data)
+			{
+				//__flow_data = data['data'];
+				__interval_data = data;
+				loadInterval("view2", data);
+				cout(data);
+				__myChart2.hideLoading();
+			});
+		}
+		function loadInterval(id, _data){
+			//r - max:75
+			var colorS = d3.scale.category20(), rS = d3.scale.log().domain([1, 10]).range([2, 45]);
+			var maxX = _data.reduce(function(a, b){ return a>parseInt(b[0]) ? a : b[0]; }, 0) + 1,
+					maxY = _data.reduce(function(a, b){ return a>parseInt(b[1]) ? a : b[1]; }, 0) + 1;
+			var all = getValues(_data.reduce(function(a, b){
+				var x = Math.random()*0.4 * (Math.random()>0.5 ? 1 : -1) + parseInt(b[0]), u = b[4],
+						item = [x<0.2 ? 0.2 : x, b[1], b[2], b[3], u, b[5]];
+				if(!a.hasOwnProperty(u))a[u] = [item]; else a[u].push(item);
+				return a;
+			}, {}));
+			//cout(all);
+			//单颜色值随机增减 ： 0-255
+			function _randColor(c){
+				while(1) { var tp=c + (Math.random()>0.5 ? 1 : -1) * Math.random() * 50; if(tp>0 && tp<255)return parseInt(tp); }
+			}
+			var clrs = [['rgba(120, 36, 50, 0.5)', 'rgb(251, 118, 123)', 'rgb(204, 46, 72)'],
+				['rgba(25, 100, 150, 0.5)', 'rgb(129, 227, 238)', 'rgb(25, 183, 207)'], ['rgba(25, 100, 150, 0.5)', 'rgb(129, 227, 238)', 'rgb(25, 183, 207)']];
+			range(0,40).forEach(function(i){
+				var c = getRGB(colorS(i)), c1 = [_randColor(c[0]),_randColor(c[1]),_randColor(c[2])]
+						, c2 = [_randColor(c[0]),_randColor(c[1]),_randColor(c[2])];
+				clrs.push(['rgba('+ c1.join(',') + ',0.5)', 'rgb('+ c.join(',') +')', 'rgb('+ c2.join(',') +')']);
+			});
+			var ses = all.map(function(d, index){
+				return { name:d[0][4], data:d, type:'scatter',
+					symbolSize: function (c) {return rS(c[2]); },
+					label: { emphasis: { show: true, formatter: function (param) { return param.data[3];}, position: 'top' }},
+					itemStyle: { normal: {shadowBlur: 10, shadowColor: clrs[index][0], shadowOffsetY: 5,
+						color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{ offset: 0,  color: clrs[index][1]}, { offset: 1,  color: clrs[index][2] }]) }
+					}
+				};
+			});
+			var lgData = all.map(function(d){ return d[0][4]; });
+			loadNewUnits("unitsel2sel1", lgData);
+			var option = {
+				title: { text: '' },//可能代打卡的员工
+				tooltip:{ formatter: function(c){return c.data[3] + '<br />频次：' + c.data[1] + '<br />涉及部门：' + c.data[5].join('，') ; }},
+				legend: { formatter: function (name) { return echarts.format.truncateText(name, 60, '14px Microsoft Yahei', '…'); }, tooltip: { show: true },right: 10,  data: lgData },
+				grid: {x:35, x2:20, y2:50 },
+				xAxis: { name:'间隔时间（s）', nameLocation:'middle', nameGap:25, max:maxX, min:0, splitLine: { lineStyle: { type: 'dashed' } } },
+				yAxis: { name:'频次', nameLocation:'middle', nameGap:25, max:maxY, min:0, splitLine: { lineStyle: { type: 'dashed' } }, scale: true },
+				series: ses
+			};
+			loadTable2(_data, "table-data2");
+			__myChart2 = Init3(option, id);
+		}
+
+
+	</script>
+</xmp>

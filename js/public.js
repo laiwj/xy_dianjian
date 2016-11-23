@@ -4,10 +4,12 @@
 	var init_flow_date_end = "2016-06-13";
 	var init_trip_date_start = "2014-04-13";
 	var init_trip_date_end = "2016-10-22";
+	var init_people_date_start = "2014-04-13";
+	var init_people_date_end = "2016-11-20";
 	var init_date_start = "2015-10-02";
 	var init_date_end = "2015-12-13";
 	var init_date_month = "2016-5-1";
-	var init_unit_clock = "院长工作部";
+	var init_unit_clock = "征地移民处";
 	var init_unit_common = "所有部门";
 	var init_unit_online = "水工处";
 	var init_unit_social = "机电处";
