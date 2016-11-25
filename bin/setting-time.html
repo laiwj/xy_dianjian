@@ -1,0 +1,140 @@
+<xmp>
+
+	<link href="../css/bootstrap-theme.min.css" rel="stylesheet">
+	<!-- Prism -->
+	<link href="../css/prism.css" rel="stylesheet">
+
+	<link href="../css/footable.bootstrap.min.css" rel="stylesheet">
+	<!--[if lt IE 9]>
+	<script src="../js/html5shiv.min.js"></script>
+	<script src="../js/respond.min.js"></script>
+	<![endif]-->
+	<style type="text/css">
+		.bd{ border: 1px solid #ccc}
+		#view1rtn{border: 1px solid #ccc; padding: 2px 18px;position:absolute;z-index:100; top:25px; cursor: pointer}
+		.source{ width: 100%}
+
+	</style>
+
+<div class="m-sm bg-main">
+	<div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto">
+		<div class="col col-sm-12">
+			<div class="w-full">
+				<div class="title" id="unitsel2">网络访问分类设置</div>
+				<div id="view1" style="width: 100%;">
+					<table class="table">
+						<thead>
+						<tr>
+							<th width="200px">分类</th>
+							<th>所属关键词</th>
+							<th>IP/域名定义</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td>Tanmay</td>
+							<td>
+								<div class="alert-info" style="min-width: 50px; width: auto;display:inline-block">
+									<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+									成功
+								</div>
+								<div class="alert-info" style="min-width: 50px; width: auto;display:inline-block">
+									<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+									失败
+								</div>
+							</td>
+							<td>Bangalore</td>
+						</tr>
+						<tr>
+							<td>Sachin</td>
+							<td>Mumbai</td>
+							<td>Bangalore</td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<!-----
+		<div class="col col-sm-6">
+			<div class="title"></div>
+			<div id="view2" class="w-full" style="padding-top: 16px; margin-bottom: 45px">
+				<div class="w-full" style="font-weight: 500; margin-bottom: 3px; font-family: 'Times New Roman'">活跃的人</div>
+				<div class="w-full">
+					<table id="table-data1" class="table" data-paging="true" data-sorting="true"></table>
+				</div>
+				<div class="w-full" style="font-weight: 400; margin-bottom: 3px; font-family: 'Times New Roman'">安静的人</div>
+				<div class="w-full">
+					<table id="table-data2" class="table" data-paging="true" data-sorting="true"></table>
+				</div>
+			</div>
+		</div>
+		------>
+	</div>
+
+</div>
+<script src="../js/echarts.min.js"></script>
+<script src="../js/jquery-1.9.1.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/prism.js"></script>
+<script src="../js/ie10-viewport-bug-workaround.js"></script>
+<script src="../js/moment.min.js"></script>
+<script src="../js/footable.min.js"></script>
+<script type="text/javascript" src="../js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
+<script type="text/javascript" src="../js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+
+<script language="javascript">
+"use strict";
+
+
+var units = [];
+
+$(document).ready(function() {
+	//$('#view1').height(document.body.clientHeight - $("#view2").offset().top-52-3-42);
+
+	Init();
+
+	function Init() {
+		$('.form_date').datetimepicker({
+			language: 'zh-CN', weekStart: 1, todayBtn: 1, autoclose: 1, todayHighlight: 1, startView: 2, minView: 2, forceParse: 0,
+		}).on('changeDate', function (e) {
+			var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();
+		});
+		$('.form_date:eq(0)').datetimepicker('setDate', DateDSTD(init_people_date_start));
+		$('.form_date:eq(1)').datetimepicker('setDate', DateDSTD(init_people_date_end));
+		$(".source").click(function () {
+			var source = ["全部", "考勤", "就餐", "邮箱", "腾讯通"];
+			var src = $(this).children("a:eq(0)").html();
+			var unit = $("#unitsel1sel1").find("option:selected").text();
+
+		});
+	}
+});
+
+
+	//----------------------加载部门信息
+	function loadUnitList(){
+		ajaxData('get_units', {}, function(data)
+		{
+			units = data;
+			addUnitSel('unitsel1', data, _getDataNet);
+			$("#unitsel1sel1").append('<option value ="部门网络">部门网络</option>');
+			getDataNet();
+		});
+	}
+	//-------------------------------------------表格相关------------------------------------------
+
+
+
+
+
+
+
+
+
+//***********************************************函数区域*****************************************************************
+
+
+
+</script>
+</xmp>

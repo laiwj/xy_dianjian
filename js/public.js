@@ -13,7 +13,7 @@
 	var init_unit_common = "所有部门";
 	var init_unit_online = "水工处";
 	var init_unit_social = "机电处";
-	var init_style_social = "邮箱";
+	var init_style_social = "腾讯通";
 	var init_unit_interval = "所有部门";
 	var init_unit_flow = "所有部门";
 	var public_all_unit = "所有部门";
