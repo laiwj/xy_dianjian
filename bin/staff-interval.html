@@ -91,7 +91,7 @@
 		}
 		function getMonthFirstDay(date){ var sp = date.split("-"); return parseInt(sp[0])+'-'+parseInt(sp[1])+'-1';  }
 		function getDateByMonth(date){ var sp = date.split("-");
-			return {'dateStart': date, 'dateEnd': sp[0] + '-' + sp[1] + '-' + (new Date(2016, 12,0)).getDate()}
+			return {'dateStart': date, 'dateEnd': sp[0] + '-' + sp[1] + '-' + (new Date(parseInt(sp[0]), parseInt(sp[1]),0)).getDate()}
 		}
 		//全局时间选择改变，重新加载所有
 		function loadDataByDateSel(){

@@ -22,34 +22,13 @@
 			<div class="w-full">
 				<div class="title" id="unitsel2">网络访问分类设置</div>
 				<div id="view1" style="width: 100%;">
-					<table class="table">
+					<table class="table" id="tbMain">
 						<thead>
 						<tr>
-							<th width="200px">分类</th>
-							<th>所属关键词</th>
-							<th>IP/域名定义</th>
+							<th width="150px">分类</th><th>所属关键词</th><th width="200px">IP/域名定义</th>
 						</tr>
 						</thead>
 						<tbody>
-						<tr>
-							<td>Tanmay</td>
-							<td>
-								<div class="alert-info" style="min-width: 50px; width: auto;display:inline-block">
-									<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-									成功
-								</div>
-								<div class="alert-info" style="min-width: 50px; width: auto;display:inline-block">
-									<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-									失败
-								</div>
-							</td>
-							<td>Bangalore</td>
-						</tr>
-						<tr>
-							<td>Sachin</td>
-							<td>Mumbai</td>
-							<td>Bangalore</td>
-						</tr>
 						</tbody>
 					</table>
 				</div>
@@ -92,6 +71,9 @@ var units = [];
 $(document).ready(function() {
 	//$('#view1').height(document.body.clientHeight - $("#view2").offset().top-52-3-42);
 
+
+
+	loadConfig();
 	Init();
 
 	function Init() {
@@ -110,16 +92,42 @@ $(document).ready(function() {
 		});
 	}
 });
-
+	//加载主分类
+	function loadRoot(lsr){
+		for(var r in lsr){
+			var row = $(getNewRow(r, lsr[r], '', ''));
+			$("#tbMain").append(row);
+		}
+	}
+	//加载主分类对应关键词
+	function loadClass(lsp, lsc){
+		for(var p in lsp) {
+			var obj = $('#tbMaintr'+ lsp[p][2]).find('td:eq(1)');
+			obj.append(getNewLabel(p, lsp[p][1]));
+		}
+		for(var p in lsc) {
+			var obj = $('#tbMaintr'+ lsc[p][2]).find('td:eq(1)');
+			obj.append(getNewLabel(p, lsc[p][1]));
+		}
+	}
+	function getNewLabel(name, id){
+		return '<div id="tbMaintd' + id + '" class="alert-info" style="min-width: 50px; width: auto;display:inline-block; margin-right: 5px; margin-bottom: 5px">' +
+				'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + name + '</div>';
+	}
+	function getNewRow(id, col1, col2, col3){
+		col2 = col2 || ''; col3 = col3 || '';
+		return "<tr id='tbMaintr"+ id +"'><td>" + col1 + "</td><td>"+ col2 +"</td><td>"+ col3 +"</td>";
+	}
 
 	//----------------------加载部门信息
-	function loadUnitList(){
-		ajaxData('get_units', {}, function(data)
+	function loadConfig(){
+		ajaxData('get_network_config', {'userId':10001}, function(data)
 		{
-			units = data;
-			addUnitSel('unitsel1', data, _getDataNet);
-			$("#unitsel1sel1").append('<option value ="部门网络">部门网络</option>');
-			getDataNet();
+			cout(data);
+			loadRoot(data.lsr);
+			loadClass(data.lsp, data.lsc);
+			//$("#unitsel1sel1").append('<option value ="部门网络">部门网络</option>');
+			//getDataNet();
 		});
 	}
 	//-------------------------------------------表格相关------------------------------------------

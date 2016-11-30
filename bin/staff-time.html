@@ -100,7 +100,39 @@ $(document).ready(function() {
 		ajaxData('get_online_unit', adt, function(data)
 		{
 			//__flow_data = data['data'];
-			cout(data);
+			cout(data.unit);
+			var dt = data.unit;
+			for(var u in dt){
+				var ls = {};
+				var p = Math.random();
+				for(var i=0;i<1436;i++ ){
+					if(Math.random()<0.3)continue;
+					var p1 = 1;
+					if(i>100 && i<350)p1 = 0.1;
+
+					if(i>350 && i<400)p1 = 0.15;
+					if(i>400 && i<450)p1 = 0.2;
+
+					if(i>450 && i<500)p1 = 0.25;
+
+					if(i>500 && i<550)p1 = 0.3;
+
+					if(i>550 && i<600)p1 = 0.35;
+
+					if(i>600 && i<800)p1 = 0.8;
+					if(i>800 && i<850)p1 = 0.6;
+					if(i>850 && i<1200)p1 = 0.9;
+					if(i>1200 && i<1430)p1 = 0.5;
+					var v = parseInt(Math.random()*50 + 10);
+					v = v*p1*p;
+					ls[i] = parseInt(v);
+
+					//ls[v] = parseInt(Math.random()*2);
+					//else ls[v] = parseInt(Math.random()*20);
+				}
+				dt[u] = ls;
+			}
+
 			loadTimes(data.unit, {'level':'unit', 'name':_u }, data.scale, data.maxCount);
 			loadTable(data.person, _u);
 			//loadTimes();
