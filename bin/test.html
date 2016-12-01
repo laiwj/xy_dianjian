@@ -9,60 +9,176 @@
 
 
 </head>
-<style type="text/css">
-
-</style>
-
 <body>
 
-                <div class="input-group date form_date" style="width:100px" data-date="2014-11-12" data-date-format="yyyy-mm-dd" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
-                    <input class="form-control" size="14" type="text" value="2014-11-12" readonly>
-                    <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
-					<span class="input-group-addon"><span class="glyphicon glyphicon-time"></span></span>
+<link href="../css/bootstrap-theme.min.css" rel="stylesheet">
+<!-- Prism -->
+<link href="../css/prism.css" rel="stylesheet">
+
+<link href="../css/footable.bootstrap.min.css" rel="stylesheet">
+<!--[if lt IE 9]>
+<script src="../js/html5shiv.min.js"></script>
+<script src="../js/respond.min.js"></script>
+
+<![endif]-->
+<style type="text/css">
+    .bd{ border: 1px solid #ccc}
+    #view1rtn{border: 1px solid #ccc; padding: 2px 18px;position:absolute;z-index:100; top:25px; cursor: pointer}
+    .source{ width: 100%}
+    table tbody tr td:nth-child(3) { vertical-align:top;}
+</style>
+
+<div class="m-sm bg-main">
+    <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto">
+        <div class="col col-sm-12">
+            <div class="w-full">
+                <div class="title" id="unitsel2">网络访问分类设置</div>
+                <div id="view1" style="width: 100%;">
+                    <table class="table" id="tbMain">
+                        <thead>
+                        <tr>
+                            <th width="150px">分类</th><th>所属关键词</th><th>编辑</th><th width="200px">IP/域名定义</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+
+                    <!-- 模态框（Modal） -->
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="closeHide();">
+                                        &times;
+                                    </button>
+                                    <h4 class="modal-title" id="myModalLabel">
+                                        模态框（Modal）标题
+                                    </h4>
+                                </div>
+                                <div class="modal-body">
+                                    在这里添加一些文本
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                                    </button>
+                                    <button type="button" class="btn btn-primary">
+                                        提交更改
+                                    </button>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal -->
+                    </div>
+
+
                 </div>
-				<input type="hidden" id="dtp_input2" value="" /><br/>
-           
-            <label id="lb1" title="okkakd">Hello </label>
-<script type="text/javascript" src="../js/jquery-1.9.1.js" charset="UTF-8"></script>
-<script type="text/javascript" src="../js/bootstrap.min.js"></script>
-                <script src="../js/jquery-ui.js"></script>
-<script type="text/javascript" src="../js/public.js"></script>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script src="../js/echarts.min.js"></script>
+<script src="../js/jquery-1.9.1.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/prism.js"></script>
+<script src="../js/ie10-viewport-bug-workaround.js"></script>
+<script src="../js/moment.min.js"></script>
+<script src="../js/footable.min.js"></script>
 <script type="text/javascript" src="../js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
 <script type="text/javascript" src="../js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
-<script type="text/javascript">
-    //console.log(DateM(new Date()));
-    $("#lb1").tooltip({});
+<script src="../js/public.js"></script>
 
-    /*
-    function sss(d){
-        if(d==undefined)alert("O");
-    }
-    sss(0);
+<script language="javascript">
+    "use strict";
 
-    var dt=new Date(0, 0, 0, 15, 26, 0);
-    cout(dt);
-    cout(TimeT("12:56"));
-    cout(TimeF(dt));
-    cout(TimeSTM("12:56"));
-    cout(DateSTM("2013-05-18 11:32:12"));
-    cout(DateSTD("2013-05-18 11:32:12"));
-    cout(DateSTDS("2013-05-18 11:32:12"));
-    cout((new Date()).getDate());
-*/
+    var units = [];
+
+    $(document).ready(function() {
+        //$('#view1').height(document.body.clientHeight - $("#view2").offset().top-52-3-42);
 
 
-	$('.form_date').datetimepicker({
-        language:  'zh-CN',
-        weekStart: 1,
-        todayBtn:  1,
-		autoclose: 1,
-		todayHighlight: 1,
-		startView: 2,
-		minView: 2,
-		forceParse: 0
+
+        loadConfig();
+        Init();
+
+        function Init() {
+            $('.form_date').datetimepicker({
+                language: 'zh-CN', weekStart: 1, todayBtn: 1, autoclose: 1, todayHighlight: 1, startView: 2, minView: 2, forceParse: 0,
+            }).on('changeDate', function (e) {
+                var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();
+            });
+            $('.form_date:eq(0)').datetimepicker('setDate', DateDSTD(init_people_date_start));
+            $('.form_date:eq(1)').datetimepicker('setDate', DateDSTD(init_people_date_end));
+            $(".source").click(function () {
+                var source = ["全部", "考勤", "就餐", "邮箱", "腾讯通"];
+                var src = $(this).children("a:eq(0)").html();
+                var unit = $("#unitsel1sel1").find("option:selected").text();
+
+            });
+            InitModel("myModal");
+        }
+        function closeHide2(){alert("id"); $("#myModal").modal('hide');$('body').removeClass('modal-backdrop');$('.modal-backdrop').remove(); }
+        function InitModel(id){
+
+            $("#"+id).on('hide.bs.modal', function(){
+                alert(2);
+            })
+        }
+
     });
-	
+    //加载主分类
+    function loadRoot(lsr){
+        for(var r in lsr){
+            var row = $(getNewRow(r, lsr[r], '', ''));
+            $("#tbMain").append(row);
+        }
+    }
+    //加载主分类对应关键词
+    function loadClass(lsp, lsc){
+        for(var p in lsp) {
+            var obj = $('#tbMaintr'+ lsp[p][2]).find('td:eq(1)');
+            obj.append(getNewLabel(p, lsp[p][1]));
+        }
+        for(var p in lsc) {
+            var obj = $('#tbMaintr'+ lsc[p][2]).find('td:eq(1)');
+            obj.append(getNewLabel(p, lsc[p][1]));
+        }
+    }
+    function getNewLabel(name, id){
+        return '<div id="tbMaintd' + id + '" class="alert-info" style="min-width: 50px; width: auto;display:inline-block; margin-right: 5px; margin-bottom: 5px">' +
+                '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + name + '</div>';
+    }
+    function getNewRow(id, col1, col2, col3, col4){
+        col2 = col2 || ''; col4 = col4 || '';
+        col3 = col3 || '<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">增加</button>';
+        return "<tr id='tbMaintr"+ id +"'><td>" + col1 + "</td><td>"+ col2 +"</td><td>"+ col3 +"</td><td>"+ col4 +"</td>";
+    }
+
+    //----------------------加载部门信息
+    function loadConfig(){
+        ajaxData('get_network_config', {'userId':10001}, function(data)
+        {
+            cout(data);
+            loadRoot(data.lsr);
+            loadClass(data.lsp, data.lsc);
+            //$("#unitsel1sel1").append('<option value ="部门网络">部门网络</option>');
+            //getDataNet();
+        });
+    }
+    //-------------------------------------------表格相关------------------------------------------
+
+
+
+
+
+
 </script>
+
+
 
 </body>
 </html>

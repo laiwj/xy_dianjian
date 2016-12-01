@@ -13,6 +13,8 @@
 		.bd{ border: 1px solid #ccc}
 		#view1rtn{border: 1px solid #ccc; padding: 2px 18px;position:absolute;z-index:100; top:25px; cursor: pointer}
 		.source{ width: 100%}
+		table tbody tr td:nth-child(3) { vertical-align:top;}
+		.modal-backdrop {  opacity: 0 !important;  filter: alpha(opacity=0) !important;  }
 
 	</style>
 
@@ -25,7 +27,7 @@
 					<table class="table" id="tbMain">
 						<thead>
 						<tr>
-							<th width="150px">分类</th><th>所属关键词</th><th width="200px">IP/域名定义</th>
+							<th width="150px">分类</th><th>所属关键词</th><th>编辑</th><th width="200px">IP/域名定义</th>
 						</tr>
 						</thead>
 						<tbody>
@@ -34,24 +36,35 @@
 				</div>
 			</div>
 		</div>
-		<!-----
-		<div class="col col-sm-6">
-			<div class="title"></div>
-			<div id="view2" class="w-full" style="padding-top: 16px; margin-bottom: 45px">
-				<div class="w-full" style="font-weight: 500; margin-bottom: 3px; font-family: 'Times New Roman'">活跃的人</div>
-				<div class="w-full">
-					<table id="table-data1" class="table" data-paging="true" data-sorting="true"></table>
-				</div>
-				<div class="w-full" style="font-weight: 400; margin-bottom: 3px; font-family: 'Times New Roman'">安静的人</div>
-				<div class="w-full">
-					<table id="table-data2" class="table" data-paging="true" data-sorting="true"></table>
-				</div>
-			</div>
+
+		<!-- 模态框（Modal） -->
+		<div class="modal fade" id="myModal" tabindex="-2" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+			<div class="modal-dialog" style="z-index: 10001;">
+				<div class="modal-content" style="width: 400px">
+					<div class="modal-header" style="font-size: 14px; height: 50px">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">
+							添加子类别
+						</h4>
+					</div>
+					<div class="modal-body" style=";height: 60px; ">
+						<div class="floatR"><select id="modalsel1"></select></div>
+						<div class="floatR" style="margin-left: 40px;margin-right: 20px">请选择：</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+						<button type="button" class="btn btn-primary">确定</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal -->
 		</div>
-		------>
+
 	</div>
 
 </div>
+
+
+
 <script src="../js/echarts.min.js"></script>
 <script src="../js/jquery-1.9.1.js"></script>
 <script src="../js/bootstrap.min.js"></script>
@@ -67,11 +80,11 @@
 
 
 var units = [];
+var __lsOther = {};
+
 
 $(document).ready(function() {
 	//$('#view1').height(document.body.clientHeight - $("#view2").offset().top-52-3-42);
-
-
 
 	loadConfig();
 	Init();
@@ -88,15 +101,23 @@ $(document).ready(function() {
 			var source = ["全部", "考勤", "就餐", "邮箱", "腾讯通"];
 			var src = $(this).children("a:eq(0)").html();
 			var unit = $("#unitsel1sel1").find("option:selected").text();
-
 		});
+		InitModel("myModal");
 	}
+	function InitModel(id){
+		$("#"+id).on('hide.bs.modal', function(){ $('.modal-backdrop').remove();})
+	}
+
+
 });
+
+
 	//加载主分类
 	function loadRoot(lsr){
 		for(var r in lsr){
 			var row = $(getNewRow(r, lsr[r], '', ''));
 			$("#tbMain").append(row);
+			($("#editBtn"+r).on('click', changeTitle));
 		}
 	}
 	//加载主分类对应关键词
@@ -110,27 +131,46 @@ $(document).ready(function() {
 			obj.append(getNewLabel(p, lsc[p][1]));
 		}
 	}
+	//加载未确定的分类信息
+	function loadOther(lsOther){
+		var opt = "";
+		values(lsOther).forEach(function(d){ opt += '<option value ="'+ d[1] +'">'+ d[0] +'</option>'; });
+		$("#modalsel1").append(opt);
+		$("#modalsel1").append('<option value="-1">暂无子类可选择</option>');
+	}
+
+
+
+	//修改模态框标题
+	function changeTitle(){ var t = $(this).parent().parent().children(":first").html(); $("#myModalLabel").html('添加 '+ t +' 子类别'); }
 	function getNewLabel(name, id){
 		return '<div id="tbMaintd' + id + '" class="alert-info" style="min-width: 50px; width: auto;display:inline-block; margin-right: 5px; margin-bottom: 5px">' +
 				'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + name + '</div>';
 	}
-	function getNewRow(id, col1, col2, col3){
-		col2 = col2 || ''; col3 = col3 || '';
-		return "<tr id='tbMaintr"+ id +"'><td>" + col1 + "</td><td>"+ col2 +"</td><td>"+ col3 +"</td>";
+	function getNewRow(id, col1, col2, col3, col4){
+		col2 = col2 || ''; col4 = col4 || '';
+		col3 = col3 || '<button type="button" id="editBtn'+ id +'"  class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">增加</button>';
+		return "<tr id='tbMaintr"+ id +"'><td>" + col1 + "</td><td>"+ col2 +"</td><td>"+ col3 +"</td><td>"+ col4 +"</td>";
 	}
 
-	//----------------------加载部门信息
+
+
 	function loadConfig(){
 		ajaxData('get_network_config', {'userId':10001}, function(data)
 		{
 			cout(data);
+			__lsOther = data.lso;
 			loadRoot(data.lsr);
 			loadClass(data.lsp, data.lsc);
+			loadOther(__lsOther);
 			//$("#unitsel1sel1").append('<option value ="部门网络">部门网络</option>');
 			//getDataNet();
 		});
 	}
-	//-------------------------------------------表格相关------------------------------------------
+
+
+
+
 
 
 
