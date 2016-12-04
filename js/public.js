@@ -17,6 +17,11 @@
 	var init_unit_interval = "所有部门";
 	var init_unit_flow = "所有部门";
 	var public_all_unit = "所有部门";
+	var serverIp = "http://192.168.3.177";
+	//var serverIp = "http://118.123.173.86";
+	var serverPort = 8000;
+	var serverUrl = serverIp + ":" + serverPort;
+
 
 	function getQueryString(name) { 
 		var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
@@ -66,7 +71,7 @@
 	function ajaxData(key, data, _callbackS, _callbackE){
 		var cbkf = (parseInt(Math.random() * 1000) + 1000).toString();
 		$.ajax({
-			type:'GET', url:'http://192.168.3.177:8000/' + key + '/',
+			type:'GET', url:serverUrl + '/' + key + '/',
 			//type:'GET', url:'http://118.123.173.86:8000/' + key + '/',
 			data:data, dataType:'jsonp', jsonpCallback: 'call1back' + cbkf + 'a',
 			success:function(data)
@@ -118,5 +123,71 @@ function tableClick(tbId, _callback){
 		if(_callback)_callback($(this),v1, v2, v3);
 	});
 }
+function csrfSafeMethod(method) {
+	// these HTTP methods do not require CSRF protection
+	return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+function sameOrigin(url) {
+	// test that a given url is a same-origin URL
+	// url could be relative or scheme relative or absolute
+	var host = document.location.host; // host + port
+	var protocol = document.location.protocol;
+	var sr_origin = '//' + host;
+	var origin = protocol + sr_origin;
+	origin = serverUrl;
+	// Allow absolute or scheme relative URLs to same origin
+	return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+		(url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+			// or any other URL that isn't scheme relative or absolute i.e relative.
+		!(/^(\/\/|http:|https:).*/.test(url));
+}
+function ajaxSet(csrftoken) {
+	$.ajaxSetup({
+		crossDomain: true,
+		beforeSend: function (xhr, settings) {
+			if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+				// Send the token to same-origin, relative URLs only.
+				// Send the token only if the method warrants CSRF protection
+				// Using the CSRFToken value acquired earlier
+				xhr.setRequestHeader("X-CSRFToken", csrftoken);
+			}
+		}
+	});
+}
+function ajaxToInput(key, data, viewId){
+	var url = 'http://192.168.3.177:8000/' + key + '/';
+	var div = $("<div style='display: none'></div>");
+	var form = $('<form action="' + url + '" method="post"></form>');
+	for(var k in data){
+		var ipt = $("<input type='text' name='"+ k +"' value="+ "'' />");
+		form.append(ipt);
+		ipt.val(data[k].toString().replace(/"/g, "'"));
+	}
 
-
+	div.append(form);
+	$("#"+viewId).append(div);
+	form.submit();
+}
+function postData(key, data, _callbackS, _callbackE){
+	ajaxSet(data['token']);
+	var cbkf = (parseInt(Math.random() * 1000) + 1000).toString();
+	$.ajax({
+		type:'POST', url:'http://192.168.3.177:8000/' + key + '/',
+		//method:'POST',
+		//type:'GET', url:'http://118.123.173.86:8000/' + key + '/',
+		dataType:'jsonp',
+		crossDomain: true,
+		data:data,
+		//jsonpCallback: 'call1back' + cbkf + 'a',
+		success:function(data)
+		{
+			if(_callbackS)_callbackS(data);
+		},
+		error:function(data)
+		{
+			if(_callbackE)_callbackE(data);
+			alert("error");
+			cout(data);
+		}
+	});
+}

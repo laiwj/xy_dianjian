@@ -5,6 +5,8 @@
 	<link href="../css/prism.css" rel="stylesheet">
 
 	<link href="../css/footable.bootstrap.min.css" rel="stylesheet">
+	<link href="../css/ladda-themeless.css" rel="stylesheet">
+
 	<!--[if lt IE 9]>
 	<script src="../js/html5shiv.min.js"></script>
 	<script src="../js/respond.min.js"></script>
@@ -15,15 +17,19 @@
 		.source{ width: 100%}
 		table tbody tr td:nth-child(3) { vertical-align:top;}
 		.modal-backdrop {  opacity: 0 !important;  filter: alpha(opacity=0) !important;  }
-
+		.center-block{  display:block;  margin-left:auto;  margin-right:auto;  }
 	</style>
+
 
 <div class="m-sm bg-main">
 	<div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto">
-		<div class="col col-sm-12">
+		<div class="col col-sm-12" style="margin-bottom: 45px">
 			<div class="w-full">
 				<div class="title" id="unitsel2">网络访问分类设置</div>
 				<div id="view1" style="width: 100%;">
+					<button class="btn btn-primary btn-lg ladda-button center-block" id="showmore" data-style="contract-overlay">
+						<span class="ladda-label"></span>
+					</button>
 					<table class="table" id="tbMain">
 						<thead>
 						<tr>
@@ -35,6 +41,13 @@
 					</table>
 				</div>
 			</div>
+			<div class="panel panel-default" style="margin-bottom: 50px">
+				<div class="panel-body">
+					<button type="button" class="btn btn-warning floatR" style="margin-left: 30px" id="tbSubmit">保存设置</button>
+					<button type="button" class="btn btn-default floatR">取消更改</button>
+				</div>
+				<div class="panel-footer">*以上关键词来自"深信服"初始分类及网站分类识别系统，所有改动保存后才能生效</div>
+			</div>
 		</div>
 
 		<!-- 模态框（Modal） -->
@@ -43,7 +56,7 @@
 				<div class="modal-content" style="width: 400px">
 					<div class="modal-header" style="font-size: 14px; height: 50px">
 						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						<h4 class="modal-title" id="myModalLabel">
+						<h4 class="modal-title" id="myModalLabel" title="">
 							添加子类别
 						</h4>
 					</div>
@@ -53,7 +66,7 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-						<button type="button" class="btn btn-primary">确定</button>
+						<button type="button" id="modalSelOk" class="btn btn-primary" data-dismiss="modal">确定</button>
 					</div>
 				</div><!-- /.modal-content -->
 			</div><!-- /.modal -->
@@ -72,6 +85,8 @@
 <script src="../js/ie10-viewport-bug-workaround.js"></script>
 <script src="../js/moment.min.js"></script>
 <script src="../js/footable.min.js"></script>
+<script src="../js/spin.js"></script>
+<script src="../js/ladda.js"></script>
 <script type="text/javascript" src="../js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
 <script type="text/javascript" src="../js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
 
@@ -81,13 +96,22 @@
 
 var units = [];
 var __lsOther = {};
-
+var $pl;
+var __tempc = null;
 
 $(document).ready(function() {
 	//$('#view1').height(document.body.clientHeight - $("#view2").offset().top-52-3-42);
+	var $showmore=$('#showmore');
+	$showmore.on('click', loadshots);
+	$showmore.trigger('click');
+	$("#tbSubmit").on('click', loadSubmit);
 
 	loadConfig();
 	Init();
+	function loadSubmit2(){
+		$('#showmore').removeClass('hide');
+		$showmore.trigger('click');
+	}
 
 	function Init() {
 		$('.form_date').datetimepicker({
@@ -103,15 +127,43 @@ $(document).ready(function() {
 			var unit = $("#unitsel1sel1").find("option:selected").text();
 		});
 		InitModel("myModal");
-	}
-	function InitModel(id){
-		$("#"+id).on('hide.bs.modal', function(){ $('.modal-backdrop').remove();})
+		$("#modalSelOk").on('click', selOK);
+		//$("#tbSubmit").on('click', setCommit);
 	}
 
+	function loadshots(){
+		var l = Ladda.create(this);
+		$pl = l;
+		l.start();
+		l.setProgress(0.3);
+		$showmore.find('.ladda-label').text('loading...');
+
+		ajaxData('get_network_config', {'userId':10001}, function(data)
+		{
+			cout(data);
+			__lsOther = data.lso;
+			loadRoot(data.lsr);
+			loadClass(data.lsp, data.lsc);
+			loadOther(__lsOther);
+			__tempc = data.toke;
+
+			l.setProgress(1);
+			l.stop();
+			$showmore.addClass('hide');
+		});
+	}
 
 });
 
-
+	function InitModel(id){ $("#"+id).on('hide.bs.modal', function(){ $('.modal-backdrop').remove();}) }
+	//为主分类增加关键词
+	function selOK(){
+		var id = $("#modalsel1").val();
+		if(!id || id==-1)return;
+		var name=$("#modalsel1").find("option:selected").text(), rid = $("#myModalLabel").attr('title');
+		$('#tbMaintr'+ rid).find('td:eq(1)').append(getNewLabel(id, name));
+		delete __lsOther[name];
+	}
 	//加载主分类
 	function loadRoot(lsr){
 		for(var r in lsr){
@@ -124,26 +176,40 @@ $(document).ready(function() {
 	function loadClass(lsp, lsc){
 		for(var p in lsp) {
 			var obj = $('#tbMaintr'+ lsp[p][2]).find('td:eq(1)');
-			obj.append(getNewLabel(p, lsp[p][1]));
+			obj.append(getNewLabel(lsp[p][1], p));
+			$("#tbMaintd"+lsp[p][1]).find("button").on('click', closeLabel);
 		}
 		for(var p in lsc) {
 			var obj = $('#tbMaintr'+ lsc[p][2]).find('td:eq(1)');
-			obj.append(getNewLabel(p, lsc[p][1]));
+			obj.append(getNewLabel(lsc[p][1], p));
+			$("#tbMaintd"+lsc[p][1]).find("button").on('click', closeLabel);
 		}
 	}
 	//加载未确定的分类信息
 	function loadOther(lsOther){
+		$("#modalsel1").html("");
 		var opt = "";
 		values(lsOther).forEach(function(d){ opt += '<option value ="'+ d[1] +'">'+ d[0] +'</option>'; });
+		$("#modalsel1").append('<option value="-1" disabled="disabled">未选择</option>');
 		$("#modalsel1").append(opt);
-		$("#modalsel1").append('<option value="-1">暂无子类可选择</option>');
+		$("#modalsel1").append('<option value="-1" disabled="disabled">[ 暂无 ]</option>');
+		$("#modalsel1")[0].selectedIndex = 0;
 	}
 
-
-
 	//修改模态框标题
-	function changeTitle(){ var t = $(this).parent().parent().children(":first").html(); $("#myModalLabel").html('添加 '+ t +' 子类别'); }
-	function getNewLabel(name, id){
+	function changeTitle(){
+		var t = $(this).parent().parent().children(":first").html();
+		var rid = $(this).parent().parent().attr("id").replace("tbMaintr", "");
+		$("#myModalLabel").html('添加 '+ t +' 子类别');
+		$("#myModalLabel").attr('title', rid);
+		loadOther(__lsOther);
+	}
+	//关闭标签时
+	function closeLabel(){
+		var id = parseInt($(this).parent().attr("id").replace("tbMaintd", "")), name = $(this).parent().html().replace(/<[^]+>/g, '');
+		__lsOther[name] = [name, id, -2];
+	}
+	function getNewLabel(id, name){
 		return '<div id="tbMaintd' + id + '" class="alert-info" style="min-width: 50px; width: auto;display:inline-block; margin-right: 5px; margin-bottom: 5px">' +
 				'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + name + '</div>';
 	}
@@ -155,32 +221,54 @@ $(document).ready(function() {
 
 
 
-	function loadConfig(){
-		ajaxData('get_network_config', {'userId':10001}, function(data)
-		{
-			cout(data);
-			__lsOther = data.lso;
-			loadRoot(data.lsr);
-			loadClass(data.lsp, data.lsc);
-			loadOther(__lsOther);
-			//$("#unitsel1sel1").append('<option value ="部门网络">部门网络</option>');
-			//getDataNet();
+	function loadConfig(){}
+
+	//submit
+	function getCommitData(){
+		var data = {};
+		$("#tbMain>tbody>tr").each(function(i, d){
+			var rid = parseInt($(d).attr('id').replace('tbMaintr', ''));
+			$(d).find('div').each(function(ci, cd){
+				var cid = parseInt($(cd).attr('id').replace('tbMaintd', ''));
+				data[cid] = rid;
+			});
+		});
+		return data;
+	}
+
+	function loadSubmit(){
+		$pl.start();
+		//$('#showmore').html("");
+		$pl.setProgress(0.3);
+		$('#showmore').removeClass('hide');
+		$('#showmore').find('.ladda-label').text('');
+		//cout(getCommitData());
+		ajaxToInput('set_network_config', {'csrfmiddlewaretoken':__tempc, 'userId':10001, 'dt':JSON.stringify(getCommitData())}, "view1");
+		return;
+		//ajaxSet(__tempc);
+		cout(getCommitData());
+		$.post("http://192.168.3.177:8000/set_network_config/", { 'userId':10001, '_dt':JSON.stringify(getCommitData()), 'token':__tempc}, function(result){
+			$("#view1").html(result);
+			alert(3);
+			$pl.setProgress(1);
+			$pl.stop();
+			$('#showmore').addClass('hide');
+		});
+		//alert(2);
+		return;
+		postData('set_network_config', {'userId':10001, 'dt':getCommitData(), 'token':__tempc}, function(dt){
+
+
+
+			$pl.setProgress(1);
+			$pl.stop();
+			$('#showmore').addClass('hide');
 		});
 	}
 
 
 
 
-
-
-
-
-
-
-
-
-
-//***********************************************函数区域*****************************************************************
 
 
 

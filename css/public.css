@@ -12,6 +12,7 @@
 .bg-green{ background-color:green}
 .bg-blue{ background-color:blue}
 .bg-white{ background-color:white}
+.hide{ display: none}
 
 .floatL{ float:left}
 .floatR{ float:right}
