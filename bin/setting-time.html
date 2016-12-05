@@ -245,21 +245,7 @@ $(document).ready(function() {
 		//cout(getCommitData());
 		ajaxToInput('set_network_config', {'csrfmiddlewaretoken':__tempc, 'userId':10001, 'dt':JSON.stringify(getCommitData())}, "view1");
 		return;
-		//ajaxSet(__tempc);
-		cout(getCommitData());
 		$.post("http://192.168.3.177:8000/set_network_config/", { 'userId':10001, '_dt':JSON.stringify(getCommitData()), 'token':__tempc}, function(result){
-			$("#view1").html(result);
-			alert(3);
-			$pl.setProgress(1);
-			$pl.stop();
-			$('#showmore').addClass('hide');
-		});
-		//alert(2);
-		return;
-		postData('set_network_config', {'userId':10001, 'dt':getCommitData(), 'token':__tempc}, function(dt){
-
-
-
 			$pl.setProgress(1);
 			$pl.stop();
 			$('#showmore').addClass('hide');

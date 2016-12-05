@@ -168,26 +168,6 @@ function ajaxToInput(key, data, viewId){
 	$("#"+viewId).append(div);
 	form.submit();
 }
-function postData(key, data, _callbackS, _callbackE){
-	ajaxSet(data['token']);
-	var cbkf = (parseInt(Math.random() * 1000) + 1000).toString();
-	$.ajax({
-		type:'POST', url:'http://192.168.3.177:8000/' + key + '/',
-		//method:'POST',
-		//type:'GET', url:'http://118.123.173.86:8000/' + key + '/',
-		dataType:'jsonp',
-		crossDomain: true,
-		data:data,
-		//jsonpCallback: 'call1back' + cbkf + 'a',
-		success:function(data)
-		{
-			if(_callbackS)_callbackS(data);
-		},
-		error:function(data)
-		{
-			if(_callbackE)_callbackE(data);
-			alert("error");
-			cout(data);
-		}
-	});
-}
+
+
+
