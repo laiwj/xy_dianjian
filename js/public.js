@@ -155,7 +155,7 @@ function ajaxSet(csrftoken) {
 	});
 }
 function ajaxToInput(key, data, viewId){
-	var url = 'http://192.168.3.177:8000/' + key + '/';
+	var url = serverUrl + '/' + key + '/';
 	var div = $("<div style='display: none'></div>");
 	var form = $('<form action="' + url + '" method="post"></form>');
 	for(var k in data){
@@ -169,5 +169,11 @@ function ajaxToInput(key, data, viewId){
 	form.submit();
 }
 
+function getBadgeClass(v){
+	var c = v==10 ? 'c-danger': 'c-info';
+	if(v>7 && v<10) c = 'c-warning';
+	if(v<4) c = 'c-success';
+	return c;
+}
 
 
