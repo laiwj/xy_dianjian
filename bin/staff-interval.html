@@ -32,7 +32,6 @@
 		</div>
 
 	</div>
-	<script src="../js/jquery-1.9.1.js"></script>
 	<script src="../js/bootstrap.min.js"></script>
 	<script src="../js/prism.js"></script>
 	<script src="../js/ie10-viewport-bug-workaround.js"></script>
@@ -124,8 +123,8 @@
 		function loadTable2(data, tbId, _unit){
 			$('#'+tbId).html("");
 			var columns = [
-				{"name":"name","title":"姓名","breakpoints":"xs sm"},//,"style":{"width":80,"maxWidth":80}},
-				{"name":"unit", "title":"部门", "breakpoints":"xs sm"},
+				{"name":"name","title":"姓名"},//,"style":{"width":80,"maxWidth":80}},
+				{"name":"unit", "title":"部门"},
 				{"name":"seconds","title":"间隔时间", "type":"number"},
 				{"name":"counts", "title":"频次", "breakpoints":"xs sm", "visible":true},
 			];

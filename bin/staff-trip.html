@@ -58,7 +58,6 @@ table tfoot td{border:0px;}
 </div>
 
 
-<script src="../js/jquery-1.9.1.js"></script>
 <script src="../js/bootstrap.min.js"></script>
 <script src="../js/prism.js"></script>
 <script src="../js/ie10-viewport-bug-workaround.js"></script>
@@ -66,13 +65,10 @@ table tfoot td{border:0px;}
 <script src="../js/footable.min.js"></script>
 <script src="../js/d3.v3.min.js"></script>
 <script src="../js/timePiece.js"></script>
-<script src="../js/highcharts.js"></script>
 <script src="../js/echarts.v3.min.js"></script>
 <script src="../js/datazoom.js"></script>
 <script src="../js/china.js"></script>
 <script src="../js/province.js"></script>
-<script type="text/javascript" src="../js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
-<script type="text/javascript" src="../js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
 
 <script language="javascript">
 "use strict";
@@ -307,11 +303,10 @@ $(document).ready(function() {
 			{"name":"counts", "title":"累计频次", "type":"number", "visible":true},
 		];
 		$('#'+tbId).footable({
-			"columns": columns, "rows": formatDataTable2(data, _unit), "paging": { "size": 7 },
+			"columns": columns, "rows": formatDataTable2(data, _unit), "paging": { "size": 8 },
 		});
 		tableClick(tbId);
 	}
-
 
 	//--------------------------------------------地图相关---------------------------------------------------------
 	function InitMapViews(id){

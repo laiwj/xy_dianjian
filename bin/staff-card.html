@@ -32,7 +32,6 @@
 		</div>
 
 	</div>
-	<script src="../js/jquery-1.9.1.js"></script>
 	<script src="../js/bootstrap.min.js"></script>
 	<script src="../js/prism.js"></script>
 	<script src="../js/ie10-viewport-bug-workaround.js"></script>
@@ -43,6 +42,7 @@
 
 	<script language="javascript">
 		"use strict";
+
 		var pieSelectName = "nosel";
 		function cout(d){ console.log(d); }
 		var units = []; //['水资源规划处', '项目部', '征地移民处', '人力资源部', '采购部', '海外事务部', '科技质量部', '造价中心', '施工处'];
@@ -196,7 +196,7 @@
 					}
 				});
 			});
-			var dt = values(sum).sort(function(a, b){ return b.value - a.value; }), maxV = dt[0].value;
+			var dt = values(sum).sort(function(a, b){ return b.value - a.value; }), maxV = dt[0] ? dt[0].value : 1;
 			dt.forEach(function(d){
 				var v = parseInt((d.value / maxV) * 10), c = getBadgeClass(v);
 				d.value = '<span class="badge '+ c +'">' +  v + '</span>';

@@ -212,7 +212,7 @@
 <script type="text/javascript">
   "use strict";
   //window.onresize = function () { location.reload(); }
-  var __limit = ['setting-time'];
+  var __limit = {'setting-time':1};
   checkLogin();
 
   function signin(){
@@ -237,7 +237,7 @@
     var target = (obj != undefined && obj.title != "") ? obj.title : "staff-flow";
     var url= window.location.href;
     url = url.substring(0, url.lastIndexOf('.html') + 5);
-    if(!checkPower() && __limit.find(key)!=-1){
+    if(!checkPower() && (target in __limit)){
       alert('提示：当前登录账户没有权限访问该页面，请联系管理员！');
       return;
     }

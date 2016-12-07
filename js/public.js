@@ -175,5 +175,45 @@ function getBadgeClass(v){
 	if(v<4) c = 'c-success';
 	return c;
 }
-
+function checkLogin(){
+	var session = getCookie('session'), userName = getCookie('username'),
+		nickName = getCookie('nickname'), level = getCookie('level');
+	if(level!=null)level = parseInt(level);
+	if(!session || !userName || !nickName || !level){
+		window.location.href="login.html";
+	}else{
+		$('#u_username').html(userName);
+		$('#u_nickname').html(nickName);
+		$('#u_level').html('lv '+ level);
+		$('#u_lvname').html(level>1 ? '普通用户' : (level==0?'超级管理员':'管理员'));
+	}
+}
+function quit(){
+	delCookie('session');
+	delCookie('username');
+	window.location.href="login.html";
+}
+function setCookie(name,value, hour)
+{
+	hour = hour || 2;
+	var exp = new Date();
+	exp.setTime(exp.getTime() + hour * 60*60*1000);
+	document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+}
+function getCookie(name)
+{
+	var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+	if(arr=document.cookie.match(reg))
+		return unescape(arr[2]);
+	else
+		return null;
+}
+function delCookie(name)
+{
+	var exp = new Date();
+	exp.setTime(exp.getTime() - 1);
+	var cval=getCookie(name);
+	if(cval!=null)
+		document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+}
 
