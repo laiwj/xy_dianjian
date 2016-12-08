@@ -12,9 +12,8 @@
 	<script src="../js/respond.min.js"></script>
 	<![endif]-->
 	<style type="text/css">
-		.bd{ border: 1px solid #ccc}
-		#view1rtn{border: 1px solid #ccc; padding: 2px 18px;position:absolute;z-index:100; top:25px; cursor: pointer}
-		.source{ width: 100%}
+		.m-l-s{ margin-left: 8px}
+		.pointer{ cursor: pointer}
 		table tbody tr td:nth-child(3) { vertical-align:top;}
 		.modal-backdrop {  opacity: 0 !important;  filter: alpha(opacity=0) !important;  }
 		.center-block{  display:block;  margin-left:auto;  margin-right:auto;  }
@@ -72,20 +71,22 @@
 			</div><!-- /.modal -->
 		</div>
 
+
 	</div>
 
 </div>
 
 
-
 <script src="../js/echarts.min.js"></script>
-<script src="../js/bootstrap.min.js"></script>
+<script src="../js/bootstrap-3.1.1.min.js"></script>
+<script src="../js/public.js"></script>
 <script src="../js/prism.js"></script>
 <script src="../js/ie10-viewport-bug-workaround.js"></script>
 <script src="../js/moment.min.js"></script>
 <script src="../js/footable.min.js"></script>
 <script src="../js/spin.js"></script>
 <script src="../js/ladda.js"></script>
+
 
 <script language="javascript">
 "use strict";
@@ -103,7 +104,6 @@ $(document).ready(function() {
 	$showmore.trigger('click');
 	$("#tbSubmit").on('click', loadSubmit);
 
-	loadConfig();
 	Init();
 	function loadSubmit2(){
 		$('#showmore').removeClass('hide');
@@ -111,21 +111,10 @@ $(document).ready(function() {
 	}
 
 	function Init() {
-		$('.form_date').datetimepicker({
-			language: 'zh-CN', weekStart: 1, todayBtn: 1, autoclose: 1, todayHighlight: 1, startView: 2, minView: 2, forceParse: 0,
-		}).on('changeDate', function (e) {
-			var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();
-		});
-		$('.form_date:eq(0)').datetimepicker('setDate', DateDSTD(init_people_date_start));
-		$('.form_date:eq(1)').datetimepicker('setDate', DateDSTD(init_people_date_end));
-		$(".source").click(function () {
-			var source = ["全部", "考勤", "就餐", "邮箱", "腾讯通"];
-			var src = $(this).children("a:eq(0)").html();
-			var unit = $("#unitsel1sel1").find("option:selected").text();
-		});
+		$('.form_date').remove();
 		InitModel("myModal");
 		$("#modalSelOk").on('click', selOK);
-		//$("#tbSubmit").on('click', setCommit);
+
 	}
 
 	function loadshots(){
@@ -167,6 +156,7 @@ $(document).ready(function() {
 			var row = $(getNewRow(r, lsr[r], '', ''));
 			$("#tbMain").append(row);
 			($("#editBtn"+r).on('click', changeTitle));
+			($("#tdEditI"+r).on('click', changeRoot));
 		}
 	}
 	//加载主分类对应关键词
@@ -195,12 +185,27 @@ $(document).ready(function() {
 
 	//修改模态框标题
 	function changeTitle(){
-		var t = $(this).parent().parent().children(":first").html();
+		var t = $(this).parent().parent().children(":first").find("span").html();
 		var rid = $(this).parent().parent().attr("id").replace("tbMaintr", "");
 		$("#myModalLabel").html('添加 '+ t +' 子类别');
 		$("#myModalLabel").attr('title', rid);
 		loadOther(__lsOther);
 	}
+	//修改root分类
+	function changeRoot(){
+		var obj = $(this).parent(), html = obj.html(), value = $(this).parent().find('span').html();
+		var iHtml = html.replace(/<span[^]+span>/g, ''), rid = $(this).attr('id').replace('tdEditI', '');;
+		obj.html("<input id='temp123' type='text' value='"+ value +"' />");
+		$("#temp123").focus();
+		$("#temp123").blur(function(){
+			var name = $(this).val();
+			if(name!='')value = name;
+			var newHtml = "<span>" + value + "</span>" + iHtml;
+			obj.html(newHtml);
+			$("#tdEditI"+rid).on('click', changeRoot);
+		});
+	}
+
 	//关闭标签时
 	function closeLabel(){
 		var id = parseInt($(this).parent().attr("id").replace("tbMaintd", "")), name = $(this).parent().html().replace(/<[^]+>/g, '');
@@ -208,29 +213,28 @@ $(document).ready(function() {
 	}
 	function getNewLabel(id, name){
 		return '<div id="tbMaintd' + id + '" class="alert-info" style="min-width: 50px; width: auto;display:inline-block; margin-right: 5px; margin-bottom: 5px">' +
-				'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + name + '</div>';
+				'<button type="button" class="close" title="删除该关键词" data-dismiss="alert" aria-hidden="true">&times;</button>' + name + '</div>';
 	}
 	function getNewRow(id, col1, col2, col3, col4){
 		col2 = col2 || ''; col4 = col4 || '';
-		col3 = col3 || '<button type="button" id="editBtn'+ id +'"  class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">增加</button>';
-		return "<tr id='tbMaintr"+ id +"'><td>" + col1 + "</td><td>"+ col2 +"</td><td>"+ col3 +"</td><td>"+ col4 +"</td>";
+		col3 = col3 || '<button type="button" id="editBtn'+ id +'"  class="btn btn-info btn-sm" title="添加关键词" data-toggle="modal" data-target="#myModal">增加</button>';
+		return "<tr id='tbMaintr"+ id +"'><td><span>" + col1 + "</span><i id='tdEditI"+ id +"' class='pointer m-l-s fa fa-edit' title='修改分类名'> </i></td><td>"+
+				col2 +"</td><td>"+ col3 +"</td><td>"+ col4 +"</td>";
 	}
 
 
-
-	function loadConfig(){}
-
 	//submit
 	function getCommitData(){
-		var data = {};
+		var cdt = {}, rdt = {};
 		$("#tbMain>tbody>tr").each(function(i, d){
 			var rid = parseInt($(d).attr('id').replace('tbMaintr', ''));
 			$(d).find('div').each(function(ci, cd){
 				var cid = parseInt($(cd).attr('id').replace('tbMaintd', ''));
-				data[cid] = rid;
+				cdt[cid] = rid;
 			});
+			rdt[rid] = $(d).find('td:first>span').html();
 		});
-		return data;
+		return {'root':rdt, 'child':cdt};
 	}
 
 	function loadSubmit(){
@@ -239,14 +243,10 @@ $(document).ready(function() {
 		$pl.setProgress(0.3);
 		$('#showmore').removeClass('hide');
 		$('#showmore').find('.ladda-label').text('');
-		//cout(getCommitData());
-		ajaxToInput('set_network_config', {'csrfmiddlewaretoken':__tempc, 'userId':10001, 'dt':JSON.stringify(getCommitData())}, "view1");
-		return;
-		$.post("http://192.168.3.177:8000/set_network_config/", { 'userId':10001, '_dt':JSON.stringify(getCommitData()), 'token':__tempc}, function(result){
-			$pl.setProgress(1);
-			$pl.stop();
-			$('#showmore').addClass('hide');
-		});
+		var dt = getCommitData();
+		ajaxToInput('set_network_config', {'csrfmiddlewaretoken':__tempc, 'userId':10001,
+			'root':JSON.stringify(dt.root), 'child':JSON.stringify(dt.child)}, "view1");
+
 	}
 
 

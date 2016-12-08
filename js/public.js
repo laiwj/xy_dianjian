@@ -4,6 +4,8 @@
 	var init_flow_date_end = "2016-06-13";
 	var init_trip_date_start = "2014-04-13";
 	var init_trip_date_end = "2016-10-22";
+	var init_network_date_start = "2016-02-18";
+	var init_network_date_end = "2016-02-26";
 	var init_people_date_start = "2014-04-13";
 	var init_people_date_end = "2016-11-20";
 	var init_date_start = "2015-10-02";
@@ -112,7 +114,7 @@ function addUnitSel(id, _unit, clickFunc){
 	$("#" + id + 'sel1').change(function(){ if(clickFunc!=undefined)clickFunc($(this).val()); });
 }
 
-function tableClick(tbId, _callback){
+function _tableClick(tbId, _callback){
 	$("#" + tbId +" tbody tr").click(function(e){
 		$("#" + tbId +" tbody tr").css("background-color", '');
 		$("#" + tbId +" tbody tr").css("color", '');
@@ -120,7 +122,13 @@ function tableClick(tbId, _callback){
 		$(this).css("color", "green");
 		var v1 = $(this).find("td").first().html(), v2 = $(this).find("td:eq(1)").html()
 			, v3 = $(this).find("td:eq(2)").html();
-		if(_callback)_callback($(this),v1, v2, v3);
+		if(_callback)_callback($(this),[v1, v2, v3]);
+	});
+}
+function tableClick(ft, tbId, _callback){
+	_tableClick(tbId, _callback);
+	ft.on('after.ft.paging', function(e){
+		_tableClick(tbId, _callback);
 	});
 }
 function csrfSafeMethod(method) {

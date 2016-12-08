@@ -302,10 +302,10 @@ $(document).ready(function() {
 			{"name":"dates","title":"出差日期", "breakpoints":"xs sm"},
 			{"name":"counts", "title":"累计频次", "type":"number", "visible":true},
 		];
-		$('#'+tbId).footable({
+		var ft = $('#'+tbId).footable({
 			"columns": columns, "rows": formatDataTable2(data, _unit), "paging": { "size": 8 },
 		});
-		tableClick(tbId);
+		tableClick(ft, tbId);
 	}
 
 	//--------------------------------------------地图相关---------------------------------------------------------

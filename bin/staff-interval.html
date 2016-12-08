@@ -80,13 +80,9 @@
 				range(1,13).forEach(function(m){ dateList.push([y, m]); });
 			});
 			dateList.forEach(function(d){ opt1 += '<option value ="'+ (d[0]+'-'+d[1]+'-1') + '">'+ d[0] + '年' + d[1] + '月' +'</option>'; });
-			opt2 = opt1;
-			//$(public_time_select).append(div + sel2 + opt2 + '</select>' + '</div>');
 			$(public_time_select).append(div + sel1 + opt1 + '</select>' + '</div>');
 			$("#phead" + 'sel1').val(getMonthFirstDay(init_date_month));
-			//$("#phead" + 'sel2').val(getMonthFirstDay(init_date_end));
 			$("#phead" + 'sel1').change(function(d){ if(clickFunc)clickFunc($(this).val()); });
-			//$("#phead" + 'sel2').change(function(d){ if(clickFunc)clickFunc($(this).val()); });
 		}
 		function getMonthFirstDay(date){ var sp = date.split("-"); return parseInt(sp[0])+'-'+parseInt(sp[1])+'-1';  }
 		function getDateByMonth(date){ var sp = date.split("-");
@@ -128,11 +124,11 @@
 				{"name":"seconds","title":"间隔时间", "type":"number"},
 				{"name":"counts", "title":"频次", "breakpoints":"xs sm", "visible":true},
 			];
-			$('#'+tbId).footable({
+			var ft = $('#'+tbId).footable({
 				"columns": columns, "rows": formatDataTable2(data, _unit), "paging": { "size": 7 },
 			});
 			//_unit
-			tableClick(tbId);
+			tableClick(ft, tbId);
 		}
 
 		//***********************************************图2************************************************

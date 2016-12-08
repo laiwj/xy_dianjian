@@ -1,175 +1,228 @@
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-    <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link href="../css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
-    <link rel="stylesheet" href="../css/jquery-ui.css">
-
-
-</head>
-<body>
-
 <link href="../css/bootstrap-theme.min.css" rel="stylesheet">
 <!-- Prism -->
 <link href="../css/prism.css" rel="stylesheet">
 
 <link href="../css/footable.bootstrap.min.css" rel="stylesheet">
+<link href="../css/ladda-themeless.css" rel="stylesheet">
+<link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
+<link href="../css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+<link rel="stylesheet" href="../css/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="../css/animate.css" type="text/css" />
+<link rel="stylesheet" href="../css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="../css/simple-line-icons.css" type="text/css" />
+<link rel="stylesheet" href="../css/font.css" type="text/css" />
+<link rel="stylesheet" href="../css/app.css" type="text/css" />
+<link rel="stylesheet" href="../css/public.css" type="text/css" />
+
 <!--[if lt IE 9]>
 <script src="../js/html5shiv.min.js"></script>
 <script src="../js/respond.min.js"></script>
-
 <![endif]-->
 <style type="text/css">
     .bd{ border: 1px solid #ccc}
     #view1rtn{border: 1px solid #ccc; padding: 2px 18px;position:absolute;z-index:100; top:25px; cursor: pointer}
     .source{ width: 100%}
     table tbody tr td:nth-child(3) { vertical-align:top;}
+    .modal-backdrop {  opacity: 0 !important;  filter: alpha(opacity=0) !important;  }
+    .center-block{  display:block;  margin-left:auto;  margin-right:auto;  }
 </style>
 
-<div class="m-sm bg-main">
-    <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto">
-        <div class="col col-sm-12">
-            <div class="w-full">
-                <div class="title" id="unitsel2">网络访问分类设置</div>
-                <div id="view1" style="width: 100%;">
-                    <table class="table" id="tbMain">
-                        <thead>
-                        <tr>
-                            <th width="150px">分类</th><th>所属关键词</th><th>编辑</th><th width="200px">IP/域名定义</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
 
-                    <!-- 模态框（Modal） -->
-                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="closeHide();">
-                                        &times;
-                                    </button>
-                                    <h4 class="modal-title" id="myModalLabel">
-                                        模态框（Modal）标题
-                                    </h4>
-                                </div>
-                                <div class="modal-body">
-                                    在这里添加一些文本
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
-                                    </button>
-                                    <button type="button" class="btn btn-primary">
-                                        提交更改
-                                    </button>
-                                </div>
-                            </div><!-- /.modal-content -->
-                        </div><!-- /.modal -->
-                    </div>
+<button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+    开始演示模态框
+</button>
 
 
-                </div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    模态框（Modal）标题
+                </h4>
             </div>
-        </div>
-
-    </div>
-
+            <div class="modal-body">
+                在这里添加一些文本
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+                <button type="button" class="btn btn-primary">
+                    提交更改
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
 </div>
-
-
-
+<script src="../js/jquery-3.0.0.min.js"></script>
 <script src="../js/echarts.min.js"></script>
-<script src="../js/jquery-1.9.1.js"></script>
-<script src="../js/bootstrap.min.js"></script>
+<script src="../js/bootstrap-3.3.7.min.js"></script>
+
+<script src="../js/public.js"></script>
+
 <script src="../js/prism.js"></script>
 <script src="../js/ie10-viewport-bug-workaround.js"></script>
 <script src="../js/moment.min.js"></script>
 <script src="../js/footable.min.js"></script>
-<script type="text/javascript" src="../js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
-<script type="text/javascript" src="../js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
-<script src="../js/public.js"></script>
+<script src="../js/spin.js"></script>
+<script src="../js/ladda.js"></script>
+
 
 <script language="javascript">
     "use strict";
 
+
     var units = [];
+    var __lsOther = {};
+    var $pl;
+    var __tempc = null;
 
     $(document).ready(function() {
         //$('#view1').height(document.body.clientHeight - $("#view2").offset().top-52-3-42);
+        var $showmore=$('#showmore');
+        $showmore.on('click', loadshots);
+        $showmore.trigger('click');
+        $("#tbSubmit").on('click', loadSubmit);
 
 
-
-        loadConfig();
         Init();
+        function loadSubmit2(){
+            $('#showmore').removeClass('hide');
+            $showmore.trigger('click');
+        }
 
         function Init() {
-            $('.form_date').datetimepicker({
-                language: 'zh-CN', weekStart: 1, todayBtn: 1, autoclose: 1, todayHighlight: 1, startView: 2, minView: 2, forceParse: 0,
-            }).on('changeDate', function (e) {
-                var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();
-            });
-            $('.form_date:eq(0)').datetimepicker('setDate', DateDSTD(init_people_date_start));
-            $('.form_date:eq(1)').datetimepicker('setDate', DateDSTD(init_people_date_end));
-            $(".source").click(function () {
-                var source = ["全部", "考勤", "就餐", "邮箱", "腾讯通"];
-                var src = $(this).children("a:eq(0)").html();
-                var unit = $("#unitsel1sel1").find("option:selected").text();
 
-            });
             InitModel("myModal");
+            $("#modalSelOk").on('click', selOK);
+            //$("#tbSubmit").on('click', setCommit);
         }
-        function closeHide2(){alert("id"); $("#myModal").modal('hide');$('body').removeClass('modal-backdrop');$('.modal-backdrop').remove(); }
-        function InitModel(id){
 
-            $("#"+id).on('hide.bs.modal', function(){
-                alert(2);
-            })
+        function loadshots(){
+            return;
+            var l = Ladda.create(this);
+            $pl = l;
+            l.start();
+            l.setProgress(0.3);
+            $showmore.find('.ladda-label').text('loading...');
+
+            ajaxData('get_network_config', {'userId':10001}, function(data)
+            {
+                cout(data);
+                __lsOther = data.lso;
+                loadRoot(data.lsr);
+                loadClass(data.lsp, data.lsc);
+                loadOther(__lsOther);
+                __tempc = data.toke;
+
+                l.setProgress(1);
+                l.stop();
+                $showmore.addClass('hide');
+            });
         }
 
     });
+
+    function InitModel(id){ $("#"+id).on('hide.bs.modal', function(){ $('.modal-backdrop').remove();}) }
+    //为主分类增加关键词
+    function selOK(){
+        var id = $("#modalsel1").val();
+        if(!id || id==-1)return;
+        var name=$("#modalsel1").find("option:selected").text(), rid = $("#myModalLabel").attr('title');
+        $('#tbMaintr'+ rid).find('td:eq(1)').append(getNewLabel(id, name));
+        delete __lsOther[name];
+    }
     //加载主分类
     function loadRoot(lsr){
         for(var r in lsr){
             var row = $(getNewRow(r, lsr[r], '', ''));
             $("#tbMain").append(row);
+            ($("#editBtn"+r).on('click', changeTitle));
         }
     }
     //加载主分类对应关键词
     function loadClass(lsp, lsc){
         for(var p in lsp) {
             var obj = $('#tbMaintr'+ lsp[p][2]).find('td:eq(1)');
-            obj.append(getNewLabel(p, lsp[p][1]));
+            obj.append(getNewLabel(lsp[p][1], p));
+            $("#tbMaintd"+lsp[p][1]).find("button").on('click', closeLabel);
         }
         for(var p in lsc) {
             var obj = $('#tbMaintr'+ lsc[p][2]).find('td:eq(1)');
-            obj.append(getNewLabel(p, lsc[p][1]));
+            obj.append(getNewLabel(lsc[p][1], p));
+            $("#tbMaintd"+lsc[p][1]).find("button").on('click', closeLabel);
         }
     }
-    function getNewLabel(name, id){
+    //加载未确定的分类信息
+    function loadOther(lsOther){
+        $("#modalsel1").html("");
+        var opt = "";
+        values(lsOther).forEach(function(d){ opt += '<option value ="'+ d[1] +'">'+ d[0] +'</option>'; });
+        $("#modalsel1").append('<option value="-1" disabled="disabled">未选择</option>');
+        $("#modalsel1").append(opt);
+        $("#modalsel1").append('<option value="-1" disabled="disabled">[ 暂无 ]</option>');
+        $("#modalsel1")[0].selectedIndex = 0;
+    }
+
+    //修改模态框标题
+    function changeTitle(){
+        var t = $(this).parent().parent().children(":first").html();
+        var rid = $(this).parent().parent().attr("id").replace("tbMaintr", "");
+        $("#myModalLabel").html('添加 '+ t +' 子类别');
+        $("#myModalLabel").attr('title', rid);
+
+        loadOther(__lsOther);
+    }
+    //关闭标签时
+    function closeLabel(){
+        var id = parseInt($(this).parent().attr("id").replace("tbMaintd", "")), name = $(this).parent().html().replace(/<[^]+>/g, '');
+        __lsOther[name] = [name, id, -2];
+    }
+    function getNewLabel(id, name){
         return '<div id="tbMaintd' + id + '" class="alert-info" style="min-width: 50px; width: auto;display:inline-block; margin-right: 5px; margin-bottom: 5px">' +
                 '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + name + '</div>';
     }
     function getNewRow(id, col1, col2, col3, col4){
         col2 = col2 || ''; col4 = col4 || '';
-        col3 = col3 || '<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">增加</button>';
+        col3 = col3 || '<button type="button" id="editBtn'+ id +'"  class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">增加</button>';
         return "<tr id='tbMaintr"+ id +"'><td>" + col1 + "</td><td>"+ col2 +"</td><td>"+ col3 +"</td><td>"+ col4 +"</td>";
     }
 
-    //----------------------加载部门信息
-    function loadConfig(){
-        ajaxData('get_network_config', {'userId':10001}, function(data)
-        {
-            cout(data);
-            loadRoot(data.lsr);
-            loadClass(data.lsp, data.lsc);
-            //$("#unitsel1sel1").append('<option value ="部门网络">部门网络</option>');
-            //getDataNet();
+
+
+    //submit
+    function getCommitData(){
+        var data = {};
+        $("#tbMain>tbody>tr").each(function(i, d){
+            var rid = parseInt($(d).attr('id').replace('tbMaintr', ''));
+            $(d).find('div').each(function(ci, cd){
+                var cid = parseInt($(cd).attr('id').replace('tbMaintd', ''));
+                data[cid] = rid;
+            });
+        });
+        return data;
+    }
+
+    function loadSubmit(){
+        $pl.start();
+        //$('#showmore').html("");
+        $pl.setProgress(0.3);
+        $('#showmore').removeClass('hide');
+        $('#showmore').find('.ladda-label').text('');
+        //cout(getCommitData());
+        ajaxToInput('set_network_config', {'csrfmiddlewaretoken':__tempc, 'userId':10001, 'dt':JSON.stringify(getCommitData())}, "view1");
+        return;
+        $.post("http://192.168.3.177:8000/set_network_config/", { 'userId':10001, '_dt':JSON.stringify(getCommitData()), 'token':__tempc}, function(result){
+            $pl.setProgress(1);
+            $pl.stop();
+            $('#showmore').addClass('hide');
         });
     }
-    //-------------------------------------------表格相关------------------------------------------
+
 
 
 
@@ -177,8 +230,3 @@
 
 
 </script>
-
-
-
-</body>
-</html>

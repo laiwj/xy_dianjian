@@ -35,19 +35,7 @@
 			</div>
 		</div>
 	</div>
-	<!--
-	<div class="m-t-sm">
-		<div class="hbox hbox-auto-xs hbox-auto-xs bg-white">       
-			<div class="col w-full bg-light lter bg-auto">
-				<div class="title">数据视图</div>
-				<div id="view5" style="width:100%;min-height:400px">
-					<table id="table-data" class="table" data-page-size="4" data-paging="true"  data-filtering="true" data-sorting="true"></table>
-				</div>
-			
-			</div>
-		</div>	
-	</div>
-	-->
+
 </div>
 <script src="../js/echarts.min.js"></script>
 <script src="../js/bootstrap.min.js"></script>
@@ -70,10 +58,24 @@ $(document).ready(function() {
 	//loadTimes();
 
 
-	loadUnitList();
-	loadPersonTime('view2');
+	Init();
 
+	loadPersonTime('view2');
 	loadOnlineDataByUnit();
+
+
+	function Init() {
+		$('.form_date').datetimepicker({
+			language: 'zh-CN', weekStart: 1, todayBtn: 1, autoclose: 1, todayHighlight: 1, startView: 2, minView: 2, forceParse: 0,
+		}).on('changeDate', function (e) {
+			var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();
+			var _unit = $('#unitsel1sel1').val();
+			loadOnlineDataByUnit(_unit, startDate, endDate);
+		});
+		$('.form_date:eq(0)').datetimepicker('setDate', DateDSTD(init_network_date_start));
+		$('.form_date:eq(1)').datetimepicker('setDate', DateDSTD(init_network_date_end));
+		loadUnitList();
+	}
 
 	//----------------------加载部门信息
 	function loadUnitList(){
@@ -81,20 +83,17 @@ $(document).ready(function() {
 		{
 			units = data;
 			addUnitSel('unitsel1', data, loadOnlineDataByUnit);
-			//addUnitSel('unitsel2', data, selectUnitInterval);
 			$("#unitsel1sel1 option:first").remove();
 			$("#unitsel1sel1").val(init_unit_online);
 		});
 	}
 	//-----------------------------------------------------------------------------
-	function loadOnlineDataByUnit(_u){
-//		if(_u==undefined)_u = $("#unitsel1sel1").val() ;
-//		var datesel = getDateByMonth($("#pheadsel1").val()), //dateEnd = $("#pheadsel2").val();
-//				dateStart = datesel.dateStart || init_date_start, dateEnd = datesel.dateEnd || init_date_end;
+	function loadOnlineDataByUnit(_u, dateStart, dateEnd){
 		__myChart1 = echarts.init(document.getElementById("view1")).showLoading();
 		_u = _u || init_unit_online;
-		var dateStart = init_date_start, dateEnd = init_date_end;
-		dateStart = "2015-02-02"; dateEnd = "2016-11-02";
+		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();
+		dateStart = dateStart || startDate;
+		dateEnd = dateEnd || endDate;
 		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd, 'unit':_u};
 		ajaxData('get_online_unit', adt, function(data)
 		{
@@ -214,17 +213,12 @@ $(document).ready(function() {
 			{"name":"counts", "title":"访问频次", "type":"number"},
 			{"name":"types", "title":"访问内容分类"}
 		];
-		$('#table-data2').footable({
+		var ft = $('#table-data2').footable({
 			"columns": columns, "rows": formatDataTable(data, _u),
 			"paging": { "size": 8 },
 		});
-		$('#table-data2 tbody tr').click(function(e){
-			var pid = $(this).find("td").first().html(), name = $(this).find("td:eq(1)").html();
-			$('#table-data2 tbody tr').css("background-color", '');
-			$('#table-data2 tbody tr').css("color", '');
-			$(this).css("background-color", "#FFF8D7");
-			$(this).css("color", "green");
-			loadOnlineDataByPerson(pid, name);
+		tableClick(ft, 'table-data2', function(p, cols){
+			loadOnlineDataByPerson(cols[0], cols[1]);
 		});
 
 	}

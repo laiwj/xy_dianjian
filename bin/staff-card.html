@@ -213,10 +213,10 @@
 				{"name":"value","title":"异常指数"}, //, "type":"number"
 				{"name":"text", "title":"异常情况", "breakpoints":"xs sm", "visible":false},
 			];
-			$('#'+tbId).footable({
+			var ft = $('#'+tbId).footable({
 				"columns": columns, "rows": formatDataTable1(data), "paging": { "size": 7 },
 			});
-			tableClick(tbId, function(obj){
+			tableClick(ft, tbId, function(obj){
 				obj.attr("title", obj.find("td:eq(4)").html());
 
 			});
