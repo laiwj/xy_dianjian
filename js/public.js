@@ -19,7 +19,7 @@
 	var init_unit_interval = "所有部门";
 	var init_unit_flow = "所有部门";
 	var public_all_unit = "所有部门";
-	var serverIp = "http://192.168.3.177";
+	var serverIp = "http://10.101.1.177";
 	//var serverIp = "http://118.123.173.86";
 	var serverPort = 8000;
 	var serverUrl = serverIp + ":" + serverPort;
