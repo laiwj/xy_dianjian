@@ -56,7 +56,7 @@ $(document).ready(function(){
     });
     /*保存*/
     $("#J_save_select").click(function(){
-        window.location.href = '/emergency/bin/index.html?key=performance-list';
+        window.location.href = 'index.html?key=performance-list';
 
     });
     $("#add").colorbox({inline:true,href:"#dialog-add",title:'任务因素与配比',innerWidth:510,initialHeight:700,
