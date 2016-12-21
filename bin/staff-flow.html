@@ -58,6 +58,7 @@ var __table_create = false;
 var __current_month = 0;
 var __select_create = false;
 var __datazoom_view1 = null;
+var __view_level = 0;
 
 $(document).ready(function() {
 	var days = [ "一", "二", "三", "四", "五", "六", "日" ].map(function(d){ return "星期" + d; });
@@ -85,7 +86,9 @@ $(document).ready(function() {
 	//-------------------------------------加载部门信息---------------------------------------------
 	function selUnit1(_u){
 		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
+		__view_level = _u=='所有部门' ? 0 : 1;
 		getFlowData('view1', startDate, endDate, 1, _u);
+		$("#flowsel1").val(_u);
 	}
 	function loadUnitList(){
 		ajaxData('get_units', {}, function(data)
@@ -193,7 +196,10 @@ $(document).ready(function() {
 			series : ses
 		};
 		//console.log(ses);
-		Init3(option1, id);
+		var _chart = Init3(option1, id);
+		_chart.on('click', function(p){
+			if(__view_level==0)selUnit1(p.seriesName);
+		});
 	}
 
 	//---------------------------------------------------------------------------------------------
