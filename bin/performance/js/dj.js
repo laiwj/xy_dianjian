@@ -4,6 +4,7 @@
 var listJson = [];
 var listT = '';
 $(document).ready(function(){
+    $('.form_date').remove();
     if(window.location.hash == '#list'){
         $(".jsecond").hide();
         $(".jthree").show();
