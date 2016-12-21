@@ -28,7 +28,6 @@
 h2{
     font-weight: bold;
 }
-.clear{height:0;clear:both;overflow:hidden}
 .clearfix:after{content: "\0020"; display: block; height: 0;clear: both; visibility: hidden; }
 .clearfix{zoom: 1;}
 
@@ -109,6 +108,9 @@ h2{
     width: 280px;
     margin: 0 auto;
 }*/
+.main_content{
+    margin-top: 15px;
+}
 .step_on{
     color: #4b73eb;
     background-color: #fff;
