@@ -1,22 +1,12 @@
 <xmp>
-<!DOCTYPE html>
-<html>
-<head>
     <meta charset=utf-8>
-    <title>数据采集平台</title>
     <meta name=viewport content="width=device-width, initial-scale=1">
-    <!-- Bootstrap framework -->
-    <link rel="stylesheet" href="js/bootstrap/css/bootstrap.css" />
-
-    <!-- colorbox -->
-    <link rel="stylesheet" href="js/colorbox/colorbox.css" />
-
-    <!-- main styles -->
 
 
-    <link rel="stylesheet" href="css/list.css" />
-</head>
-<body >
+    <link rel="stylesheet" href="performance/js/colorbox/colorbox.css" />
+
+    <link rel="stylesheet" href="performance/css/list.css" />
+
 <div id="maincontainer" class="height100p" title="" style="border: 0">
     <div id="menu">
 
@@ -30,11 +20,11 @@
                         <div class="reset_step">
                             <div class="circle_step">
                                 <div class="circle step_on" >1</div>
-                                <div class="line"></div>
+                                <div class="linee"></div>
                                 <div class="circle">2</div>
                             </div>
                             <div class="step_title">
-                                <div class="step_name " style="margin-left: -53px;margin-right: 368px;">设置团队/部门绩效因素</div>
+                                <div class="step_name " style="margin-left: -53px;margin-right: 310px;">设置团队/部门绩效因素</div>
                                 <div class="step_name">个人绩效</div>
                             </div>
                         </div>
@@ -58,9 +48,9 @@
 
 
                                 <div class="simple-table-container md-whiteframe-4dp accordion">
-                                    <table class="table simple accordion-group" ms-responsive-table="">
+                                    <table  class="table table-bordered accordion-group" data-paging="true" data-sorting="false" style="display: table;">
                                         <thead>
-                                        <tr role="row">
+                                        <tr role="footable-header">
 
                                             <th class="sorting_disabled" role="columnheader" rowspan="1" colspan="1" aria-label="Image">部门
                                             </th>
@@ -83,7 +73,7 @@
 
                                             </td>
                                             <td class="name  ">
-                                                <a href="list.html#list">10</a>
+                                                <a href="/emergency/bin/index.html?key=performance-list#list">10</a>
                                             </td>
                                             <td class="salary " style="text-align: right">
                                                 <button class="md-button md-raised J_edit">编辑</button>
@@ -131,7 +121,7 @@
             <label>因素与配比<i class="icon-add" id="J_add_select"></i></label>
             <div class="append-con">
                 <div class="list-li">
-                    <select class="span3 second_select"  >
+                    <select class="span3 second_select" style="width: 47%" >
                         <option selected="selected" value="任务">任务</option>
                         <option value="考勤">考勤</option>
                         <option value="工作时间">工作时间</option>
@@ -141,7 +131,7 @@
                         <option value="学习能力">学习能力</option>
                         <option value="创新">创新</option>
                     </select>
-                    <select class="span3 three_select">
+                    <select class="span3 three_select" style="width: 47%">
                         <option selected="selected" value="10%">10%</option>
                         <option value="20%">20%</option>
                         <option value="30%">30%</option>
@@ -163,10 +153,8 @@
 </div>
 
 
-<script type="text/javascript" src="js/jquery-1.8.3.min.js" ></script>
-<script type="text/javascript" src="js/colorbox/jquery.colorbox.min.js" ></script>
-<script type="text/javascript" src="js/dj.js" ></script>
+<script type="text/javascript" src="performance/js/jquery-1.8.3.min.js" ></script>
+<script type="text/javascript" src="performance/js/colorbox/jquery.colorbox.min.js" ></script>
+<script type="text/javascript" src="performance/js/dj.js" ></script>
 
-</body>
-</html>
-</xmp>
+    </xmp>
