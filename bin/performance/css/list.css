@@ -28,9 +28,15 @@
 h2{
     font-weight: bold;
 }
+.fb{
+    font-weight: bold;
+}
+
 .clearfix:after{content: "\0020"; display: block; height: 0;clear: both; visibility: hidden; }
 .clearfix{zoom: 1;}
-
+.nameval{
+    text-indent: 12px;
+}
 .md-button {
     border:1px solid #e7eaec;
     letter-spacing: .010em;
