@@ -153,12 +153,12 @@ function lastList(lastArr){
     $.each(lastArr,function(index,val){
         f+='<tr class="accordion-heading accordion-toggle" for="#collapseOne0" data-parent="#accordion1" data-toggle="collapse"> <td class="name " >'+val.se+'</td><td class="name last_name_td">人力资源部门</td>'
         var arr = val.th.split(",");
-        var sum = 0;
+        var sum = 0, tp = [0.6, 0.3, 0.1];
         $.each(arr, function(i){
             f+='<td class="name nameval" >'+arr[i]+'</td>';
-            sum += parseInt(arr[i]++)
+            sum += parseInt(arr[i]++) * tp[i];
         })
-        f+= '<td class="name fb nameval">'+sum+'</td></tr>'
+        f+= '<td class="name fb nameval">'+sum+'</td></tr>';
     });
     $("#final_list").append(f);
 
