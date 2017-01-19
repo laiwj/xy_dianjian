@@ -87,6 +87,21 @@
 			}
 		});
 	}
+	function ajaxPost(key, data, _callbackS, _callbackE){
+		$.ajax({
+			url:"http://127.0.0.1:" + serverPort + "/" + key + '/',
+			data:data, type:'post', dataType:'jsonp',
+			success:function(data)
+			{
+				if(_callbackS)_callbackS(data);
+			},
+			error:function(data)
+			{
+				if(_callbackE)_callbackE(data);
+				alert("error");
+			}
+		});
+	}
 	function getNames(count){
 		var all = [], names = {};
 		var temp1 = ['赵','钱','孙','李','周','吴','郑','王','冯','陈','楚','卫','刘','何'];

@@ -179,8 +179,8 @@
 
             //cout(__treeview_data[treeId]);
         });
-        $("#table1>tr>td>div").unbind("click").on('click', 'ul>li>span.badge', clickNodeForOperate);
-
+        $("#table1>tr>td>div").off('click', 'ul>li>span.badge', clickNodeForOperate);
+        $("#table1>tr>td>div").on('click', 'ul>li>span.badge', clickNodeForOperate);
     }
     /*
      ********************************************************************************************
