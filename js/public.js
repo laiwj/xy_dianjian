@@ -72,6 +72,7 @@
 
 	function ajaxData(key, data, _callbackS, _callbackE){
 		var cbkf = (parseInt(Math.random() * 1000) + 1000).toString();
+		data["session"] = getCookie('session');
 		$.ajax({
 			type:'GET', url:serverUrl + '/' + key + '/',
 			//type:'GET', url:'http://118.123.173.86:8000/' + key + '/',
@@ -87,20 +88,15 @@
 			}
 		});
 	}
-	function ajaxPost(key, data, _callbackS, _callbackE){
-		$.ajax({
-			url:"http://127.0.0.1:" + serverPort + "/" + key + '/',
-			data:data, type:'post', dataType:'jsonp',
-			success:function(data)
-			{
-				if(_callbackS)_callbackS(data);
-			},
-			error:function(data)
-			{
-				if(_callbackE)_callbackE(data);
-				alert("error");
-			}
-		});
+
+
+	function showLoading(){
+		var div = "<div id='inline_content' style='padding:0px; background:#fff; border:0px'>" +
+			"<img src='../img/loading.gif' width='50'' height='50' />" + "</div>";
+		$.colorbox({html:div, overlayClose:false, escKey:false, closeButton:false, inline:false, opacity:0.8, speed:0, });
+	}
+	function hideLoading(){
+		$.colorbox.close();
 	}
 	function getNames(count){
 		var all = [], names = {};

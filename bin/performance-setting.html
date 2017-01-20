@@ -6,6 +6,7 @@
     <!-- Prism -->
     <link href="../css/prism.css" rel="stylesheet">
     <link href="../css/footable.bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/colorbox.css" />
 
     <!--[if lt IE 9]>
     <script src="../js/html5shiv.min.js"></script>
@@ -50,16 +51,63 @@
     </div>
 
 
+    <div style="display:none;">
+        <div class="dialog-add p20 clearfix " id="dialog-add" title="任务因素与配比">
+            <label>部门</label>
+            <select class=" first_select">
+                <option selected="selected"  value="人力资源部">人力资源部</option>
+                <option value="总经理工作部">总经理工作部</option>
+                <option value="财务部">财务部</option>
+                <option value="市场经营部">市场经营部</option>
+                <option value="档案管理部">档案管理部</option>
+                <option value="综合事务部">综合事务部</option>
+            </select>
+            <div class="mt30">
+
+                <label>因素与配比<i class="icon-add" id="J_add_select"></i></label>
+                <div class="append-con">
+                    <div class="list-li">
+                        <select class="span3 second_select" style="width: 47%" >
+                            <option selected="selected" value="任务">任务</option>
+                            <option value="考勤">考勤</option>
+                            <option value="工作时间">工作时间</option>
+                            <option value="加班情况">加班情况</option>
+                            <option value="员工关系">员工关系</option>
+                            <option value="异常情况">异常情况</option>
+                            <option value="学习能力">学习能力</option>
+                            <option value="创新">创新</option>
+                        </select>
+                        <select class="span3 three_select" style="width: 47%">
+                            <option selected="selected" value="10%">10%</option>
+                            <option value="20%">20%</option>
+                            <option value="30%">30%</option>
+                            <option value="40%">40%</option>
+                            <option value="50%">50%</option>
+                            <option value="60%">60%</option>
+                            <option value="70%">70%</option>
+                            <option value="80%">80%</option>
+                            <option value="90%">90%</option>
+                            <option value="100%">100%</option>
+                        </select>
+                        <i class="icon-delete J_delete_add"></i>
+                    </div>
+
+                </div>
+            </div>
+            <button class="md-button md-accent md-dialog-btn fr mt30" id="J_save_select">开始计算</button>
+        </div>
+    </div>
+
+
     <script src="../js/bootstrap.min.js"></script>
-    <script src="../js/jquery-3.0.0.min.js"></script>
     <script src="../js/bootstrap-3.3.7.min.js"></script>
     <script src="../js/bootstrap-treeview.min.js"></script>
     <script src="../js/public.js"></script>
     <script src="../js/prism.js"></script>
     <script src="../js/ie10-viewport-bug-workaround.js"></script>
     <script src="../js/moment.min.js"></script>
-    <script type="text/javascript" src="performance/js/colorbox/jquery.colorbox.min.js" ></script>
-    <script type="text/javascript" src="performance/js/dj.js" ></script>
+    <script type="text/javascript" src="../js/jquery.colorbox-min.js" ></script>
+
 
     <script id="tm_table1" type="text/html">
         <tr>
@@ -203,23 +251,89 @@
         }
         function addChildClass(treeId, nodeId, data){
             var newData = [];
+            ajaxData('get_performance_setting_unit', {}, function(data){
 
+            });
 
         }
         function addNewParentClass(treeId){
-            cout("new");
             var dt = {'userId':10001, 'unitId':'10024', 'style':1};
-            ajaxPost('change_performance_setting', dt, function(data){
+
+            //showLoading();
+
+            //hideLoading();
+
+            loadNewFrame();
+
+            return;
+            ajaxData('change_performance_setting', dt, function(data){
+
+
                 cout(data);
                 //******************************************************
                 //此处实际用get方法
 
 
-
-            }, function(e){
-                cout(e);
             });
 
+        }
+
+        function loadNewFrame(){
+            cout("loading");
+            $.colorbox({
+                title:'绩效设置相关', opacity:0.8, overlayClose:false,escKey:false, inline:false, speed:0,
+                html:'<div style="border:0px #ccc solid ;width:400px; height:200px"><h1>Welcome</h1><h1>Welcome</h1><h1>Welcome</h1><h1>Welcome</h1></div>',
+                onComplete:function(){
+                    $("#cboxWrapper").css("border", "5px solid #bbb");
+                    $("#cboxWrapper").css("background-color", "#bbb");
+                    $("#cboxClose").css("margin", "-5px 10px 10px 0px");
+                }
+            });
+            //*************************************************************
+            //弹出效果搞定
+
+
+
+
+
+
+            
+
+            /*
+            $(".J_edit").colorbox({inline:true,href:"#dialog-add",title:'任务因素与配比',innerWidth:510,initialHeight:700,
+                onOpen:function(){
+                    alert(123);
+                    $(".append-con  .list-li").not(":first").remove();
+                    $("#J_add_select").on('click',function(){
+                        $(".append-con").append('<div class="list-li">'+
+                                '<select class="span3 second_select" style="margin-right: 3px;width: 47%;">'+
+                                '<option value="任务">任务</option>'+
+                                '<option value="考勤">考勤</option>'+
+                                '<option value="工作时间">工作时间</option>'+
+                                '<option value="加班情况">加班情况</option>'+
+                                '<option value="员工关系">员工关系</option>'+
+                                '<option value="异常情况">异常情况</option>'+
+                                '<option value="学习能力">学习能力</option>'+
+                                '<option value="创新">创新</option>'+
+                                '</select>'+
+                                '<select class="span3 three_select" style="width: 47%;">'+
+                                '<option selected="selected" value="10%">10%</option>'+
+                                '<option value="20%">20%</option>'+
+                                '<option value="30%">30%</option>'+
+                                '<option value="100%">100%</option>'+
+                                '</select>'+
+                                '<i class="icon-delete J_delete_add" ></i>'+
+                                '</div>');
+                        $.colorbox.resize();
+                        $(".J_delete_add").on("click",function(){
+                            $(this).parent('.list-li').remove();
+                            $.colorbox.resize();
+                        });
+                    });
+
+                }
+            });
+            */
         }
 
         /*

@@ -12,6 +12,7 @@ $(document).ready(function(){
         $("#final_list").hide();
         $("#final_list1").show();
     }
+
         $(".J_edit").colorbox({inline:true,href:"#dialog-add",title:'任务因素与配比',innerWidth:510,initialHeight:700,
         onOpen:function(){
             /*添加因素配比 select*/
