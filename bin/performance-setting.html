@@ -17,6 +17,7 @@
         th,td{ border: 1px solid #CCCCCC; background-color: white; height: auto; min-height: 30px}
         #table1 li{ height: 30px; border-bottom: 1px solid #ddd; border-right: 0px;border-left: 0px  }
         #table1 ul{ border-top: 0px }
+        .pointer{cursor: pointer}
 
         .key-add{color:#5cb85c}
         .key-del{color:red}
@@ -126,39 +127,42 @@
         <% }); %>
 
     </script>
-    <script id="tm_edit1" type="text/html">
+    <script id="tm_edit1" type="text/template">
         <div style="margin: 20px">
             <div style="border: 1px solid #ccc; padding: 20px; margin-right: 7px; padding-top: 10px">
                 <table id="table2">
                     <tr>
                         <td colspan="6" style="text-align:left; font-weight: 600">
-                            <input type="radio" checked="checked" name="ys_edit" id="edit_custom"/><span class="label label-primary"> 添加自定义因素</span>
+                            <input type="radio" name="ys_edit" id="radio_edit0" value="0" />
+                            <span id="lbEdit0" class="pointer label label-primary"> 添加自定义因素</span>
                         </td>
                     </tr>
                     <tr>
-                        <td></td><td>名称：</td><td><input type="text" class=""></td><td> </td><td>权重：</td>
-                        <td><select><option>10%</option><option>20%</option></select></td>
+                        <td></td><td>名称：</td><td><input type="text" id="edit_name0" class=""></td><td> </td><td>权重：</td>
+                        <td><select id="edit_value0"><option>10%</option><option>20%</option></select></td>
                     </tr>
                     <tr height="18px"><td colspan="6"></td></tr>
 
                     <tr>
                         <td colspan="6" style="text-align:left; font-weight: 600">
-                            <input type="radio" checked="checked" name="ys_edit" id="edit_system"/><span class="label label-primary"> 添加系统因素</span>
+                            <input type="radio" checked="checked" name="ys_edit" id="radio_edit1" value="1" />
+                            <span id="lbEdit1" class="pointer label label-primary"> 添加系统因素</span>
                         </td>
                     </tr>
                     <tr>
-                        <td></td><td>名称：</td><td><select><option>加班时间</option></select></td><td> </td><td>权重：</td>
-                        <td><select><option>10%</option><option>20%</option></select></td>
+                        <td></td><td>名称：</td><td><select id="edit_name1"><option>加班时间</option></select></td><td> </td><td>权重：</td>
+                        <td><select id="edit_value1"><option>10%</option><option>20%</option></select></td>
                     </tr>
                 </table>
             </div>
 
             <div style="margin-bottom: 40px; width: 100%; min-height: 30px; clear: both; padding-top: 14px; padding-right: 7px">
                 <div class="floatR">
-                    <button type="button" class="btn btn-primary"> 提交 </button>
+                    <button type="button" class="btn btn-primary" id="btnAddSubmit"> 提交 </button>
                 </div>
             </div>
-
+            <input type="text" id="treeIdValue" style="display: none" value="<%= treeId %>" />
+            <input type="text" id="nodeIdValue" style="display: none" value="<%= nodeId %>" />
         </div>
     </script>
 
@@ -172,7 +176,49 @@
         var __common_index = {};
         var __treeview_data = {};       //save all data here.
 
+        function IsExistNodeByName(data, name){
+            for(var i=0; i<data.nodes.length; i++){
+                if(data.nodes[i].name==name)return true;
+            }
+            return false;
+        }
+        function submitAddNewParentClass(){
+            //var style = $("#edit_custom");
+            var style = $("input[name='ys_edit']:checked").val();
+            var eName = $("#edit_name" + style).val().trim(),
+                eValue = parseInt($("#edit_value" + style).val().replace("%", "")),
+                treeId = $("#treeIdValue").val(),
+                unitId = treeId.match(/tree(\S*)p/)[1],
+                pid = $("#nodeIdValue").val();
+            cout(__treeview_data);
+            cout(__treeview_data[treeId]);
 
+            if(eName==""){
+                alert("名称不能为空");
+                return;
+            }
+            if(IsExistNodeByName(__treeview_data[treeId], eName)){
+                alert("该因素名称已存在，请重新输入");
+                return;
+            }
+            if(style==0){
+
+
+            }else{
+
+
+            }
+            var dt = {'userId':10001, 'unitId':unitId, 'style':1, 'nature':parseInt(style), 'parentId': pid, 'name':eName, 'value':eValue};
+
+            cout(dt);
+            ajaxData('change_performance_setting', dt, function(data){
+                if(data.error==false){
+                    hideLoading();
+                    loadLocalTreeData(unitId, pid);
+                }
+            });
+
+        }
         function loadTableStyle(){
             $("#table1>tr>td>div.treeview>ul>li").each(function(i, d){
                 $(this).find("span.badge").eq(-1).attr("title", "在该分类下添加子分类");
@@ -267,90 +313,34 @@
         }
         function addChildClass(treeId, nodeId, data){
             var newData = [];
-            ajaxData('get_performance_setting_unit', {}, function(data){
 
-            });
 
         }
         function addNewParentClass(treeId){
-            var dt = {'userId':10001, 'unitId':'10024', 'style':1};
-
-            //showLoading();
-
-            //hideLoading();
-
-            loadNewFrame();
-
-            return;
-            ajaxData('change_performance_setting', dt, function(data){
-
-
-                cout(data);
-                //******************************************************
-                //此处实际用get方法
-
-
-            });
-
+            var nodeId = treeId.substr(treeId.lastIndexOf("p")+1);
+            loadNewFrame(treeId, nodeId);
         }
 
-        function loadNewFrame(){
-            cout("loading");
+        function loadNewFrame(treeId, nodeId){
             $.colorbox({
                 title:'绩效设置相关', opacity:0.8, overlayClose:false,escKey:false, inline:false, speed:0,
-                html:$("#tm_edit1").html(),
-                //html:'<div style="border:0px #ccc solid ;width:400px; height:200px"><p>添加自定义因素</p><h1></h1><p>添加系统分类</p><select><option>请假次数</option><option>加班时间</option><option>员工关系</option></select></div>',
+                html:ejs.render($("#tm_edit1").html(), { 'treeId':treeId, 'nodeId':nodeId }),
                 onComplete:function(){
                     $("#cboxWrapper").css("border", "5px solid #bbb");
                     $("#cboxWrapper").css("background-color", "#bbb");
                     $("#cboxClose").css("margin", "-5px 10px 10px 0px");
                 }
             });
+            $("#btnAddSubmit").unbind('click').on('click', submitAddNewParentClass);
+            $("#lbEdit0").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(0).trigger("click");});
+            $("#lbEdit1").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(1).trigger("click");});
+
+
+
             //*************************************************************
             //弹出效果搞定
 
 
-
-
-
-
-
-
-            /*
-            $(".J_edit").colorbox({inline:true,href:"#dialog-add",title:'任务因素与配比',innerWidth:510,initialHeight:700,
-                onOpen:function(){
-                    alert(123);
-                    $(".append-con  .list-li").not(":first").remove();
-                    $("#J_add_select").on('click',function(){
-                        $(".append-con").append('<div class="list-li">'+
-                                '<select class="span3 second_select" style="margin-right: 3px;width: 47%;">'+
-                                '<option value="任务">任务</option>'+
-                                '<option value="考勤">考勤</option>'+
-                                '<option value="工作时间">工作时间</option>'+
-                                '<option value="加班情况">加班情况</option>'+
-                                '<option value="员工关系">员工关系</option>'+
-                                '<option value="异常情况">异常情况</option>'+
-                                '<option value="学习能力">学习能力</option>'+
-                                '<option value="创新">创新</option>'+
-                                '</select>'+
-                                '<select class="span3 three_select" style="width: 47%;">'+
-                                '<option selected="selected" value="10%">10%</option>'+
-                                '<option value="20%">20%</option>'+
-                                '<option value="30%">30%</option>'+
-                                '<option value="100%">100%</option>'+
-                                '</select>'+
-                                '<i class="icon-delete J_delete_add" ></i>'+
-                                '</div>');
-                        $.colorbox.resize();
-                        $(".J_delete_add").on("click",function(){
-                            $(this).parent('.list-li').remove();
-                            $.colorbox.resize();
-                        });
-                    });
-
-                }
-            });
-            */
         }
 
         /*
@@ -411,7 +401,6 @@
                 }
             });
             //loadTableStyle();
-
             //$("ul>li>span.badge").eq(-2).addClass("key-add");
             //cout($("ul>li>span.badge"));
         }
@@ -423,6 +412,7 @@
             __common = _dt;
         }
 
+        //**********************************************服务器交互
         function loadTreeData(){
             ajaxData('get_all_performance_setting', {user:10001}, function(data)
             {
@@ -439,7 +429,6 @@
                     }
 
                 });
-
                 //cout(data.setting);
                 cout(lines);
                 cout(__common);
@@ -447,6 +436,49 @@
 
             });
         }
+        function loadLocalTreeData(unitId, parentId){
+            showLoading();
+            ajaxData('get_performance_setting_unit', {'unitId':unitId}, function(data){
+                if(data.error==false){
+                    var treeId = "tree"+ unitId + 'p' + parentId;
+                    var line = getFormatUnitData(data.data);
+                    cout(data);
+                    cout(__treeview_data);
+                    cout(line);
+
+
+                }
+                hideLoading();
+            }, function(){
+                hideLoading();
+            });
+        }
+
+        //获取单个部门的数据格式化信息
+        function getFormatUnitData(d){
+            var line = {};
+            line['unit'] = d.unit;
+            line['uid'] = d.uid;
+            var _tree = formatTree(d.children);
+            var trees = {}, treeList = {}, maxL = 0;
+            //各分树信息
+            _tree.nodes.forEach(function(cd){
+                if(!(cd.pid in trees))trees[cd.pid] = {'nodes':[]};
+                trees[cd.pid]['nodes'].push(cd);
+            });
+            //各分树->列表
+            __common.forEach(function(cd){
+                if(cd.id in trees){
+                    treeList[cd.id] = getNodeList(trees[cd.id]);
+                    if(treeList[cd.id].length>maxL) maxL = treeList[cd.id].length;
+                }
+            });
+            line['tree'] = trees;
+            line['treeList'] = treeList;
+            line['maxL'] = maxL;
+            return line;
+        }
+
         function loadTree(_dt){
             var dt = [{'uid':100, 'unit':'科技部', 'children':[{'id':101, 'pid':1, 'name':'电影'},
                 {'id':102, 'pid':1, 'name':'购物'}, {'id':1011, 'pid':101, 'name':'日韩'},
@@ -459,31 +491,10 @@
             ];
             var data = [];
             _dt.forEach(function(d){
-                var line = {};
-                line['unit'] = d.unit;
-                line['uid'] = d.uid;
-                var _tree = formatTree(d.children);
-                var trees = {}, treeList = {}, maxL = 0;
-                //各分树信息
-                _tree.nodes.forEach(function(cd){
-                    if(!(cd.pid in trees))trees[cd.pid] = {'nodes':[]};
-                    trees[cd.pid]['nodes'].push(cd);
-                });
-                //各分树->列表
-                __common.forEach(function(cd){
-                    if(cd.id in trees){
-                        treeList[cd.id] = getNodeList(trees[cd.id]);
-                        if(treeList[cd.id].length>maxL) maxL = treeList[cd.id].length;
-                    }
-                });
-                line['tree'] = trees;
-                line['treeList'] = treeList;
-                line['maxL'] = maxL;
-                data.push(line);
+                data.push(getFormatUnitData(d));
             });
             return data;
         }
-
 
         //loadTable();
         loadTreeData();
