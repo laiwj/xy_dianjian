@@ -33,6 +33,7 @@
         .hide{display: none}
         .td_value{ width: 100%;border-right: 0px; border-bottom:1px solid #ccc; height:30px; padding-top:10px;text-align: center;  }
         .newParent{padding-bottom: 8px; margin-top: 8px; padding-left: 38px;}
+        #table2 tr td{  border:0px; padding-top: 8px}
 
 
     </style>
@@ -53,15 +54,6 @@
 
     <div style="display:none;">
         <div class="dialog-add p20 clearfix " id="dialog-add" title="任务因素与配比">
-            <label>部门</label>
-            <select class=" first_select">
-                <option selected="selected"  value="人力资源部">人力资源部</option>
-                <option value="总经理工作部">总经理工作部</option>
-                <option value="财务部">财务部</option>
-                <option value="市场经营部">市场经营部</option>
-                <option value="档案管理部">档案管理部</option>
-                <option value="综合事务部">综合事务部</option>
-            </select>
             <div class="mt30">
 
                 <label>因素与配比<i class="icon-add" id="J_add_select"></i></label>
@@ -76,18 +68,6 @@
                             <option value="异常情况">异常情况</option>
                             <option value="学习能力">学习能力</option>
                             <option value="创新">创新</option>
-                        </select>
-                        <select class="span3 three_select" style="width: 47%">
-                            <option selected="selected" value="10%">10%</option>
-                            <option value="20%">20%</option>
-                            <option value="30%">30%</option>
-                            <option value="40%">40%</option>
-                            <option value="50%">50%</option>
-                            <option value="60%">60%</option>
-                            <option value="70%">70%</option>
-                            <option value="80%">80%</option>
-                            <option value="90%">90%</option>
-                            <option value="100%">100%</option>
                         </select>
                         <i class="icon-delete J_delete_add"></i>
                     </div>
@@ -107,6 +87,7 @@
     <script src="../js/ie10-viewport-bug-workaround.js"></script>
     <script src="../js/moment.min.js"></script>
     <script type="text/javascript" src="../js/jquery.colorbox-min.js" ></script>
+    <script src="../js/com_tree.js"></script>
 
 
     <script id="tm_table1" type="text/html">
@@ -145,6 +126,41 @@
         <% }); %>
 
     </script>
+    <script id="tm_edit1" type="text/html">
+        <div style="margin: 20px">
+            <div style="border: 1px solid #ccc; padding: 20px; margin-right: 7px; padding-top: 10px">
+                <table id="table2">
+                    <tr>
+                        <td colspan="6" style="text-align:left; font-weight: 600">
+                            <input type="radio" checked="checked" name="ys_edit" id="edit_custom"/><span class="label label-primary"> 添加自定义因素</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td><td>名称：</td><td><input type="text" class=""></td><td> </td><td>权重：</td>
+                        <td><select><option>10%</option><option>20%</option></select></td>
+                    </tr>
+                    <tr height="18px"><td colspan="6"></td></tr>
+
+                    <tr>
+                        <td colspan="6" style="text-align:left; font-weight: 600">
+                            <input type="radio" checked="checked" name="ys_edit" id="edit_system"/><span class="label label-primary"> 添加系统因素</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td><td>名称：</td><td><select><option>加班时间</option></select></td><td> </td><td>权重：</td>
+                        <td><select><option>10%</option><option>20%</option></select></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="margin-bottom: 40px; width: 100%; min-height: 30px; clear: both; padding-top: 14px; padding-right: 7px">
+                <div class="floatR">
+                    <button type="button" class="btn btn-primary"> 提交 </button>
+                </div>
+            </div>
+
+        </div>
+    </script>
 
     <script language="javascript">
         "use strict";
@@ -155,7 +171,7 @@
         var __common = [];
         var __common_index = {};
         var __treeview_data = {};       //save all data here.
-        var __icons = ['✎', '✕', '✛'];
+
 
         function loadTableStyle(){
             $("#table1>tr>td>div.treeview>ul>li").each(function(i, d){
@@ -282,7 +298,8 @@
             cout("loading");
             $.colorbox({
                 title:'绩效设置相关', opacity:0.8, overlayClose:false,escKey:false, inline:false, speed:0,
-                html:'<div style="border:0px #ccc solid ;width:400px; height:200px"><h1>Welcome</h1><h1>Welcome</h1><h1>Welcome</h1><h1>Welcome</h1></div>',
+                html:$("#tm_edit1").html(),
+                //html:'<div style="border:0px #ccc solid ;width:400px; height:200px"><p>添加自定义因素</p><h1></h1><p>添加系统分类</p><select><option>请假次数</option><option>加班时间</option><option>员工关系</option></select></div>',
                 onComplete:function(){
                     $("#cboxWrapper").css("border", "5px solid #bbb");
                     $("#cboxWrapper").css("background-color", "#bbb");
@@ -297,7 +314,7 @@
 
 
 
-            
+
 
             /*
             $(".J_edit").colorbox({inline:true,href:"#dialog-add",title:'任务因素与配比',innerWidth:510,initialHeight:700,
@@ -405,130 +422,6 @@
             });
             __common = _dt;
         }
-        /*
-         list to tree
-         input:    'children':[{'id':101, 'pid':1, 'name':'电影'}, {'id':102, 'pid':1, 'name':'购物'}, {'id':1011, 'pid':101, 'name':'日韩'}]
-         output:    {"nodes":[{"id":101,"pid":1,"name":"电影","nodes":[{"id":1011,"pid":101,"name":"日韩"}]},{"id":102,"pid":1,"name":"购物"}]}
-         */
-        function formatTree(children){
-            var lsC = {},       //节点-孩子节点列表 索引
-                    lsR = {},   //节点-检测是否根节点 索引
-                    src = {};   //节点-源数据 索引
-            children.forEach(function(d){
-                src[d.id] = d;
-                lsR[d.id] = 1;
-            });
-            children.forEach(function(d){
-                if(d.pid in src){
-                    lsR[d.id] = 0;
-                    if(!(d.pid in lsC))lsC[d.pid] = [];
-                    lsC[d.pid].push(d.id);
-                }
-            });
-
-            var tree = {'nodes':[]};
-            for(var c in lsR){
-                if(lsR[c]==0)continue;
-                var node = src[c];
-                node['text'] = node['name'];
-                node['tags'] = __icons;
-                node['href'] = "#node-" + node['id'];   //日后方便找到
-                tree['nodes'].push(node);
-                createTree(node, lsC, src);
-            }
-            return tree;
-        }
-        //建树过程 - 递归
-        function createTree(parent, lsc, src){
-            if(!(parent.id in lsc))return;
-            lsc[parent.id].forEach(function(d){
-                if(!('nodes' in parent))parent['nodes'] = [];
-                var _node = src[d];
-                _node['text'] = _node['name'];
-                _node['tags'] = __icons;
-                _node['href'] = "#node-" + _node['id'];   //日后方便找到
-                parent['nodes'].push(_node);
-                createTree(_node, lsc, src);
-            });
-        }
-        //获取树深度
-        function _getTreeHeight(node, height){
-            if(!('nodes' in node))return;
-            height[0]++;
-            node['nodes'].forEach(function(d){
-                _getTreeHeight(d, height);
-            });
-        }
-        function getTreeHeight(tree){
-            var height = [0];
-            _getTreeHeight(tree, height);
-            return height[0];
-        }
-        function _getNodeList(node, list){
-            if('id' in node)list.push([node['id'], node['name'], node['value']]);
-            if(!('nodes' in node))return;
-            node['nodes'].forEach(function(d){
-                _getNodeList(d, list);
-            });
-        }
-        function getNodeList(tree){
-            var list = [];
-            _getNodeList(tree, list);
-            return list;
-        }
-        //获取子孙节点
-        //*注：此算法未经深入验证
-        function _getChildrenListById(node, id, list, flag){
-            if(flag==true)list.push(node['id']);
-            if(!('nodes' in node))return;
-            node['nodes'].forEach(function(d){
-                if(d['id']==id)
-                    _getChildrenListById(d, id, list, true);
-                else
-                    _getChildrenListById(d, id, list, flag);
-            });
-        }
-        function getChildrenListById(tree, id){
-            var list = [];
-            _getChildrenListById(tree, id, list, false);
-            return list;
-        }
-        //删除节点·含子树
-        function removeNodeById(node, id){
-            if(!('nodes' in node))return;
-            for(var i=0; i<node['nodes'].length; i++){
-                if(node['nodes'][i]['id']==id){
-                    node['nodes'].splice(i, 1);
-                    if(node['nodes'].length==0)delete node['nodes'];
-                    return;
-                }
-                removeNodeById(node['nodes'][i], id);
-            }
-        }
-        /*
-         function removeNodeById(tree, id){
-         for(var i=0; i<tree['nodes'].length; i++){
-         if(tree['nodes'][i]['id']==id){
-         tree['nodes'].splice(i, 1);
-         if(tree['nodes'].length==0)delete tree['nodes'];
-         return;
-         }
-         _removeNodeById(tree['nodes'][i], id);
-         }
-         }
-         function _removeNodeById(node, id){
-         if(!('nodes' in node))return;
-         for(var i=0; i<node['nodes'].length; i++){
-         if(node['nodes'][i]['id']==id){
-         node['nodes'].splice(i, 1);
-         if(node['nodes'].length==0)delete node['nodes'];
-         return;
-         }
-         _removeNodeById(node['nodes'][i], id);
-         }
-         }
-
-         */
 
         function loadTreeData(){
             ajaxData('get_all_performance_setting', {user:10001}, function(data)
