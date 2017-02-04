@@ -49,8 +49,37 @@ function createTree(parent, lsc, src){
         createTree(_node, lsc, src);
     });
 }
+//获取树各节点子孙叶子节点数目信息
+function getTreeNodeChildrenCount(tree, height){
+    var temp = [];
+    for(var i=0; i<height; i++) temp.push({});
+    var _init_view = function (_node){
+        temp[_node['height']].
+        if(!('nodes' in _node))return;
+        _node['nodes'].forEach(function(d){ _init_view(d); });
+    }
+    //****************************************************************************************
+    //加载节点到临时数组
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
 //获取树深度
 function _getTreeHeight(node, height){
+    node['height'] = height[0];
     if(!('nodes' in node))return;
     height[0]++;
     node['nodes'].forEach(function(d){

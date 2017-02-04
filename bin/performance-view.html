@@ -1,4 +1,4 @@
-<xmp>
+<html>
     <meta charset=utf-8>
 
     <link rel="stylesheet" href="../css/bootstrap-treeview.min.css" type="text/css" />
@@ -79,11 +79,12 @@
         </div>
     </div>
 
-
+    <script src="../js/jquery.min.js"></script>
     <script src="../js/bootstrap.min.js"></script>
     <script src="../js/bootstrap-3.3.7.min.js"></script>
     <script src="../js/bootstrap-treeview.min.js"></script>
     <script src="../js/public.js"></script>
+    <script src="../js/ejs.js"></script>
     <script src="../js/prism.js"></script>
     <script src="../js/ie10-viewport-bug-workaround.js"></script>
     <script src="../js/moment.min.js"></script>
@@ -182,43 +183,6 @@
             }
             return false;
         }
-        function submitAddNewParentClass(){
-            //var style = $("#edit_custom");
-            var style = $("input[name='ys_edit']:checked").val();
-            var eName = $("#edit_name" + style).val().trim(),
-                eValue = parseInt($("#edit_value" + style).val().replace("%", "")),
-                treeId = $("#treeIdValue").val(),
-                unitId = treeId.match(/tree(\S*)p/)[1],
-                pid = $("#nodeIdValue").val();
-            cout(__treeview_data);
-            cout(__treeview_data[treeId]);
-
-            if(eName==""){
-                alert("名称不能为空");
-                return;
-            }
-            if(IsExistNodeByName(__treeview_data[treeId], eName)){
-                alert("该因素名称已存在，请重新输入");
-                return;
-            }
-            if(style==0){
-
-
-            }else{
-
-
-            }
-            var dt = {'userId':10001, 'unitId':unitId, 'style':1, 'nature':parseInt(style), 'parentId': pid, 'name':eName, 'value':eValue};
-
-            cout(dt);
-            ajaxData('change_performance_setting', dt, function(data){
-                if(data.error==false){
-                    hideLoading();
-                    loadLocalTreeData(unitId, pid);
-                }
-            });
-
-        }
         function loadTableStyle(){
             $("#table1>tr>td>div.treeview>ul>li").each(function(i, d){
                 $(this).find("span.badge").eq(-1).attr("title", "在该分类下添加子分类");
@@ -240,29 +204,9 @@
          * 操作相关处理函数聚集
          ********************************************************************************************
          */
-        function clickNodeForOperate(e){
-            var treeId = $(this).parents("div.treeview").attr('id');
-            var nodeId = $(this).parent().find("a").attr("href").replace("#node-", "");
-            var lb = $(this).html();        //['✎', '✕', '✛'];
-            var data = __treeview_data[treeId];
 
-            if(lb=='✛') addChildClass(treeId, nodeId, data);
-            else if(lb=='✕') removeNode(treeId, nodeId, data);
-            else if(lb=='✎') editNode(treeId, nodeId, data);
-
-        }
-        function _removeTreeView(treeId){
-            var p = $("#" + treeId).parent();
-            if($("#" + treeId).hasClass("treeview")){
-                $('#'+treeId).data('treeview').remove();
-                $("#" + treeId).treeview("remove");
-                $("#" + treeId).removeClass("treeview");
-                $("#" + treeId).empty();
-            }
-            $("#" + treeId).remove();
-            p.prepend('<div id="'+ treeId +'"></div>');
-        }
         function reloadTree(treeId, data){
+            return;
             _removeTreeView(treeId);
             if(!('nodes' in data))return;
             var option = getTreeOption();
@@ -283,93 +227,6 @@
             html += "</div>";
             $("#value" + Id).html(html);
 
-            /*
-                <div>
-                    <% if(!(cd.id in d.treeList))return; %>
-                    <% var len = d.treeList[cd.id].length %>
-                    <% for(var i=0; i<len; i++){ %>
-                    <div id="ys<%= d.treeList[cd.id][i][0] %>" class="td_value">10%</div>
-                    <% } %>
-                </div>
-            */
-        }
-        function editNode(treeId, nodeId, data){
-            //cout(data);
-
-        }
-        //删除节点
-        function removeNode(treeId, nodeId, data){
-            var list = getChildrenListById(data, nodeId);
-            list.forEach(function(d){
-                $("#ys"+d).remove();
-            });
-            //********************************************
-            //*后台删除数据
-            //*
-
-            removeNodeById(data, nodeId);       //*删除数据
-            reloadTree(treeId, data);           //*重新加载
-            __treeview_data[treeId] = data;     //*保存数据
-        }
-        function addChildClass(treeId, nodeId, data){
-            var newData = [];
-
-
-        }
-        function addNewParentClass(treeId){
-            var nodeId = treeId.substr(treeId.lastIndexOf("p")+1);
-            loadNewFrame(treeId, nodeId);
-        }
-
-        function loadNewFrame(treeId, nodeId){
-            $.colorbox({
-                title:'绩效设置相关', opacity:0.8, overlayClose:false,escKey:false, inline:false, speed:0,
-                html:ejs.render($("#tm_edit1").html(), { 'treeId':treeId, 'nodeId':nodeId }),
-                onComplete:function(){
-                    $("#cboxWrapper").css("border", "5px solid #bbb");
-                    $("#cboxWrapper").css("background-color", "#bbb");
-                    $("#cboxClose").css("margin", "-5px 10px 10px 0px");
-                }
-            });
-            $("#btnAddSubmit").unbind('click').on('click', submitAddNewParentClass);
-            $("#lbEdit0").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(0).trigger("click");});
-            $("#lbEdit1").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(1).trigger("click");});
-
-
-
-            //*************************************************************
-            //弹出效果搞定
-
-
-        }
-
-        /*
-         ********************************************************************************************
-         * 树折叠相关
-         */
-        //树折叠事件
-        function nodeCollapsed(event, data){
-            var list = getNodeList(data);
-            for(var i=1; i<list.length; i++){
-                var obj = $("#ys"+list[i][0]);
-                if(!obj.hasClass("hide"))obj.addClass("hide");
-            }
-        }
-        //树展开事件
-        function nodeExpanded(event, data){
-            var list = getNodeExpanded(data);
-            for(var i=0; i<list.length; i++){
-                var obj = $("#ys"+list[i]);
-                if(obj.hasClass("hide"))obj.removeClass("hide");
-            }
-        }
-        //获取树展开节点
-        function getNodeExpanded(tree){
-            var list = [];
-            tree['nodes'].forEach(function(d){
-                list.push(d['id']);
-            });
-            return list;
         }
         //*********************************************************************************************
         function getTreeOption(){
@@ -406,67 +263,57 @@
         }
         function loadParent(_dt){
             var dt = [{'id':1, 'name':'主要因素一', 'value':30}, {'id':2, 'name':'主要因素二', 'value':50}, {'id':3, 'name':'主要因素三', 'value':20}];
-            _dt.forEach(function(d, i){
+            dt.forEach(function(d, i){
                 __common_index[d.id] = i;
             });
-            __common = _dt;
+            __common = dt;
         }
 
         //**********************************************服务器交互
         function loadTreeData(){
-            ajaxData('get_all_performance_setting', {user:10001}, function(data)
-            {
-                loadParent(data.common);
-                var lines = loadTree(data.setting);
-                var tm_table = $("#tm_table1").html();
-                $("#table1").html(ejs.render(tm_table, { data:lines, common:__common }));
-                lines.forEach(function(d){
-                    for(var p in d.tree){
-                        var treeId = 'tree' + d.uid + "p" + p;
-                        __treeview_data[treeId] = d.tree[p];
-                        reloadTree(treeId, d.tree[p]);
+            loadParent();
 
-                    }
-
-                });
-                //cout(data.setting);
-                cout(lines);
-                cout(__common);
-                //loadTree(data);
-
-            });
-        }
-        function loadLocalTreeData(unitId, parentId){
-            showLoading();
-            ajaxData('get_performance_setting_unit', {'unitId':unitId}, function(data){
-                if(data.error==false){
-                    var treeId = "tree"+ unitId + 'p' + parentId;
-                    var line = getFormatUnitData(data.data);
-                    //****************************************************************************
-                    //放假前记录
-                    //对比line, 更新本地数据__treeview_data
+            var lines = loadTree();
+            cout(lines);
 
 
 
 
-
-                    cout(data);
-                    cout(__treeview_data);
-                    cout(line);
-
+            var tm_table = $("#tm_table1").html();
+            $("#table1").html(ejs.render(tm_table, { data:lines, common:__common }));
+            lines.forEach(function(d){
+                for(var p in d.tree){
+                    var treeId = 'tree' + d.uid + "p" + p;
+                    __treeview_data[treeId] = d.tree[p];
+                    reloadTree(treeId, d.tree[p]);
 
                 }
-                hideLoading();
-            }, function(){
-                hideLoading();
             });
         }
+
+
+
+
+        //*****************************************************************************
+        //核心过程
+
+
+
+
+
+
+        //*****************************************************************************
+
 
         //获取单个部门的数据格式化信息
         function getFormatUnitData(d){
             var line = {};
             line['unit'] = d.unit;
             line['uid'] = d.uid;
+            return line;
+
+
+            /*
             var _tree = formatTree(d.children);
             var trees = {}, treeList = {}, maxL = 0;
             //各分树信息
@@ -484,24 +331,31 @@
             line['tree'] = trees;
             line['treeList'] = treeList;
             line['maxL'] = maxL;
+            //line['height'] = getTreeHeight(_tree);
+
+            cout("height");
+            cout(_tree);
+            cout(line);
             return line;
+            */
         }
 
+
         function loadTree(_dt){
-            var dt = [{'uid':100, 'unit':'科技部', 'children':[{'id':101, 'pid':1, 'name':'电影'},
+            var ps = [{'id':1, 'name':'主要因素一', 'value':30}, {'id':2, 'name':'主要因素二', 'value':50}, {'id':3, 'name':'主要因素三', 'value':20}];
+            var dt = {'uid':100, 'unit':'科技部', 'children':[{'id':101, 'pid':1, 'name':'电影'},
                 {'id':102, 'pid':1, 'name':'购物'}, {'id':1011, 'pid':101, 'name':'日韩'},
                 {'id':201, 'pid':2, 'name':'自然'}, {'id':202, 'pid':2, 'name':'人文'}
-            ]},
-                {'uid':101, 'unit':'信息部', 'children':[{'id':111, 'pid':1, 'name':'美食'}, {'id':1110, 'pid':111, 'name':'海鲜'}, {'id':1111, 'pid':111, 'name':'火锅'}]},
-                {'uid':102, 'unit':'质量部', 'children':[{'id':114, 'pid':1, 'name':'旅行'}, {'id':1140, 'pid':114, 'name':'广西'}, {'id':11401, 'pid':1140, 'name':'罗成'}
-                    , {'id':11402, 'pid':1140, 'name':'柳城'}
-                ]},
-            ];
-            var data = [];
-            _dt.forEach(function(d){
-                data.push(getFormatUnitData(d));
-            });
-            return data;
+            ]};
+            var list = dt.children.concat(ps)
+            var _tree = formatTree(list);
+            var height = getTreeHeight(_tree);
+            cout(height);
+            cout(_tree);
+
+
+
+            return getFormatUnitData(dt);
         }
 
         //loadTable();
@@ -524,4 +378,4 @@
 
 
 
-</xmp>
+</html>
