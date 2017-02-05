@@ -190,6 +190,7 @@
                 treeId = $("#treeIdValue").val(),
                 unitId = treeId.match(/tree(\S*)p/)[1],
                 pid = $("#nodeIdValue").val();
+            cout("--------------------------------------");
             cout(__treeview_data);
             cout(__treeview_data[treeId]);
 
@@ -387,23 +388,6 @@
             };
         }
 
-        function loadTable(){
-            loadParent('table1');
-            var lines = loadTree('table1');
-            var tm_menu = $("#tm_table1").html();
-            $("#table1").html(ejs.render(tm_menu, { data:lines, common:__common }));
-            lines.forEach(function(d){
-                for(var p in d.tree){
-                    var treeId = 'tree' + d.uid + "p" + p;
-                    __treeview_data[treeId] = d.tree[p];
-                    reloadTree(treeId, d.tree[p]);
-
-                }
-            });
-            //loadTableStyle();
-            //$("ul>li>span.badge").eq(-2).addClass("key-add");
-            //cout($("ul>li>span.badge"));
-        }
         function loadParent(_dt){
             var dt = [{'id':1, 'name':'主要因素一', 'value':30}, {'id':2, 'name':'主要因素二', 'value':50}, {'id':3, 'name':'主要因素三', 'value':20}];
             _dt.forEach(function(d, i){
@@ -416,11 +400,13 @@
         function loadTreeData(){
             ajaxData('get_all_performance_setting', {user:10001}, function(data)
             {
+
                 loadParent(data.common);
                 var lines = loadTree(data.setting);
                 var tm_table = $("#tm_table1").html();
                 $("#table1").html(ejs.render(tm_table, { data:lines, common:__common }));
                 lines.forEach(function(d){
+                    cout(d);
                     for(var p in d.tree){
                         var treeId = 'tree' + d.uid + "p" + p;
                         __treeview_data[treeId] = d.tree[p];
@@ -429,9 +415,11 @@
                     }
 
                 });
+
+                //cout(__treeview_data);
                 //cout(data.setting);
-                cout(lines);
-                cout(__common);
+                //cout(lines);
+                //cout(__common);
                 //loadTree(data);
 
             });
@@ -440,19 +428,24 @@
             showLoading();
             ajaxData('get_performance_setting_unit', {'unitId':unitId}, function(data){
                 if(data.error==false){
+
                     var treeId = "tree"+ unitId + 'p' + parentId;
+                    var settings = [];
+                    data.data.children.forEach(function(d){ if(d.level!=1)settings.push(d); });
+                    data.data.children = settings;
                     var line = getFormatUnitData(data.data);
+                    __treeview_data[treeId] = line.tree[parentId];
+                    reloadTree(treeId, line.tree[parentId]);
+
                     //****************************************************************************
-                    //放假前记录
-                    //对比line, 更新本地数据__treeview_data
+                    //添加功能已搞定 - 2017-2-5
 
 
 
 
 
-                    cout(data);
-                    cout(__treeview_data);
-                    cout(line);
+
+
 
 
                 }

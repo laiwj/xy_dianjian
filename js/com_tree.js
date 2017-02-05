@@ -49,45 +49,82 @@ function createTree(parent, lsc, src){
         createTree(_node, lsc, src);
     });
 }
+
+
+//获取节点叶子节点个数
+function getNodeLeafCount(node){
+    var count = [0];
+    viewTree(node, function(n){
+        if(!('nodes' in n)) {
+            n['isLeaf'] = 1;
+            count[0]++;
+        }
+    });
+    return count[0];
+}
+//获取子树-根据id
+/** 暂未使用 **/
+function getSubTreeById(tree, id){
+    var data;
+    viewTree(tree, function(n){
+        if('id' in n){
+            if(n['id']==id) data = n;
+        }
+    });
+    return data;
+}
+
+//遍历树通用函数
+function viewTree(node, callback){
+    callback(node);
+    if(!('nodes' in node))return;
+    node['nodes'].forEach(function(d){
+        viewTree(d, callback);
+    });
+}
+
 //获取树各节点子孙叶子节点数目信息
-function getTreeNodeChildrenCount(tree, height){
-    var temp = [];
-    for(var i=0; i<height; i++) temp.push({});
-    var _init_view = function (_node){
-        temp[_node['height']].
-        if(!('nodes' in _node))return;
-        _node['nodes'].forEach(function(d){ _init_view(d); });
+function getTreeTableData(tree){
+    viewTree(tree, function(n){
+        var c = getNodeLeafCount(n);
+        n['leafCount'] = c;
+    });
+    var maxH = 0;
+    viewTree(tree, function(n){
+        if(maxH<n['height'])maxH = n['height'];
+    });
+    //按层级遍历树
+    var layers = [], temp = [tree];
+    for(var i=0; i<maxH+1; i++) layers.push([]);
+    while(temp.length>0){
+        var n = temp.pop();
+        layers[n['height']].push(n);
+        if(!('nodes' in n)) continue;
+        n['nodes'].forEach(function(d){
+            temp.push(d);
+        });
     }
-    //****************************************************************************************
-    //加载节点到临时数组
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    var leafs = [];
+    viewTree(tree, function(n){
+        if(n['isLeaf']==1) leafs.push(n);
+    });
+    tree['id'] = "root";
+    return [layers, leafs];
 }
 
 //获取树深度
 function _getTreeHeight(node, height){
-    node['height'] = height[0];
+    node['height'] = height[1];
     if(!('nodes' in node))return;
     height[0]++;
+    height[1]++;
     node['nodes'].forEach(function(d){
         _getTreeHeight(d, height);
     });
+    height[1]--;
 }
 function getTreeHeight(tree){
-    var height = [0];
+    var height = [0, 0];
     _getTreeHeight(tree, height);
     return height[0];
 }

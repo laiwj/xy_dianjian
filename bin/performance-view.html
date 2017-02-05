@@ -1,3 +1,4 @@
+<xmp>
 <html>
     <meta charset=utf-8>
 
@@ -27,8 +28,8 @@
         div.treeview>ul>li>span.badge:nth-last-child(2){color:red }
         div.treeview>ul>li>span.badge:nth-last-child(3){color:#31b0d5 }
 
-        th{ text-align: center; height: 30px}
-        tr td{ min-width: 40px; }
+        th{ text-align: center; height: 30px; padding-top: 5px }
+        tr td{ min-width: 40px; height: 30px }
         tr td:first-child{ text-align: center;}
         tr td.treeview{text-align: left}
         .hide{display: none}
@@ -41,7 +42,7 @@
     <div class="m-sm bg-main">
         <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto" style="margin-top:5px; margin-bottom: 45px">
             <div class="col col-sm-12">
-                <div class="title">绩效因素设定</div>
+                <div class="title">部门绩效计算</div>
                 <div id="view" class="w-full" style="min-height:395px; height: auto;">
                     <table id="table1" style="width: 100%; margin-bottom: 60px">
 
@@ -52,32 +53,6 @@
         </div>
     </div>
 
-
-    <div style="display:none;">
-        <div class="dialog-add p20 clearfix " id="dialog-add" title="任务因素与配比">
-            <div class="mt30">
-
-                <label>因素与配比<i class="icon-add" id="J_add_select"></i></label>
-                <div class="append-con">
-                    <div class="list-li">
-                        <select class="span3 second_select" style="width: 47%" >
-                            <option selected="selected" value="任务">任务</option>
-                            <option value="考勤">考勤</option>
-                            <option value="工作时间">工作时间</option>
-                            <option value="加班情况">加班情况</option>
-                            <option value="员工关系">员工关系</option>
-                            <option value="异常情况">异常情况</option>
-                            <option value="学习能力">学习能力</option>
-                            <option value="创新">创新</option>
-                        </select>
-                        <i class="icon-delete J_delete_add"></i>
-                    </div>
-
-                </div>
-            </div>
-            <button class="md-button md-accent md-dialog-btn fr mt30" id="J_save_select">开始计算</button>
-        </div>
-    </div>
 
     <script src="../js/jquery.min.js"></script>
     <script src="../js/bootstrap.min.js"></script>
@@ -92,90 +67,40 @@
     <script src="../js/com_tree.js"></script>
 
 
-    <script id="tm_table1" type="text/html">
+    <script id="tm_view1" type="text/html">
         <tr>
-            <th>部门</th>
-            <th colspan="<%= common.length*2 %>">一级绩效因素</th>
+            <th rowspan="<%= common.height+1 %>">工号</th>
+            <th rowspan="<%= common.height+1 %>">姓名</th>
         </tr>
-        <tr>
-            <th>名称</th>
-            <% common.forEach(function(d, i){ %>
-            <th id="pth<%= d.id %>"><%= d.name %></th><th><%= d.value %>%</th>
-            <% }); %>
-        </tr>
+        <% layers.forEach(function(ly, i){ %>
+            <tr>
+                <% ly.forEach(function(e, j){ %>
+                    <th id="pth<%= e.id %>" rowspan="<%= e.isLeaf==1 ? (common.height-e.height) : 1 %>"
+                        colspan="<%= e.leafCount %>" valign="top"><%= e.name %> | <%= e.value %>%</th>
+                <% }); %>
+            </tr>
+        <% }); %>
 
         <% data.forEach(function(d, i){ %>
         <tr>
-            <td id="unit<%= d.uid %>"><%= d.unit %></td>
-            <% common.forEach(function(cd, ci){ %>
-            <td id="key<%= d.uid %>p<%= cd.id %>" valign="top">
-                <div id="tree<%= d.uid %>p<%= cd.id %>"></div>
-                <div id="new<%= d.uid %>p<%= cd.id %>" class="newParent">
-                    <span class="badge">✛</span>
-                </div>
-            </td>
-            <td id="value<%= d.uid %>p<%= cd.id %>" valign="top">
-                <div>
-                    <% if(!(cd.id in d.treeList))return; %>
-                    <% var len = d.treeList[cd.id].length %>
-                    <% for(var i=0; i<len; i++){ %>
-                    <div id="ys<%= d.treeList[cd.id][i][0] %>" class="td_value"><%= d.treeList[cd.id][i][2] %>%</div>
-                    <% } %>
-                </div>
-            </td>
+            <td id="uid<%= d.uid %>"><%= d.uid %></td>
+            <td id="name<%= d.uid %>"><%= d.name %></td>
+            <% leafs.forEach(function(cd, ci){ %>
+                <td valign="top">
+                    <div id="div<%= d.uid %>p<%= cd.id %>">*</div>
+                </td>
             <% }); %>
         </tr>
         <% }); %>
 
     </script>
-    <script id="tm_edit1" type="text/template">
-        <div style="margin: 20px">
-            <div style="border: 1px solid #ccc; padding: 20px; margin-right: 7px; padding-top: 10px">
-                <table id="table2">
-                    <tr>
-                        <td colspan="6" style="text-align:left; font-weight: 600">
-                            <input type="radio" name="ys_edit" id="radio_edit0" value="0" />
-                            <span id="lbEdit0" class="pointer label label-primary"> 添加自定义因素</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td><td>名称：</td><td><input type="text" id="edit_name0" class=""></td><td> </td><td>权重：</td>
-                        <td><select id="edit_value0"><option>10%</option><option>20%</option></select></td>
-                    </tr>
-                    <tr height="18px"><td colspan="6"></td></tr>
 
-                    <tr>
-                        <td colspan="6" style="text-align:left; font-weight: 600">
-                            <input type="radio" checked="checked" name="ys_edit" id="radio_edit1" value="1" />
-                            <span id="lbEdit1" class="pointer label label-primary"> 添加系统因素</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td><td>名称：</td><td><select id="edit_name1"><option>加班时间</option></select></td><td> </td><td>权重：</td>
-                        <td><select id="edit_value1"><option>10%</option><option>20%</option></select></td>
-                    </tr>
-                </table>
-            </div>
-
-            <div style="margin-bottom: 40px; width: 100%; min-height: 30px; clear: both; padding-top: 14px; padding-right: 7px">
-                <div class="floatR">
-                    <button type="button" class="btn btn-primary" id="btnAddSubmit"> 提交 </button>
-                </div>
-            </div>
-            <input type="text" id="treeIdValue" style="display: none" value="<%= treeId %>" />
-            <input type="text" id="nodeIdValue" style="display: none" value="<%= nodeId %>" />
-        </div>
-    </script>
 
     <script language="javascript">
         "use strict";
-        var units = [];
-        var __lsOther = {};
+
         var $pl;
-        var __tempc = null;
-        var __common = [];
-        var __common_index = {};
-        var __treeview_data = {};       //save all data here.
+
 
         function IsExistNodeByName(data, name){
             for(var i=0; i<data.nodes.length; i++){
@@ -184,6 +109,7 @@
             return false;
         }
         function loadTableStyle(){
+            return;
             $("#table1>tr>td>div.treeview>ul>li").each(function(i, d){
                 $(this).find("span.badge").eq(-1).attr("title", "在该分类下添加子分类");
                 $(this).find("span.badge").eq(-2).attr("title", "删除该分类及其所有子分类");
@@ -205,62 +131,7 @@
          ********************************************************************************************
          */
 
-        function reloadTree(treeId, data){
-            return;
-            _removeTreeView(treeId);
-            if(!('nodes' in data))return;
-            var option = getTreeOption();
-            option['data'] = data.nodes;         // data is not optional
-            option['levels'] = getTreeHeight(data);
-            $("#" + treeId).treeview(option);
-            loadTableStyle();
 
-        }
-        //局部因素刷新：tree + 因素值
-        function reloadLocalTree(treeId, data){
-            reloadTree(treeId, data);
-            var Id = treeId.replace("tree", "");
-
-            var list = getNodeList(data);
-            var html = "<div>";
-            for(var i=0; i<list.length; i++)html += '<div id="ys' + list[i][0] + '"' + ' class="td_value">10%</div>';
-            html += "</div>";
-            $("#value" + Id).html(html);
-
-        }
-        //*********************************************************************************************
-        function getTreeOption(){
-            return {
-                collapseIcon:"glyphicon glyphicon-triangle-bottom",
-                expandIcon:"glyphicon glyphicon-triangle-right",
-                color:'#643',
-                backColor: 'white',
-                showTags:true,
-                highlightSelected:false,
-                enableLinks: true,
-                //nodeIcon:'glyphicon glyphicon-map-marker',
-                onNodeCollapsed: nodeCollapsed,
-                onNodeExpanded: nodeExpanded,
-            };
-        }
-
-        function loadTable(){
-            loadParent('table1');
-            var lines = loadTree('table1');
-            var tm_menu = $("#tm_table1").html();
-            $("#table1").html(ejs.render(tm_menu, { data:lines, common:__common }));
-            lines.forEach(function(d){
-                for(var p in d.tree){
-                    var treeId = 'tree' + d.uid + "p" + p;
-                    __treeview_data[treeId] = d.tree[p];
-                    reloadTree(treeId, d.tree[p]);
-
-                }
-            });
-            //loadTableStyle();
-            //$("ul>li>span.badge").eq(-2).addClass("key-add");
-            //cout($("ul>li>span.badge"));
-        }
         function loadParent(_dt){
             var dt = [{'id':1, 'name':'主要因素一', 'value':30}, {'id':2, 'name':'主要因素二', 'value':50}, {'id':3, 'name':'主要因素三', 'value':20}];
             dt.forEach(function(d, i){
@@ -269,97 +140,50 @@
             __common = dt;
         }
 
-        //**********************************************服务器交互
-        function loadTreeData(){
-            loadParent();
+        /*
+        //*****************************************************************************
+        //服务器交互
+        //从服务器获取部门绩效设置信息
+        */
+        function loadTableData(){
+            ajaxData('get_performance_setting_unit', {user:10001, unitId:10224}, function(dt)
+            {
+                //cout(dt.data.children);
 
-            var lines = loadTree();
-            cout(lines);
+                setTableHead(dt.data.children);
 
 
 
-
-            var tm_table = $("#tm_table1").html();
-            $("#table1").html(ejs.render(tm_table, { data:lines, common:__common }));
-            lines.forEach(function(d){
-                for(var p in d.tree){
-                    var treeId = 'tree' + d.uid + "p" + p;
-                    __treeview_data[treeId] = d.tree[p];
-                    reloadTree(treeId, d.tree[p]);
-
-                }
             });
         }
-
-
-
-
-        //*****************************************************************************
-        //核心过程
-
-
-
-
-
-
-        //*****************************************************************************
-
-
-        //获取单个部门的数据格式化信息
-        function getFormatUnitData(d){
-            var line = {};
-            line['unit'] = d.unit;
-            line['uid'] = d.uid;
-            return line;
-
-
-            /*
-            var _tree = formatTree(d.children);
-            var trees = {}, treeList = {}, maxL = 0;
-            //各分树信息
-            _tree.nodes.forEach(function(cd){
-                if(!(cd.pid in trees))trees[cd.pid] = {'nodes':[]};
-                trees[cd.pid]['nodes'].push(cd);
-            });
-            //各分树->列表
-            __common.forEach(function(cd){
-                if(cd.id in trees){
-                    treeList[cd.id] = getNodeList(trees[cd.id]);
-                    if(treeList[cd.id].length>maxL) maxL = treeList[cd.id].length;
-                }
-            });
-            line['tree'] = trees;
-            line['treeList'] = treeList;
-            line['maxL'] = maxL;
-            //line['height'] = getTreeHeight(_tree);
-
-            cout("height");
-            cout(_tree);
-            cout(line);
-            return line;
-            */
+        //设置表头
+        function setTableHead(children){
+            var tmData = getTableData(children);
+            var tm_table = $("#tm_view1").html();
+            $("#table1").html(ejs.render(tm_table, tmData));
+            $("#pthroot").html("绩效因素");
         }
 
-
-        function loadTree(_dt){
+        function getTableData(list){
+            //测试数据
             var ps = [{'id':1, 'name':'主要因素一', 'value':30}, {'id':2, 'name':'主要因素二', 'value':50}, {'id':3, 'name':'主要因素三', 'value':20}];
             var dt = {'uid':100, 'unit':'科技部', 'children':[{'id':101, 'pid':1, 'name':'电影'},
                 {'id':102, 'pid':1, 'name':'购物'}, {'id':1011, 'pid':101, 'name':'日韩'},
                 {'id':201, 'pid':2, 'name':'自然'}, {'id':202, 'pid':2, 'name':'人文'}
             ]};
-            var list = dt.children.concat(ps)
+            //var list = dt.children.concat(ps)
             var _tree = formatTree(list);
             var height = getTreeHeight(_tree);
-            cout(height);
-            cout(_tree);
-
-
-
-            return getFormatUnitData(dt);
+            var data = getTreeTableData(_tree);
+            var layers = data[0], leafs = data[1];
+            var users = [{'uid':10001, 'name':'lucy'}, {'uid':10002, 'name':'lily'}, {'uid':10003, 'name':'david'}];
+            var tmData = {'common':{'height':height, 'degree':leafs.length},
+                          'layers':layers, 'leafs':leafs, 'data':users };
+            return tmData;
         }
 
         //loadTable();
-        loadTreeData();
+        loadTableData();
 
         $(document).ready(function() {
 
@@ -379,3 +203,4 @@
 
 
 </html>
+</xmp>
