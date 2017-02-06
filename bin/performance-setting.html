@@ -35,7 +35,8 @@
         .td_value{ width: 100%;border-right: 0px; border-bottom:1px solid #ccc; height:30px; padding-top:10px;text-align: center;  }
         .newParent{padding-bottom: 8px; margin-top: 8px; padding-left: 38px;}
         #table2 tr td{  border:0px; padding-top: 8px}
-
+        #table1>tr>th:first-child{ max-width: 120px; }
+        #table1>tr>td:first-child{ max-width: 120px; }
 
     </style>
     <div class="m-sm bg-main">
@@ -182,44 +183,8 @@
             }
             return false;
         }
-        function submitAddNewParentClass(){
-            //var style = $("#edit_custom");
-            var style = $("input[name='ys_edit']:checked").val();
-            var eName = $("#edit_name" + style).val().trim(),
-                eValue = parseInt($("#edit_value" + style).val().replace("%", "")),
-                treeId = $("#treeIdValue").val(),
-                unitId = treeId.match(/tree(\S*)p/)[1],
-                pid = $("#nodeIdValue").val();
-            cout("--------------------------------------");
-            cout(__treeview_data);
-            cout(__treeview_data[treeId]);
 
-            if(eName==""){
-                alert("名称不能为空");
-                return;
-            }
-            if(IsExistNodeByName(__treeview_data[treeId], eName)){
-                alert("该因素名称已存在，请重新输入");
-                return;
-            }
-            if(style==0){
-
-
-            }else{
-
-
-            }
-            var dt = {'userId':10001, 'unitId':unitId, 'style':1, 'nature':parseInt(style), 'parentId': pid, 'name':eName, 'value':eValue};
-
-            cout(dt);
-            ajaxData('change_performance_setting', dt, function(data){
-                if(data.error==false){
-                    hideLoading();
-                    loadLocalTreeData(unitId, pid);
-                }
-            });
-
-        }
+        //表现层：事件，效果等
         function loadTableStyle(){
             $("#table1>tr>td>div.treeview>ul>li").each(function(i, d){
                 $(this).find("span.badge").eq(-1).attr("title", "在该分类下添加子分类");
@@ -275,6 +240,7 @@
         }
         //局部因素刷新：tree + 因素值
         function reloadLocalTree(treeId, data){
+            return;
             reloadTree(treeId, data);
             var Id = treeId.replace("tree", "");
 
@@ -284,15 +250,7 @@
             html += "</div>";
             $("#value" + Id).html(html);
 
-            /*
-                <div>
-                    <% if(!(cd.id in d.treeList))return; %>
-                    <% var len = d.treeList[cd.id].length %>
-                    <% for(var i=0; i<len; i++){ %>
-                    <div id="ys<%= d.treeList[cd.id][i][0] %>" class="td_value">10%</div>
-                    <% } %>
-                </div>
-            */
+
         }
         function editNode(treeId, nodeId, data){
             //cout(data);
@@ -300,21 +258,21 @@
         }
         //删除节点
         function removeNode(treeId, nodeId, data){
-            var list = getChildrenListById(data, nodeId);
-            list.forEach(function(d){
-                $("#ys"+d).remove();
+            var unitId = treeId.match(/tree(\S*)p/)[1];
+            //后台删除数据
+            removeNodeServer(nodeId, 0, unitId, function(){
+                var list = getChildrenListById(data, nodeId);
+                list.forEach(function(d){
+                    $("#ys"+d).remove();
+                });
+                removeNodeById(data, nodeId);       //*删除数据
+                reloadTree(treeId, data);           //*重新加载
+                __treeview_data[treeId] = data;     //*保存数据
             });
-            //********************************************
-            //*后台删除数据
-            //*
-
-            removeNodeById(data, nodeId);       //*删除数据
-            reloadTree(treeId, data);           //*重新加载
-            __treeview_data[treeId] = data;     //*保存数据
         }
         function addChildClass(treeId, nodeId, data){
-            var newData = [];
-
+            //var newData = [];
+            loadNewFrame(treeId, nodeId);
 
         }
         function addNewParentClass(treeId){
@@ -322,6 +280,7 @@
             loadNewFrame(treeId, nodeId);
         }
 
+        //加载弹出框（添加因素）
         function loadNewFrame(treeId, nodeId){
             $.colorbox({
                 title:'绩效设置相关', opacity:0.8, overlayClose:false,escKey:false, inline:false, speed:0,
@@ -335,8 +294,6 @@
             $("#btnAddSubmit").unbind('click').on('click', submitAddNewParentClass);
             $("#lbEdit0").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(0).trigger("click");});
             $("#lbEdit1").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(1).trigger("click");});
-
-
 
             //*************************************************************
             //弹出效果搞定
@@ -396,34 +353,92 @@
             __common = _dt;
         }
 
-        //**********************************************服务器交互
+        //**********************************************服务器交互**********************************************
+        //获取
+        //提交
+        //******************************************************************************************************
+        function submitAddNewParentClass(){
+            //var style = $("#edit_custom");
+            var style = $("input[name='ys_edit']:checked").val();
+            var eName = $("#edit_name" + style).val().trim(),
+                    eValue = parseInt($("#edit_value" + style).val().replace("%", "")),
+                    treeId = $("#treeIdValue").val(),
+                    unitId = treeId.match(/tree(\S*)p/)[1],
+                    pid = $("#nodeIdValue").val();
+            var rootId = treeId.substr(treeId.lastIndexOf("p")+1);
+            //cout("--------------------------------------");
+            //cout(__treeview_data);
+            //cout(__treeview_data[treeId]);
+
+            if(eName==""){
+                alert("名称不能为空");
+                return;
+            }
+            if(IsExistNodeByName(__treeview_data[treeId], eName)){
+                alert("该因素名称已存在，请重新输入");
+                return;
+            }
+            if(style==0){
+
+
+            }else{
+
+
+            }
+            var dt = {'userId':10001, 'unitId':unitId, 'style':1, 'nature':parseInt(style), 'parentId': pid, 'name':eName, 'value':eValue};
+
+            //cout(dt);
+            ajaxData('change_performance_setting', dt, function(data){
+                if(data.error==false){
+                    hideLoading();
+                    loadLocalTreeData(unitId, rootId);
+                }
+            });
+
+        }
+        //删除元素
+        function removeNodeServer(nodeId, common, unitId, callback){
+            showLoading();
+            var param = {user:10001, 'nodeId':nodeId, 'common':common, 'unitId':unitId };
+            ajaxData('del_performance_setting', param, function(data)
+            {
+                if(data.error==false){
+                    callback(data.data);
+                }
+                hideLoading();
+            }, function(){
+                hideLoading();
+            });
+        }
+        //加载全部
         function loadTreeData(){
+            showLoading();
             ajaxData('get_all_performance_setting', {user:10001}, function(data)
             {
-
-                loadParent(data.common);
-                var lines = loadTree(data.setting);
+                loadParent(data.roots);
+                for(var u in data.setting){
+                    data.setting[u]['children'] = data.setting[u]['children'].concat(data.common);
+                }
+                var setting = values(data.setting);
+                setting.sort(function(a, b){ return b.children.length - a.children.length; });
+                var lines = loadTree(setting);
                 var tm_table = $("#tm_table1").html();
                 $("#table1").html(ejs.render(tm_table, { data:lines, common:__common }));
                 lines.forEach(function(d){
-                    cout(d);
                     for(var p in d.tree){
                         var treeId = 'tree' + d.uid + "p" + p;
                         __treeview_data[treeId] = d.tree[p];
                         reloadTree(treeId, d.tree[p]);
-
                     }
-
                 });
 
-                //cout(__treeview_data);
-                //cout(data.setting);
-                //cout(lines);
-                //cout(__common);
-                //loadTree(data);
-
+                
+                hideLoading();
+            }, function(){
+                hideLoading();
             });
         }
+        //局部刷新
         function loadLocalTreeData(unitId, parentId){
             showLoading();
             ajaxData('get_performance_setting_unit', {'unitId':unitId}, function(data){
@@ -444,10 +459,6 @@
 
 
 
-
-
-
-
                 }
                 hideLoading();
             }, function(){
@@ -455,7 +466,10 @@
             });
         }
 
+
+        //-------------------------------------------------------------------------------------------------------
         //获取单个部门的数据格式化信息
+        //通用过程
         function getFormatUnitData(d){
             var line = {};
             line['unit'] = d.unit;

@@ -177,7 +177,7 @@
             var data = getTreeTableData(_tree);
             var layers = data[0], leafs = data[1];
             var users = [{'uid':10001, 'name':'lucy'}, {'uid':10002, 'name':'lily'}, {'uid':10003, 'name':'david'}];
-            var tmData = {'common':{'height':height, 'degree':leafs.length},
+            var tmData = {'common':{'height':height-1, 'degree':leafs.length},
                           'layers':layers, 'leafs':leafs, 'data':users };
             return tmData;
         }

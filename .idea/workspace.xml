@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="e34e6279-a52d-4c6f-959e-84c6e4c38088" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/index.html" afterPath="$PROJECT_DIR$/bin/index.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/performance-setting.html" afterPath="$PROJECT_DIR$/bin/performance-setting.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/performance-view.html" afterPath="$PROJECT_DIR$/bin/performance-view.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/com_tree.js" afterPath="$PROJECT_DIR$/js/com_tree.js" />
@@ -81,17 +80,17 @@
       <file leaf-file-name="performance-setting.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bin/performance-setting.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.46912113">
-              <caret line="440" column="40" selection-start-line="440" selection-start-column="40" selection-end-line="440" selection-end-column="40" />
+            <state vertical-scroll-proportion="0.672209">
+              <caret line="434" column="16" selection-start-line="434" selection-start-column="16" selection-end-line="434" selection-end-column="16" />
               <folding>
                 <element signature="n#style#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#div#1;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#table#0;n#div#1;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#div#1;n#xmp#0;n#!!top" expanded="true" />
-                <element signature="e#14560#14783#0" expanded="false" />
-                <element signature="e#14842#15068#0" expanded="false" />
-                <element signature="e#15125#15287#0" expanded="false" />
-                <element signature="e#15424#15932#0" expanded="false" />
+                <element signature="e#13187#13410#0" expanded="false" />
+                <element signature="e#13469#13695#0" expanded="false" />
+                <element signature="e#13752#13914#0" expanded="false" />
+                <element signature="e#14051#14559#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -100,8 +99,8 @@
       <file leaf-file-name="performance-view.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/performance-view.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-12.83871">
-              <caret line="144" column="11" selection-start-line="144" selection-start-column="11" selection-end-line="144" selection-end-column="11" />
+            <state vertical-scroll-proportion="-7.112903">
+              <caret line="176" column="47" selection-start-line="176" selection-start-column="47" selection-end-line="176" selection-end-column="47" />
               <folding>
                 <element signature="e#4112#5050#0" expanded="false" />
               </folding>
@@ -112,8 +111,8 @@
       <file leaf-file-name="com_tree.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/com_tree.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.133333">
-              <caret line="10" column="9" selection-start-line="10" selection-start-column="9" selection-end-line="10" selection-end-column="9" />
+            <state vertical-scroll-proportion="-31.433332">
+              <caret line="159" column="0" selection-start-line="159" selection-start-column="0" selection-end-line="159" selection-end-column="0" />
               <folding>
                 <element signature="e#32#81#0" expanded="false" />
               </folding>
@@ -451,7 +450,7 @@
     <option name="totallyTimeSpent" value="7539000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="0" width="1684" height="1017" extended-state="0" />
+    <frame x="-8" y="0" width="1684" height="1017" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13908873" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -932,8 +931,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-view.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-12.83871">
-          <caret line="144" column="11" selection-start-line="144" selection-start-column="11" selection-end-line="144" selection-end-column="11" />
+        <state vertical-scroll-proportion="-7.112903">
+          <caret line="176" column="47" selection-start-line="176" selection-start-column="47" selection-end-line="176" selection-end-column="47" />
           <folding>
             <element signature="e#4112#5050#0" expanded="false" />
           </folding>
@@ -942,8 +941,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/com_tree.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.133333">
-          <caret line="10" column="9" selection-start-line="10" selection-start-column="9" selection-end-line="10" selection-end-column="9" />
+        <state vertical-scroll-proportion="-31.433332">
+          <caret line="159" column="0" selection-start-line="159" selection-start-column="0" selection-end-line="159" selection-end-column="0" />
           <folding>
             <element signature="e#32#81#0" expanded="false" />
           </folding>
@@ -952,17 +951,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-setting.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.46912113">
-          <caret line="440" column="40" selection-start-line="440" selection-start-column="40" selection-end-line="440" selection-end-column="40" />
+        <state vertical-scroll-proportion="0.672209">
+          <caret line="434" column="16" selection-start-line="434" selection-start-column="16" selection-end-line="434" selection-end-column="16" />
           <folding>
             <element signature="n#style#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#1;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#table#0;n#div#1;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#1;n#xmp#0;n#!!top" expanded="true" />
-            <element signature="e#14560#14783#0" expanded="false" />
-            <element signature="e#14842#15068#0" expanded="false" />
-            <element signature="e#15125#15287#0" expanded="false" />
-            <element signature="e#15424#15932#0" expanded="false" />
+            <element signature="e#13187#13410#0" expanded="false" />
+            <element signature="e#13469#13695#0" expanded="false" />
+            <element signature="e#13752#13914#0" expanded="false" />
+            <element signature="e#14051#14559#0" expanded="false" />
           </folding>
         </state>
       </provider>

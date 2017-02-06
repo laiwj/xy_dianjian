@@ -157,7 +157,10 @@ function getChildrenListById(tree, id){
     _getChildrenListById(tree, id, list, false);
     return list;
 }
+
 //删除节点·含子树
+//*此算法有瑕疵，暂无时间修改
+//*删除元素后，迭代器索引可能越界
 function removeNodeById(node, id){
     if(!('nodes' in node))return;
     for(var i=0; i<node['nodes'].length; i++){
