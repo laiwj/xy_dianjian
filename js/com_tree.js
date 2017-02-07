@@ -3,196 +3,495 @@ var __icons = ['✎', '✕', '✛'];
 /**
  * Created by Administrator on 2017/1/24.
  */
-/*
- list to tree
- input:    'children':[{'id':101, 'pid':1, 'name':'电影'}, {'id':102, 'pid':1, 'name':'购物'}, {'id':1011, 'pid':101, 'name':'日韩'}]
- output:    {"nodes":[{"id":101,"pid":1,"name":"电影","nodes":[{"id":1011,"pid":101,"name":"日韩"}]},{"id":102,"pid":1,"name":"购物"}]}
- */
-function formatTree(children){
-    var lsC = {},       //节点-孩子节点列表 索引
-        lsR = {},   //节点-检测是否根节点 索引
-        src = {};   //节点-源数据 索引
-    children.forEach(function(d){
-        src[d.id] = d;
-        lsR[d.id] = 1;
-    });
-    children.forEach(function(d){
-        if(d.pid in src){
-            lsR[d.id] = 0;
-            if(!(d.pid in lsC))lsC[d.pid] = [];
-            lsC[d.pid].push(d.id);
-        }
-    });
 
-    var tree = {'nodes':[]};
-    for(var c in lsR){
-        if(lsR[c]==0)continue;
-        var node = src[c];
-        node['text'] = node['name'];
-        node['tags'] = __icons;
-        node['href'] = "#node-" + node['id'];   //日后方便找到
-        tree['nodes'].push(node);
-        createTree(node, lsC, src);
+var ViewTree = function (){
+
+    ViewTree.__common = [];
+    ViewTree.__common_index = {};
+    ViewTree.__treeview_data = {};       //save all data here.
+    ViewTree.__common_style = -1;
+    ViewTree._after_change = loadLocalTreeData;
+
+    var IsExistNodeByName = function (data, name){
+        if(data==undefined || !("nodes" in data))return false;
+        for(var i=0; i<data.nodes.length; i++){
+            if(data.nodes[i].name==name)return true;
+        }
+        return false;
+    };
+    /*
+     list to tree
+     input:    'children':[{'id':101, 'pid':1, 'name':'电影'}, {'id':102, 'pid':1, 'name':'购物'}, {'id':1011, 'pid':101, 'name':'日韩'}]
+     output:    {"nodes":[{"id":101,"pid":1,"name":"电影","nodes":[{"id":1011,"pid":101,"name":"日韩"}]},{"id":102,"pid":1,"name":"购物"}]}
+     */
+    ViewTree.formatTree = function (children){
+        var lsC = {},       //节点-孩子节点列表 索引
+            lsR = {},   //节点-检测是否根节点 索引
+            src = {};   //节点-源数据 索引
+        children.forEach(function(d){
+            src[d.id] = d;
+            lsR[d.id] = 1;
+        });
+        children.forEach(function(d){
+            if(d.pid in src){
+                lsR[d.id] = 0;
+                if(!(d.pid in lsC))lsC[d.pid] = [];
+                lsC[d.pid].push(d.id);
+            }
+        });
+
+        var tree = {'nodes':[]};
+        for(var c in lsR){
+            if(lsR[c]==0)continue;
+            var node = src[c];
+            node['text'] = node['name'];
+            node['tags'] = __icons;
+            node['href'] = "#node-" + node['id'];   //日后方便找到
+            tree['nodes'].push(node);
+            createTree(node, lsC, src);
+        }
+        return tree;
     }
-    return tree;
-}
-//建树过程 - 递归
-function createTree(parent, lsc, src){
-    if(!(parent.id in lsc))return;
-    lsc[parent.id].forEach(function(d){
-        if(!('nodes' in parent))parent['nodes'] = [];
-        var _node = src[d];
-        _node['text'] = _node['name'];
-        _node['tags'] = __icons;
-        _node['href'] = "#node-" + _node['id'];   //日后方便找到
-        parent['nodes'].push(_node);
-        createTree(_node, lsc, src);
-    });
-}
+    //建树过程 - 递归
+    var createTree = function (parent, lsc, src){
+        if(!(parent.id in lsc))return;
+        lsc[parent.id].forEach(function(d){
+            if(!('nodes' in parent))parent['nodes'] = [];
+            var _node = src[d];
+            _node['text'] = _node['name'];
+            _node['tags'] = __icons;
+            _node['href'] = "#node-" + _node['id'];   //日后方便找到
+            parent['nodes'].push(_node);
+            createTree(_node, lsc, src);
+        });
+    };
 
+    //-------------------------------------------------------------------------------------------------------------
+    //遍历树通用函数
+    this.traversal = function (node, callback){
+        callback(node);
+        if(!('nodes' in node))return;
+        node['nodes'].forEach(function(d){
+            this.traversal(d, callback);
+        });
+    };
 
-//获取节点叶子节点个数
-function getNodeLeafCount(node){
-    var count = [0];
-    viewTree(node, function(n){
-        if(!('nodes' in n)) {
-            n['isLeaf'] = 1;
-            count[0]++;
+    //获取子树-根据id
+    /** 暂未使用 **/
+    this.getSubTreeById = function (tree, id){
+        var data;
+        this.traversal(tree, function(n){
+            if('id' in n){
+                if(n['id']==id) data = n;
+            }
+        });
+        return data;
+    }
+
+    //获取树各节点子孙叶子节点数目信息
+    this.getTreeTableData = function(tree){
+        this.traversal(tree, function(n){
+            var c = getNodeLeafCount(n);
+            n['leafCount'] = c;
+        });
+        var maxH = 0;
+        this.traversal(tree, function(n){
+            if(maxH<n['height'])maxH = n['height'];
+        });
+        //按层级遍历树
+        var layers = [], temp = [tree];
+        for(var i=0; i<maxH+1; i++) layers.push([]);
+        while(temp.length>0){
+            var n = temp.pop();
+            layers[n['height']].push(n);
+            if(!('nodes' in n)) continue;
+            n['nodes'].forEach(function(d){
+                temp.push(d);
+            });
         }
-    });
-    return count[0];
-}
-//获取子树-根据id
-/** 暂未使用 **/
-function getSubTreeById(tree, id){
-    var data;
-    viewTree(tree, function(n){
-        if('id' in n){
-            if(n['id']==id) data = n;
+        var leafs = [];
+        this.traversal(tree, function(n){
+            if(n['isLeaf']==1) leafs.push(n);
+        });
+        tree['id'] = "root";
+        return [layers, leafs];
+    };
+
+    //-------------------------------------------------------------------------------------------------------------
+    //一般函数区
+    //获取节点叶子节点个数
+    var getNodeLeafCount = function (node){
+        var count = [0];
+        this.traversal(node, function(n){
+            if(!('nodes' in n)) {
+                n['isLeaf'] = 1;
+                count[0]++;
+            }
+        });
+        return count[0];
+    };
+    //获取树深度
+    var _getTreeHeight = function (node, height){
+        node['height'] = height[1];
+        if(!('nodes' in node))return;
+        height[0]++;
+        height[1]++;
+        node['nodes'].forEach(function(d){
+            _getTreeHeight(d, height);
+        });
+        height[1]--;
+    };
+    var getTreeHeight = function(tree){
+        var height = [0, 0];
+        _getTreeHeight(tree, height);
+        return height[0];
+    };
+    var _getNodeList = function (node, list){
+        if('id' in node)list.push([node['id'], node['name'], node['value']]);
+        if(!('nodes' in node))return;
+        node['nodes'].forEach(function(d){
+            _getNodeList(d, list);
+        });
+    };
+    ViewTree.getNodeList = function (tree){
+        var list = [];
+        _getNodeList(tree, list);
+        return list;
+    };
+    //获取子孙节点
+    //*注：此算法未经深入验证
+    var _getChildrenListById = function (node, id, list, flag){
+        if(flag==true)list.push(node['id']);
+        if(!('nodes' in node))return;
+        node['nodes'].forEach(function(d){
+            if(d['id']==id)
+                _getChildrenListById(d, id, list, true);
+            else
+                _getChildrenListById(d, id, list, flag);
+        });
+    };
+    ViewTree.getChildrenListById = function (tree, id){
+        var list = [];
+        _getChildrenListById(tree, id, list, false);
+        return list;
+    };
+
+    //删除节点·含子树
+    //*此算法有瑕疵，暂无时间修改
+    //*删除元素后，迭代器索引可能越界
+    var removeNodeById = function (node, id){
+        if(!('nodes' in node))return;
+        for(var i=0; i<node['nodes'].length; i++){
+            if(node['nodes'][i]['id']==id){
+                node['nodes'].splice(i, 1);
+                if(node['nodes'].length==0)delete node['nodes'];
+                return;
+            }
+            removeNodeById(node['nodes'][i], id);
         }
-    });
-    return data;
-}
+    };
+    /*
+     ********************************************************************************************
+     * 树折叠相关
+     */
+    //树折叠事件
+    function nodeCollapsed(event, data){
+        var list = ViewTree.getNodeList(data);
+        for(var i=1; i<list.length; i++){
+            var obj = $("#ys"+list[i][0]);
+            if(!obj.hasClass("hide"))obj.addClass("hide");
+        }
+    }
+    //树展开事件
+    function nodeExpanded(event, data){
+        var list = getNodeExpanded(data);
+        for(var i=0; i<list.length; i++){
+            var obj = $("#ys"+list[i]);
+            if(obj.hasClass("hide"))obj.removeClass("hide");
+        }
+    }
+    //获取树展开节点
+    function getNodeExpanded(tree){
+        var list = [];
+        tree['nodes'].forEach(function(d){
+            list.push(d['id']);
+        });
+        return list;
+    }
 
-//遍历树通用函数
-function viewTree(node, callback){
-    callback(node);
-    if(!('nodes' in node))return;
-    node['nodes'].forEach(function(d){
-        viewTree(d, callback);
-    });
-}
+    //*********************************************************************************************
+    function getTreeOption(){
+        return {
+            collapseIcon:"glyphicon glyphicon-triangle-bottom",
+            expandIcon:"glyphicon glyphicon-triangle-right",
+            color:'#643',
+            backColor: 'white',
+            showTags:true,
+            highlightSelected:false,
+            enableLinks: true,
+            //nodeIcon:'glyphicon glyphicon-map-marker',
+            onNodeCollapsed: nodeCollapsed,
+            onNodeExpanded: nodeExpanded,
+        };
+    }
 
-//获取树各节点子孙叶子节点数目信息
-function getTreeTableData(tree){
-    viewTree(tree, function(n){
-        var c = getNodeLeafCount(n);
-        n['leafCount'] = c;
-    });
-    var maxH = 0;
-    viewTree(tree, function(n){
-        if(maxH<n['height'])maxH = n['height'];
-    });
-    //按层级遍历树
-    var layers = [], temp = [tree];
-    for(var i=0; i<maxH+1; i++) layers.push([]);
-    while(temp.length>0){
-        var n = temp.pop();
-        layers[n['height']].push(n);
-        if(!('nodes' in n)) continue;
-        n['nodes'].forEach(function(d){
-            temp.push(d);
+    /*
+     ********************************************************************************************
+     * 操作相关处理函数聚集
+     ********************************************************************************************
+     */
+
+    function _removeTreeView(treeId){
+        var p = $("#" + treeId).parent();
+        if($("#" + treeId).hasClass("treeview")){
+            $('#'+treeId).data('treeview').remove();
+            $("#" + treeId).treeview("remove");
+            $("#" + treeId).removeClass("treeview");
+            $("#" + treeId).empty();
+        }
+        $("#" + treeId).remove();
+        p.prepend('<div id="'+ treeId +'"></div>');
+    }
+    ViewTree.reloadTree = function (treeId, data){
+        _removeTreeView(treeId);
+        if(!('nodes' in data))return;
+        var option = getTreeOption();
+        option['data'] = data.nodes;         // data is not optional
+        option['levels'] = getTreeHeight(data);
+        $("#" + treeId).treeview(option);
+        loadTableStyle();
+
+    };
+
+    function clickNodeForOperate(e){
+        var treeId = $(this).parents("div.treeview").attr('id');
+        var nodeId = $(this).parent().find("a").attr("href").replace("#node-", "");
+        var lb = $(this).html();        //['✎', '✕', '✛'];
+        var data = ViewTree.__treeview_data[treeId];
+
+        if(lb=='✛') addChildClass(treeId, nodeId, data);
+        else if(lb=='✕') removeNode(treeId, nodeId, data);
+        else if(lb=='✎') editNode(treeId, nodeId, data);
+
+    }
+
+    //表现层：事件，效果等
+    var loadTableStyle = function (){
+        $("#table1>tr>td>div.treeview>ul>li").each(function(i, d){
+            $(this).find("span.badge").eq(-1).attr("title", "在该分类下添加子分类");
+            $(this).find("span.badge").eq(-2).attr("title", "删除该分类及其所有子分类");
+            $(this).find("span.badge").eq(-3).attr("title", "修改该分类名称或其对应值");
+        });
+        $("tr>td>div.newParent>span.badge").attr("title", "增加新的分类");
+        $("tr>td>div.newParent>span.badge").unbind('click');
+        $("tr>td>div.newParent>span.badge").on('click', function(e){
+            var treeId = $(this).parent().attr('id').replace("new", "tree");
+            addNewParentClass(treeId);
+            //cout(__treeview_data[treeId]);
+        });
+        $("#table1>tr>td>div").off('click', 'ul>li>span.badge', clickNodeForOperate);
+        $("#table1>tr>td>div").on('click', 'ul>li>span.badge', clickNodeForOperate);
+    };
+
+    //加载弹出框（添加因素）
+    var loadNewFrame = function (treeId, nodeId){
+        $.colorbox({
+            title:'绩效设置相关', opacity:0.8, overlayClose:false,escKey:false, inline:false, speed:0,
+            html:ejs.render($("#tm_edit1").html(), { 'treeId':treeId, 'nodeId':nodeId }),
+            onComplete:function(){
+                $("#cboxWrapper").css("border", "5px solid #bbb");
+                $("#cboxWrapper").css("background-color", "#bbb");
+                $("#cboxClose").css("margin", "-5px 10px 10px 0px");
+            }
+        });
+        $("#btnAddSubmit").unbind('click').on('click', submitAddNewParentClass);
+        $("#lbEdit0").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(0).trigger("click");});
+        $("#lbEdit1").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(1).trigger("click");});
+
+        //*************************************************************
+        //弹出效果搞定
+
+    };
+
+    function editNode(treeId, nodeId, data){
+        //cout(data);
+
+    }
+
+    var addChildClass = function (treeId, nodeId, data){
+        //var newData = [];
+        loadNewFrame(treeId, nodeId);
+
+    };
+    var addNewParentClass = function (treeId){
+        var nodeId = treeId.substr(treeId.lastIndexOf("p")+1);
+        loadNewFrame(treeId, nodeId);
+    };
+
+    //删除节点
+    function removeNode(treeId, nodeId, data){
+        var unitId = treeId.match(/tree(\S*)p/)[1];
+        //后台删除数据
+        removeNodeServer(nodeId, ViewTree.__common_style, unitId, function(){
+            var list = ViewTree.getChildrenListById(data, nodeId);
+            list.forEach(function(d){
+                $("#ys"+d).remove();
+            });
+            removeNodeById(data, nodeId);       //*删除数据
+            ViewTree.reloadTree(treeId, data);           //*重新加载
+            ViewTree.__treeview_data[treeId] = data;     //*保存数据
         });
     }
-    var leafs = [];
-    viewTree(tree, function(n){
-        if(n['isLeaf']==1) leafs.push(n);
-    });
-    tree['id'] = "root";
-    return [layers, leafs];
-}
 
-//获取树深度
-function _getTreeHeight(node, height){
-    node['height'] = height[1];
-    if(!('nodes' in node))return;
-    height[0]++;
-    height[1]++;
-    node['nodes'].forEach(function(d){
-        _getTreeHeight(d, height);
-    });
-    height[1]--;
-}
-function getTreeHeight(tree){
-    var height = [0, 0];
-    _getTreeHeight(tree, height);
-    return height[0];
-}
-function _getNodeList(node, list){
-    if('id' in node)list.push([node['id'], node['name'], node['value']]);
-    if(!('nodes' in node))return;
-    node['nodes'].forEach(function(d){
-        _getNodeList(d, list);
-    });
-}
-function getNodeList(tree){
-    var list = [];
-    _getNodeList(tree, list);
-    return list;
-}
-//获取子孙节点
-//*注：此算法未经深入验证
-function _getChildrenListById(node, id, list, flag){
-    if(flag==true)list.push(node['id']);
-    if(!('nodes' in node))return;
-    node['nodes'].forEach(function(d){
-        if(d['id']==id)
-            _getChildrenListById(d, id, list, true);
-        else
-            _getChildrenListById(d, id, list, flag);
-    });
-}
-function getChildrenListById(tree, id){
-    var list = [];
-    _getChildrenListById(tree, id, list, false);
-    return list;
-}
+    //**********************************************服务器交互**********************************************
+    //获取
+    //提交
+    //******************************************************************************************************
+    var submitAddNewParentClass = function (){
+        //var style = $("#edit_custom");
+        var style = $("input[name='ys_edit']:checked").val();
+        var eName = $("#edit_name" + style).val().trim(),
+            eValue = parseInt($("#edit_value" + style).val().replace("%", "")),
+            treeId = $("#treeIdValue").val(),
+            unitId = treeId.match(/tree(\S*)p/)[1],
+            pid = $("#nodeIdValue").val(),
+            level = parseInt(pid)==0 ? 1 : 99;
+        var rootId = treeId.substr(treeId.lastIndexOf("p")+1);
+        //cout("--------------------------------------");
+        //cout(__treeview_data);
+        //cout(__treeview_data[treeId]);
 
-//删除节点·含子树
-//*此算法有瑕疵，暂无时间修改
-//*删除元素后，迭代器索引可能越界
-function removeNodeById(node, id){
-    if(!('nodes' in node))return;
-    for(var i=0; i<node['nodes'].length; i++){
-        if(node['nodes'][i]['id']==id){
-            node['nodes'].splice(i, 1);
-            if(node['nodes'].length==0)delete node['nodes'];
+        if(eName==""){
+            alert("名称不能为空");
             return;
         }
-        removeNodeById(node['nodes'][i], id);
-    }
-}
-/*
- function removeNodeById(tree, id){
- for(var i=0; i<tree['nodes'].length; i++){
- if(tree['nodes'][i]['id']==id){
- tree['nodes'].splice(i, 1);
- if(tree['nodes'].length==0)delete tree['nodes'];
- return;
- }
- _removeNodeById(tree['nodes'][i], id);
- }
- }
- function _removeNodeById(node, id){
- if(!('nodes' in node))return;
- for(var i=0; i<node['nodes'].length; i++){
- if(node['nodes'][i]['id']==id){
- node['nodes'].splice(i, 1);
- if(node['nodes'].length==0)delete node['nodes'];
- return;
- }
- _removeNodeById(node['nodes'][i], id);
- }
- }
 
- */
+        if(IsExistNodeByName(ViewTree.__treeview_data[treeId], eName)){
+            alert("该因素名称已存在，请重新输入");
+            return;
+        }
+        if(style==0){
+
+
+        }else{
+
+
+        }
+        var dt = {'userId':10001, 'unitId':unitId, 'style':1, 'nature':parseInt(style), 'parentId': pid,
+            'name':eName, 'value':eValue, 'common':ViewTree.__common_style, 'level':level };
+
+        //cout(dt);
+        ajaxData('change_performance_setting', dt, function(data){
+            if(data.error==false){
+                //根据具体情况选择合适的加载函数
+                ViewTree._after_change(unitId, rootId);
+                //loadLocalTreeData(unitId, rootId);
+            }
+        });
+
+    };
+
+    //删除元素
+    function removeNodeServer(nodeId, common, unitId, callback){
+        showLoading();
+        var param = {user:10001, 'nodeId':nodeId, 'common':common, 'unitId':unitId };
+        ajaxData('del_performance_setting', param, function(data)
+        {
+            if(data.error==false){
+                callback(data.data);
+            }
+            hideLoading();
+        }, function(){
+            //hideLoading();
+        });
+    }
+
+    //局部刷新
+    function loadLocalTreeData(unitId, parentId){
+        showLoading();
+        ajaxData('get_performance_setting_unit', {'unitId':unitId}, function(data){
+            if(data.error==false){
+
+                var treeId = "tree"+ unitId + 'p' + parentId;
+                var settings = [];
+                data.data.children.forEach(function(d){ if(d.level!=1)settings.push(d); });
+                data.data.children = settings;
+                var line = ViewTree.getFormatUnitData(data.data);
+                ViewTree.__treeview_data[treeId] = line.tree[parentId];
+                ViewTree.reloadTree(treeId, line.tree[parentId]);
+
+                //刷新右侧单元格列表
+                reloadLocalValue(treeId, line.tree[parentId]);
+                //****************************************************************************
+                //添加功能已搞定 - 2017-2-5
+
+
+            }
+            hideLoading();
+        }, function(){
+            hideLoading();
+        });
+    }
+    //局部因素刷新：tree + 因素值
+    function reloadLocalValue(treeId, data){
+        var Id = treeId.replace("tree", "");
+        var list = ViewTree.getNodeList(data);
+        cout(list);
+
+        var html = "<div>";
+        for(var i=0; i<list.length; i++)
+            html += '<div id="ys' + list[i][0] + '"' + ' class="td_value">' + list[i][2] + '%</div>';
+        html += "</div>";
+        $("#value" + Id).html(html);
+
+
+    }
+    //-------------------------------------------------------------------------------------------------------
+    //获取单个部门的数据格式化信息
+    //通用过程
+    ViewTree.getFormatUnitData = function (d){
+        var line = {};
+        line['unit'] = d.unit;
+        line['uid'] = d.uid;
+        var _tree = ViewTree.formatTree(d.children);
+        var trees = {}, treeList = {}, maxL = 0;
+        //各分树信息
+        _tree.nodes.forEach(function(cd){
+            if(!(cd.pid in trees))trees[cd.pid] = {'nodes':[]};
+            trees[cd.pid]['nodes'].push(cd);
+        });
+        //各分树->列表
+        ViewTree.__common.forEach(function(cd){
+            if(cd.id in trees){
+                treeList[cd.id] = ViewTree.getNodeList(trees[cd.id]);
+                if(treeList[cd.id].length>maxL) maxL = treeList[cd.id].length;
+            }
+        });
+        line['tree'] = trees;
+        line['treeList'] = treeList;
+        line['maxL'] = maxL;
+        return line;
+    };
+
+
+
+
+
+};//    End Class
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

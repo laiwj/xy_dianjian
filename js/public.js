@@ -93,7 +93,13 @@
 	function showLoading(){
 		var div = "<div id='inline_content' style='padding:0px; background:#fff; border:0px'>" +
 			"<img src='../img/loading.gif' width='50'' height='50' />" + "</div>";
-		$.colorbox({html:div, overlayClose:false, escKey:false, closeButton:false, inline:false, opacity:0.8, speed:0, });
+		$.colorbox({
+			html: div, overlayClose: false, escKey: false, closeButton: false, inline: false, opacity: 0.8, speed: 0,
+			onComplete: function () {
+				$("#cboxWrapper").css("border", "0px solid #bbb");
+				$("#cboxWrapper").css("background-color", "#fff");
+			}
+		});
 	}
 	function hideLoading(){
 		$.colorbox.close();

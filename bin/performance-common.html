@@ -42,7 +42,7 @@
     <div class="m-sm bg-main">
         <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto" style="margin-top:5px; margin-bottom: 45px">
             <div class="col col-sm-12">
-                <div class="title">绩效因素设定</div>
+                <div class="title">全局指标设定</div>
                 <div id="view" class="w-full" style="min-height:395px; height: auto;">
                     <table id="table1" style="width: 100%; margin-bottom: 60px">
 
@@ -52,7 +52,6 @@
 
         </div>
     </div>
-
 
 
     <script src="../js/bootstrap.min.js"></script>
@@ -68,38 +67,25 @@
 
     <script id="tm_table1" type="text/html">
         <tr>
-            <th>部门</th>
-            <th colspan="<%= common.length*2 %>">一级绩效因素</th>
-        </tr>
-        <tr>
-            <th>名称</th>
-            <% common.forEach(function(d, i){ %>
-            <th id="pth<%= d.id %>"><%= d.name %></th><th><%= d.value %>%</th>
-            <% }); %>
+            <th>绩效因素</th>
+            <th>权值</th>
         </tr>
 
-        <% data.forEach(function(d, i){ %>
         <tr>
-            <td id="unit<%= d.uid %>"><%= d.unit %></td>
-            <% common.forEach(function(cd, ci){ %>
-            <td id="key<%= d.uid %>p<%= cd.id %>" valign="top">
-                <div id="tree<%= d.uid %>p<%= cd.id %>"></div>
-                <div id="new<%= d.uid %>p<%= cd.id %>" class="newParent">
+            <td id="key_common" valign="top">
+                <div id="tree99999p0"></div>
+                <div id="new99999p0" class="newParent">
                     <span class="badge">✛</span>
                 </div>
             </td>
-            <td id="value<%= d.uid %>p<%= cd.id %>" valign="top">
+            <td id="value_common" valign="top">
                 <div>
-                    <% if(!(cd.id in d.treeList))return; %>
-                    <% var len = d.treeList[cd.id].length %>
-                    <% for(var i=0; i<len; i++){ %>
-                    <div id="ys<%= d.treeList[cd.id][i][0] %>" class="td_value"><%= d.treeList[cd.id][i][2] %>%</div>
+                    <% for(var i=0; i<d.treeList.length; i++){ %>
+                    <div id="ys<%= d.treeList[i][0] %>" class="td_value"><%= d.treeList[i][2] %>%</div>
                     <% } %>
                 </div>
             </td>
-            <% }); %>
         </tr>
-        <% }); %>
 
     </script>
     <script id="tm_edit1" type="text/template">
@@ -151,40 +137,106 @@
         //var __common_index = {};
         //var __treeview_data = {};       //save all data here.
         var TV = new ViewTree();
+        ViewTree.__common_style = 1;
+        ViewTree._after_change = loadTreeData;
+
+
+        /*
+        function clickNodeForOperate(e){
+            var treeId = $(this).parents("div.treeview").attr('id');
+            var nodeId = $(this).parent().find("a").attr("href").replace("#node-", "");
+            var lb = $(this).html();        //['✎', '✕', '✛'];
+            var data = __treeview_data[treeId];
+
+            if(lb=='✛') addChildClass(treeId, nodeId, data);
+            else if(lb=='✕') removeNode(treeId, nodeId, data);
+            else if(lb=='✎') editNode(treeId, nodeId, data);
+
+        }
+        //表现层：事件，效果等
+        function loadTableStyle(){
+            $("#table1>tr>td>div.treeview>ul>li").each(function(i, d){
+                $(this).find("span.badge").eq(-1).attr("title", "在该分类下添加子分类");
+                $(this).find("span.badge").eq(-2).attr("title", "删除该分类及其所有子分类");
+                $(this).find("span.badge").eq(-3).attr("title", "修改该分类名称或其对应值");
+            });
+            $("tr>td>div.newParent>span.badge").attr("title", "增加新的分类");
+            $("tr>td>div.newParent>span.badge").unbind('click');
+            $("tr>td>div.newParent>span.badge").on('click', function(e){
+                var treeId = $(this).parent().attr('id').replace("new", "tree");
+                addNewParentClass(treeId);
+                //cout(__treeview_data[treeId]);
+            });
+            $("#table1>tr>td>div").off('click', 'ul>li>span.badge', clickNodeForOperate);
+            $("#table1>tr>td>div").on('click', 'ul>li>span.badge', clickNodeForOperate);
+        }
+
+        
+        function editNode(treeId, nodeId, data){
+            //cout(data);
+
+        }
+
+        //删除节点
+        function removeNode(treeId, nodeId, data){
+            var unitId = treeId.match(/tree(\S*)p/)[1];
+            //后台删除数据
+            removeNodeServer(nodeId, 0, unitId, function(){
+                var list = getChildrenListById(data, nodeId);
+                list.forEach(function(d){
+                    $("#ys"+d).remove();
+                });
+                removeNodeById(data, nodeId);       //*删除数据
+                reloadTree(treeId, data);           //*重新加载
+                __treeview_data[treeId] = data;     //*保存数据
+            });
+        }
 
 
 
         function loadParent(_dt){
+            var dt = [{'id':1, 'name':'主要因素一', 'value':30}, {'id':2, 'name':'主要因素二', 'value':50}, {'id':3, 'name':'主要因素三', 'value':20}];
             _dt.forEach(function(d, i){
-                ViewTree.__common_index[d.id] = i;
+                __common_index[d.id] = i;
             });
-            ViewTree.__common = _dt;
-            ViewTree.__common_style = 0;
+            __common = _dt;
         }
-
-
+         */
+        //**********************************************服务器交互**********************************************
+        //获取
+        //提交
+        //******************************************************************************************************
+        /*
+        //删除元素
+        function removeNodeServer(nodeId, common, unitId, callback){
+            showLoading();
+            var param = {user:10001, 'nodeId':nodeId, 'common':common, 'unitId':unitId };
+            ajaxData('del_performance_setting', param, function(data)
+            {
+                if(data.error==false){
+                    callback(data.data);
+                }
+                hideLoading();
+            }, function(){
+                hideLoading();
+            });
+        }
+        */
         //加载全部
         function loadTreeData(){
             showLoading();
-            ajaxData('get_all_performance_setting', {user:10001}, function(data)
+            ajaxData('get_performance_common', {user:10001}, function(dt)
             {
-                loadParent(data.roots);
-                for(var u in data.setting){
-                    data.setting[u]['children'] = data.setting[u]['children'].concat(data.common);
-                }
-                var setting = values(data.setting);
-                setting.sort(function(a, b){ return b.children.length - a.children.length; });
-                var lines = loadTree(setting);
+                cout(dt.data);
+                var data = dt.data;
+                var tree = ViewTree.formatTree(dt.data.children);
+                data['treeList'] = ViewTree.getNodeList(tree);
                 var tm_table = $("#tm_table1").html();
-                $("#table1").html(ejs.render(tm_table, { data:lines, common:ViewTree.__common }));
-                lines.forEach(function(d){
-                    for(var p in d.tree){
-                        var treeId = 'tree' + d.uid + "p" + p;
-                        ViewTree.__treeview_data[treeId] = d.tree[p];
-                        ViewTree.reloadTree(treeId, d.tree[p]);
-                    }
-                });
+                $("#table1").html(ejs.render(tm_table, { 'd':data }));
 
+                var treeId = 'tree99999p0';
+                ViewTree.__treeview_data[treeId] = tree;
+                ViewTree.reloadTree(treeId, tree);
 
                 hideLoading();
             }, function(){
@@ -192,39 +244,36 @@
             });
         }
 
+        /*
+        //局部刷新
+        function loadLocalTreeData(unitId, parentId){
+            showLoading();
+            ajaxData('get_performance_setting_unit', {'unitId':unitId}, function(data){
+                if(data.error==false){
 
-        //加载弹出框（添加因素）
-        function loadNewFrame(treeId, nodeId){
-            $.colorbox({
-                title:'绩效设置相关', opacity:0.8, overlayClose:false,escKey:false, inline:false, speed:0,
-                html:ejs.render($("#tm_edit1").html(), { 'treeId':treeId, 'nodeId':nodeId }),
-                onComplete:function(){
-                    $("#cboxWrapper").css("border", "5px solid #bbb");
-                    $("#cboxWrapper").css("background-color", "#bbb");
-                    $("#cboxClose").css("margin", "-5px 10px 10px 0px");
+                    var treeId = "tree"+ unitId + 'p' + parentId;
+                    var settings = [];
+                    data.data.children.forEach(function(d){ if(d.level!=1)settings.push(d); });
+                    data.data.children = settings;
+                    var line = getFormatUnitData(data.data);
+                    __treeview_data[treeId] = line.tree[parentId];
+                    reloadTree(treeId, line.tree[parentId]);
+
+                    //****************************************************************************
+                    //添加功能已搞定 - 2017-2-5
+
+
                 }
+                hideLoading();
+            }, function(){
+                hideLoading();
             });
-            $("#btnAddSubmit").unbind('click').on('click', submitAddNewParentClass);
-            $("#lbEdit0").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(0).trigger("click");});
-            $("#lbEdit1").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(1).trigger("click");});
-
-            //*************************************************************
-            //弹出效果搞定
-
-
         }
 
+*/
 
 
-        function loadTree(_dt){
-            var data = [];
-            _dt.forEach(function(d){
-                data.push(ViewTree.getFormatUnitData(d));
-            });
-            return data;
-        }
 
-        //loadTable();
         loadTreeData();
 
         $(document).ready(function() {
