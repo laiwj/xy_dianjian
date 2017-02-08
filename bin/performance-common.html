@@ -89,8 +89,8 @@
 
     </script>
     <script id="tm_edit1" type="text/template">
-        <div style="margin: 20px">
-            <div style="border: 1px solid #ccc; padding: 20px; margin-right: 7px; padding-top: 10px">
+        <div style="margin: 20px; width: 400px">
+            <div style="border: 1px solid #ccc; padding: 20px; margin-right: 2px; padding-top: 10px">
                 <table id="table2">
                     <tr>
                         <td colspan="6" style="text-align:left; font-weight: 600">
@@ -112,7 +112,9 @@
                     </tr>
                     <tr>
                         <td></td><td>名称：</td><td><select id="edit_name1"><option>加班时间</option></select></td><td> </td><td>权重：</td>
-                        <td><select id="edit_value1"><option>10%</option><option>20%</option></select></td>
+                        <td>
+                            <select id="edit_value1"><option>10%</option><option>20%</option></select>
+                        </td>
                     </tr>
                 </table>
             </div>
@@ -244,33 +246,6 @@
             });
         }
 
-        /*
-        //局部刷新
-        function loadLocalTreeData(unitId, parentId){
-            showLoading();
-            ajaxData('get_performance_setting_unit', {'unitId':unitId}, function(data){
-                if(data.error==false){
-
-                    var treeId = "tree"+ unitId + 'p' + parentId;
-                    var settings = [];
-                    data.data.children.forEach(function(d){ if(d.level!=1)settings.push(d); });
-                    data.data.children = settings;
-                    var line = getFormatUnitData(data.data);
-                    __treeview_data[treeId] = line.tree[parentId];
-                    reloadTree(treeId, line.tree[parentId]);
-
-                    //****************************************************************************
-                    //添加功能已搞定 - 2017-2-5
-
-
-                }
-                hideLoading();
-            }, function(){
-                hideLoading();
-            });
-        }
-
-*/
 
 
 

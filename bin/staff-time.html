@@ -81,7 +81,7 @@ $(document).ready(function() {
 	function loadUnitList(){
 		ajaxData('get_units', {}, function(data)
 		{
-			units = data;
+			units = data.map(function(d){ return d[0]; });
 			addUnitSel('unitsel1', data, loadOnlineDataByUnit);
 			$("#unitsel1sel1 option:first").remove();
 			$("#unitsel1sel1").val(init_unit_online);

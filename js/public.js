@@ -12,17 +12,21 @@
 	var init_date_end = "2015-12-13";
 	var init_date_month = "2016-5-1";
 	var init_unit_clock = "征地移民处";
-	var init_unit_common = "所有部门";
+	var init_unit_common = "-1";
 	var init_unit_online = "水工处";
 	var init_unit_social = "机电处";
 	var init_style_social = "腾讯通";
 	var init_unit_interval = "所有部门";
 	var init_unit_flow = "所有部门";
 	var public_all_unit = "所有部门";
+	var init_unit_performance = "10224";
+	var Units = { 10421:"征地移民处", 10426:"水工处", 10406:"机电处" };
+
 	var serverIp = "http://10.101.1.177";
 	//var serverIp = "http://118.123.173.86";
 	var serverPort = 8000;
 	var serverUrl = serverIp + ":" + serverPort;
+
 
 
 	function getQueryString(name) { 
@@ -55,6 +59,7 @@
 		myChart.setOption(option);
 		return myChart;
 	}
+	function GetMonthNow(){ return  new Date().format("yyyy-MM"); }
 	function DateDTS(date) { return date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds(); }
 	function DateDTM(date) { return date.getHours() * 60 + date.getMinutes(); }
 	function DateSTM(str){ var sp = str.split(" ")[1].split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); }
@@ -122,13 +127,27 @@
 		return all;
 	}
 
-	//---------------------------------一般通用函数--------------------------------------------------
+
+//---------------------------------一般通用函数--------------------------------------------------
 function addUnitSel(id, _unit, clickFunc){
 	var div = '<div style="float:right; margin-right:15px;">', sel1 = '<select style="height:25px" id="'+ id + 'sel1">', opt='';
-	_unit.forEach(function(d){ opt += '<option value ="'+ d +'">'+ d +'</option>'; });
+	_unit.forEach(function(d){ opt += '<option value ="'+ d[0] +'">'+ d[0] +'</option>'; });
 	$("#" + id).append(div + sel1 + opt + '</select>' + '</div>');
 	$("#" + id + 'sel1').val(init_unit_clock);
 	$("#" + id + 'sel1').change(function(){ if(clickFunc!=undefined)clickFunc($(this).val()); });
+}
+function addUnitSelEx(id, _unit, clickFunc){
+	var div = '<div style="float:right; margin-right:15px;">', sel1 = '<select style="height:25px" id="'+ id + 'sel1">', opt='';
+	_unit.forEach(function(d){
+		Units[d[1]] = d[0];
+		opt += '<option value ="'+ d[1] +'">'+ d[0] +'</option>';
+	});
+	$("#" + id).append(div + sel1 + opt + '</select>' + '</div>');
+	$("#" + id + 'sel1').val(init_unit_performance);
+	$("#" + id + 'sel1').change(function(){
+		var u = $(this).find("option:selected").text();
+		if(clickFunc!=undefined)clickFunc([u, $(this).val()]);
+	});
 }
 
 function _tableClick(tbId, _callback){
@@ -242,3 +261,20 @@ function delCookie(name)
 		document.cookie= name + "="+cval+";expires="+exp.toGMTString();
 }
 
+
+Date.prototype.format = function(fmt) {
+	var o = {
+		"M+" : this.getMonth()+1,                 //月份
+		"d+" : this.getDate(),                    //日
+		"h+" : this.getHours(),                   //小时
+		"m+" : this.getMinutes(),                 //分
+		"s+" : this.getSeconds(),                 //秒
+		"q+" : Math.floor((this.getMonth()+3)/3), //季度
+		"S"  : this.getMilliseconds()             //毫秒
+	};
+	if(/(y+)/.test(fmt)) { fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length)); }
+	for(var k in o) {
+		if(new RegExp("("+ k +")").test(fmt)){ fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length))); }
+	}
+	return fmt;
+};

@@ -68,11 +68,11 @@ var ViewTree = function (){
 
     //-------------------------------------------------------------------------------------------------------------
     //遍历树通用函数
-    this.traversal = function (node, callback){
+    var traversal = function (node, callback){
         callback(node);
         if(!('nodes' in node))return;
         node['nodes'].forEach(function(d){
-            this.traversal(d, callback);
+            traversal(d, callback);
         });
     };
 
@@ -80,7 +80,7 @@ var ViewTree = function (){
     /** 暂未使用 **/
     this.getSubTreeById = function (tree, id){
         var data;
-        this.traversal(tree, function(n){
+        traversal(tree, function(n){
             if('id' in n){
                 if(n['id']==id) data = n;
             }
@@ -90,12 +90,12 @@ var ViewTree = function (){
 
     //获取树各节点子孙叶子节点数目信息
     this.getTreeTableData = function(tree){
-        this.traversal(tree, function(n){
+        traversal(tree, function(n){
             var c = getNodeLeafCount(n);
             n['leafCount'] = c;
         });
         var maxH = 0;
-        this.traversal(tree, function(n){
+        traversal(tree, function(n){
             if(maxH<n['height'])maxH = n['height'];
         });
         //按层级遍历树
@@ -110,7 +110,7 @@ var ViewTree = function (){
             });
         }
         var leafs = [];
-        this.traversal(tree, function(n){
+        traversal(tree, function(n){
             if(n['isLeaf']==1) leafs.push(n);
         });
         tree['id'] = "root";
@@ -122,7 +122,7 @@ var ViewTree = function (){
     //获取节点叶子节点个数
     var getNodeLeafCount = function (node){
         var count = [0];
-        this.traversal(node, function(n){
+        traversal(node, function(n){
             if(!('nodes' in n)) {
                 n['isLeaf'] = 1;
                 count[0]++;
@@ -130,21 +130,33 @@ var ViewTree = function (){
         });
         return count[0];
     };
-    //获取树深度
+    //获取树深度：含各节点的深度记录
     var _getTreeHeight = function (node, height){
         node['height'] = height[1];
         if(!('nodes' in node))return;
-        height[0]++;
         height[1]++;
+        if(height[1]>height[0]) height[0] = height[1];
         node['nodes'].forEach(function(d){
             _getTreeHeight(d, height);
         });
         height[1]--;
     };
-    var getTreeHeight = function(tree){
+    //获取树的深度-算法2
+    var getTreeHeightEx = function(node){
+        if(!('nodes' in node))return 1;
+        var maxH = 0;
+        node['nodes'].forEach(function(d){
+            var h = getTreeHeightEx(d);
+            if(h>maxH)maxH = h;
+        });
+        return maxH + 1;
+    };
+
+    ViewTree.getTreeHeight = function(tree){
         var height = [0, 0];
         _getTreeHeight(tree, height);
-        return height[0];
+        //(getTreeHeightEx(tree));
+        return height[0] + 1;
     };
     var _getNodeList = function (node, list){
         if('id' in node)list.push([node['id'], node['name'], node['value']]);
@@ -257,7 +269,7 @@ var ViewTree = function (){
         if(!('nodes' in data))return;
         var option = getTreeOption();
         option['data'] = data.nodes;         // data is not optional
-        option['levels'] = getTreeHeight(data);
+        option['levels'] = ViewTree.getTreeHeight(data);
         $("#" + treeId).treeview(option);
         loadTableStyle();
 
@@ -304,6 +316,12 @@ var ViewTree = function (){
                 $("#cboxClose").css("margin", "-5px 10px 10px 0px");
             }
         });
+        $("#edit_value0").html("");
+        $("#edit_value1").html("");
+        for(var i=0; i<=10; i++){
+            $("#edit_value0").append("<option value='"+ i*10 +"'>"+ i*10 +"%</option>");
+            $("#edit_value1").append("<option value='"+ i*10 +"'>"+ i*10 +"%</option>");
+        }
         $("#btnAddSubmit").unbind('click').on('click', submitAddNewParentClass);
         $("#lbEdit0").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(0).trigger("click");});
         $("#lbEdit1").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(1).trigger("click");});

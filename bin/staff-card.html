@@ -57,7 +57,7 @@
 		function loadUnitList(){
 			ajaxData('get_units', {}, function(data)
 			{
-				units = data;
+				units = data.map(function(d){ return d[0]; });
 				addUnitSel('unitsel1', data, loadClockData);
 			});
 		}
@@ -104,7 +104,7 @@
 
 		//***********************************************函数区域*****************************************************************
 		function loadClockData(_u){
-			if(_u==undefined)_u = $("#unitsel1sel1").val() ;
+			if(_u==undefined)_u = $("#unitsel1sel1").val();
 			var datesel = getDateByMonth($("#pheadsel1").val()), //dateEnd = $("#pheadsel2").val();
 					dateStart = datesel.dateStart, dateEnd = datesel.dateEnd;
 			__myChart1 = echarts.init(document.getElementById("view1")).showLoading();

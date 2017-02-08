@@ -56,7 +56,7 @@
 		function loadUnitList(){
 			ajaxData('get_units', {}, function(data)
 			{
-				units = data;
+				units = data.map(function(d){ return d[0]; });
 				addUnitSel('unitsel2', data, selectUnitInterval);
 				$("#unitsel2sel1").val(init_unit_interval);
 			});

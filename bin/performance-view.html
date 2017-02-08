@@ -42,7 +42,7 @@
     <div class="m-sm bg-main">
         <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto" style="margin-top:5px; margin-bottom: 45px">
             <div class="col col-sm-12">
-                <div class="title">部门绩效计算</div>
+                <div class="title" id="unitsel1">部门绩效计算</div>
                 <div id="view" class="w-full" style="min-height:395px; height: auto;">
                     <table id="table1" style="width: 100%; margin-bottom: 60px">
 
@@ -65,6 +65,8 @@
     <script src="../js/moment.min.js"></script>
     <script type="text/javascript" src="../js/jquery.colorbox-min.js" ></script>
     <script src="../js/com_tree.js"></script>
+    <script type="text/javascript" src="../js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="../js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
 
 
     <script id="tm_view1" type="text/html">
@@ -100,58 +102,51 @@
         "use strict";
 
         var $pl;
+        var TV = new ViewTree();
+        var units = [];
 
-
-        function IsExistNodeByName(data, name){
-            for(var i=0; i<data.nodes.length; i++){
-                if(data.nodes[i].name==name)return true;
-            }
-            return false;
-        }
-        function loadTableStyle(){
-            return;
-            $("#table1>tr>td>div.treeview>ul>li").each(function(i, d){
-                $(this).find("span.badge").eq(-1).attr("title", "在该分类下添加子分类");
-                $(this).find("span.badge").eq(-2).attr("title", "删除该分类及其所有子分类");
-                $(this).find("span.badge").eq(-3).attr("title", "修改该分类名称或其对应值");
+        //----------------------加载部门信息
+        function loadUnitList(){
+            ajaxData('get_units', {}, function(data)
+            {
+                units = data.map(function(d){ return d[0]; });
+                addUnitSelEx('unitsel1', data, loadUnitPeople);
+                addYearMonthList("unitsel1");
             });
-            $("tr>td>div.newParent>span.badge").attr("title", "增加新的分类");
-            $("tr>td>div.newParent>span.badge").unbind('click');
-            $("tr>td>div.newParent>span.badge").on('click', function(e){
-                var treeId = $(this).parent().attr('id').replace("new", "tree");
-                addNewParentClass(treeId);
-                //cout(__treeview_data[treeId]);
-            });
-            $("#table1>tr>td>div").off('click', 'ul>li>span.badge', clickNodeForOperate);
-            $("#table1>tr>td>div").on('click', 'ul>li>span.badge', clickNodeForOperate);
         }
-        /*
-         ********************************************************************************************
-         * 操作相关处理函数聚集
-         ********************************************************************************************
-         */
 
+        function loadUnitPeople(unitInfo){
+            var unitId = unitInfo[1];
+            loadTableData(unitId);
 
-        function loadParent(_dt){
-            var dt = [{'id':1, 'name':'主要因素一', 'value':30}, {'id':2, 'name':'主要因素二', 'value':50}, {'id':3, 'name':'主要因素三', 'value':20}];
-            dt.forEach(function(d, i){
-                __common_index[d.id] = i;
-            });
-            __common = dt;
+            //cout(unitId);
+
         }
+        function addYearMonthList(id){
+            var input = '<input type="text" class="form-control" style="width: 80px; height: 25px" value="'+ GetMonthNow() +'" id="datetimepicker">';
+            var div = '<div id="yearMonthSel" style="float:right; margin-right:20px;">' + input + '</div>';
+
+            $("#" + id).append(div);
+            $("#yearMonthSel").html();
+            $('#datetimepicker').datetimepicker({
+                format: 'yyyy-mm'
+            });
+
+            //"unitsel1";
+        }
+
 
         /*
         //*****************************************************************************
         //服务器交互
         //从服务器获取部门绩效设置信息
         */
-        function loadTableData(){
-            ajaxData('get_performance_setting_unit', {user:10001, unitId:10224}, function(dt)
+        function loadTableData(unitId){
+            ajaxData('get_performance_setting_unit', {'user':10001, 'unitId':unitId}, function(dt)
             {
                 //cout(dt.data.children);
 
                 setTableHead(dt.data.children);
-
 
 
             });
@@ -172,18 +167,20 @@
                 {'id':201, 'pid':2, 'name':'自然'}, {'id':202, 'pid':2, 'name':'人文'}
             ]};
             //var list = dt.children.concat(ps)
-            var _tree = formatTree(list);
-            var height = getTreeHeight(_tree);
-            var data = getTreeTableData(_tree);
+            var _tree = ViewTree.formatTree(list);
+            var height = ViewTree.getTreeHeight(_tree);
+            var data = TV.getTreeTableData(_tree);
             var layers = data[0], leafs = data[1];
             var users = [{'uid':10001, 'name':'lucy'}, {'uid':10002, 'name':'lily'}, {'uid':10003, 'name':'david'}];
-            var tmData = {'common':{'height':height-1, 'degree':leafs.length},
+            var tmData = {'common':{'height':height, 'degree':leafs.length},
                           'layers':layers, 'leafs':leafs, 'data':users };
             return tmData;
         }
 
-        //loadTable();
-        loadTableData();
+
+        loadTableData(init_unit_performance);
+        loadUnitList();
+
 
         $(document).ready(function() {
 
