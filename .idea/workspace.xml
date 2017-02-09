@@ -5,17 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e34e6279-a52d-4c6f-959e-84c6e4c38088" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/performance-common.html" afterPath="$PROJECT_DIR$/bin/performance-common.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/performance-setting.html" afterPath="$PROJECT_DIR$/bin/performance-setting.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/performance-view.html" afterPath="$PROJECT_DIR$/bin/performance-view.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/staff-card.html" afterPath="$PROJECT_DIR$/bin/staff-card.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/staff-clock.html" afterPath="$PROJECT_DIR$/bin/staff-clock.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/staff-interval.html" afterPath="$PROJECT_DIR$/bin/staff-interval.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/staff-people.html" afterPath="$PROJECT_DIR$/bin/staff-people.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/staff-time.html" afterPath="$PROJECT_DIR$/bin/staff-time.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/staff-flow.html" afterPath="$PROJECT_DIR$/bin/staff-flow.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/com_tree.js" afterPath="$PROJECT_DIR$/js/com_tree.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/public.js" afterPath="$PROJECT_DIR$/js/public.js" />
     </list>
     <ignored path="emergency.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -39,8 +31,8 @@
       <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-13.59375">
-              <caret line="66" column="17" selection-start-line="66" selection-start-column="17" selection-end-line="66" selection-end-column="17" />
+            <state vertical-scroll-proportion="-9.28125">
+              <caret line="210" column="0" selection-start-line="210" selection-start-column="0" selection-end-line="210" selection-end-column="0" />
               <folding>
                 <element signature="n#style#0;n#form#0;n#ul#0;n#ul#0;n#div#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#input#0;n#div#0;n#div#0;n#div#0;n#div#0;n#form#0;n#ul#0;n#ul#0;n#div#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -52,11 +44,11 @@
       <file leaf-file-name="performance-view.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bin/performance-view.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.76261467">
-              <caret line="126" column="80" selection-start-line="126" selection-start-column="80" selection-end-line="126" selection-end-column="80" />
+            <state vertical-scroll-proportion="2.3539193">
+              <caret line="183" column="8" selection-start-line="183" selection-start-column="8" selection-end-line="183" selection-end-column="8" />
               <folding>
-                <marker date="1486548903397" expanded="true" signature="4760:4785" placeholder="..." />
-                <marker date="1486548903397" expanded="true" signature="4891:4922" placeholder="..." />
+                <marker date="1486636595990" expanded="true" signature="5634:5659" placeholder="..." />
+                <marker date="1486636595990" expanded="true" signature="5766:5797" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -65,8 +57,8 @@
       <file leaf-file-name="public.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/public.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-9.034483">
-              <caret line="74" column="37" selection-start-line="74" selection-start-column="37" selection-end-line="74" selection-end-column="37" />
+            <state vertical-scroll-proportion="-10.224138">
+              <caret line="274" column="71" selection-start-line="274" selection-start-column="60" selection-end-line="274" selection-end-column="71" />
               <folding>
                 <marker date="1486548856884" expanded="true" signature="4223:4263" placeholder="..." />
                 <marker date="1486548856884" expanded="true" signature="5633:5664" placeholder="..." />
@@ -75,6 +67,16 @@
                 <marker date="1486548856884" expanded="true" signature="6158:6169" placeholder="..." />
                 <marker date="1486548856884" expanded="true" signature="8505:8518" placeholder="..." />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="com_tree.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/js/com_tree.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="114" column="48" selection-start-line="114" selection-start-column="48" selection-end-line="114" selection-end-column="48" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -119,7 +121,6 @@
         <option value="$PROJECT_DIR$/css/colorbox.css" />
         <option value="$PROJECT_DIR$/bin/index.html" />
         <option value="$PROJECT_DIR$/bin/test.html" />
-        <option value="$PROJECT_DIR$/js/com_tree.js" />
         <option value="$PROJECT_DIR$/bin/performance-common.html" />
         <option value="$PROJECT_DIR$/bin/performance-setting.html" />
         <option value="$PROJECT_DIR$/bin/staff-interval.html" />
@@ -127,8 +128,9 @@
         <option value="$PROJECT_DIR$/bin/staff-clock.html" />
         <option value="$PROJECT_DIR$/bin/staff-card.html" />
         <option value="$PROJECT_DIR$/bin/staff-time.html" />
-        <option value="$PROJECT_DIR$/bin/staff-flow.html" />
         <option value="$PROJECT_DIR$/js/public.js" />
+        <option value="$PROJECT_DIR$/bin/staff-flow.html" />
+        <option value="$PROJECT_DIR$/js/com_tree.js" />
         <option value="$PROJECT_DIR$/bin/performance-view.html" />
       </list>
     </option>
@@ -708,14 +710,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/com_tree.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-12.0">
-          <caret line="311" column="89" selection-start-line="311" selection-start-column="89" selection-end-line="311" selection-end-column="89" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-setting.html">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-2.451613">
@@ -748,54 +742,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/bin/staff-clock.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-20.15625">
-          <caret line="69" column="62" selection-start-line="69" selection-start-column="62" selection-end-line="69" selection-end-column="62" />
-          <folding>
-            <marker date="1486542927555" expanded="true" signature="3225:3272" placeholder="..." />
-            <marker date="1486542927555" expanded="true" signature="7759:7842" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bin/setting-time.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-14.59375">
-          <caret line="245" column="33" selection-start-line="245" selection-start-column="33" selection-end-line="245" selection-end-column="33" />
-          <folding>
-            <marker date="1481179077425" expanded="true" signature="6917:6966" placeholder="..." />
-            <marker date="1481179077425" expanded="true" signature="6917:7005" placeholder="..." />
-            <marker date="1481179077425" expanded="true" signature="7432:7603" placeholder="..." />
-            <marker date="1481179077425" expanded="true" signature="7546:7565" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/bin/staff-trip.html">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.41169724">
           <caret line="146" column="51" selection-start-line="146" selection-start-column="51" selection-end-line="146" selection-end-column="51" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bin/staff-flow.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-11.516666">
-          <caret line="96" column="45" selection-start-line="96" selection-start-column="31" selection-end-line="96" selection-end-column="45" />
-          <folding>
-            <marker date="1486544745152" expanded="true" signature="3400:3411" placeholder="..." />
-            <marker date="1486544745152" expanded="true" signature="9464:9486" placeholder="..." />
-            <marker date="1486544745152" expanded="true" signature="9696:9718" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bin/staff-time.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.16339067">
-          <caret line="80" column="28" selection-start-line="80" selection-start-column="28" selection-end-line="80" selection-end-column="28" />
           <folding />
         </state>
       </provider>
@@ -811,20 +761,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/bin/staff-interval.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3417431">
-          <caret line="87" column="8" selection-start-line="87" selection-start-column="8" selection-end-line="87" selection-end-column="8" />
-          <folding>
-            <marker date="1486542883466" expanded="true" signature="2788:2835" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/bin/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-13.59375">
-          <caret line="66" column="17" selection-start-line="66" selection-start-column="17" selection-end-line="66" selection-end-column="17" />
+        <state vertical-scroll-proportion="-9.28125">
+          <caret line="210" column="0" selection-start-line="210" selection-start-column="0" selection-end-line="210" selection-end-column="0" />
           <folding>
             <element signature="n#style#0;n#form#0;n#ul#0;n#ul#0;n#div#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#input#0;n#div#0;n#div#0;n#div#0;n#div#0;n#form#0;n#ul#0;n#ul#0;n#div#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -832,10 +772,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/bin/setting-time.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6146789">
+          <caret line="113" column="8" selection-start-line="113" selection-start-column="8" selection-end-line="113" selection-end-column="33" />
+          <folding>
+            <marker date="1481179077425" expanded="true" signature="6917:6966" placeholder="..." />
+            <marker date="1481179077425" expanded="true" signature="6917:7005" placeholder="..." />
+            <marker date="1481179077425" expanded="true" signature="7432:7603" placeholder="..." />
+            <marker date="1481179077425" expanded="true" signature="7546:7565" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/js/public.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-9.034483">
-          <caret line="74" column="37" selection-start-line="74" selection-start-column="37" selection-end-line="74" selection-end-column="37" />
+        <state vertical-scroll-proportion="-10.224138">
+          <caret line="274" column="71" selection-start-line="274" selection-start-column="60" selection-end-line="274" selection-end-column="71" />
           <folding>
             <marker date="1486548856884" expanded="true" signature="4223:4263" placeholder="..." />
             <marker date="1486548856884" expanded="true" signature="5633:5664" placeholder="..." />
@@ -847,13 +800,62 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/bin/staff-flow.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5177725">
+          <caret line="75" column="33" selection-start-line="75" selection-start-column="33" selection-end-line="75" selection-end-column="33" />
+          <folding>
+            <marker date="1486626415712" expanded="true" signature="3401:3412" placeholder="..." />
+            <marker date="1486626415712" expanded="true" signature="9465:9487" placeholder="..." />
+            <marker date="1486626415712" expanded="true" signature="9697:9719" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bin/staff-clock.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.6857798">
+          <caret line="69" column="62" selection-start-line="69" selection-start-column="62" selection-end-line="69" selection-end-column="62" />
+          <folding>
+            <marker date="1486542927555" expanded="true" signature="3225:3272" placeholder="..." />
+            <marker date="1486542927555" expanded="true" signature="7759:7842" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bin/staff-interval.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3543578">
+          <caret line="87" column="8" selection-start-line="87" selection-start-column="8" selection-end-line="87" selection-end-column="8" />
+          <folding>
+            <marker date="1486542883466" expanded="true" signature="2788:2835" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bin/staff-time.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.57798165">
+          <caret line="71" column="49" selection-start-line="71" selection-start-column="12" selection-end-line="71" selection-end-column="49" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/com_tree.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="114" column="48" selection-start-line="114" selection-start-column="48" selection-end-line="114" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-view.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.76261467">
-          <caret line="126" column="80" selection-start-line="126" selection-start-column="80" selection-end-line="126" selection-end-column="80" />
+        <state vertical-scroll-proportion="2.3539193">
+          <caret line="183" column="8" selection-start-line="183" selection-start-column="8" selection-end-line="183" selection-end-column="8" />
           <folding>
-            <marker date="1486548903397" expanded="true" signature="4760:4785" placeholder="..." />
-            <marker date="1486548903397" expanded="true" signature="4891:4922" placeholder="..." />
+            <marker date="1486636595990" expanded="true" signature="5634:5659" placeholder="..." />
+            <marker date="1486636595990" expanded="true" signature="5766:5797" placeholder="..." />
           </folding>
         </state>
       </provider>

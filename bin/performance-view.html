@@ -82,19 +82,19 @@
                 <% }); %>
             </tr>
         <% }); %>
-
+    </script>
+    <script id="tm_view2" type="text/html">
         <% data.forEach(function(d, i){ %>
-        <tr>
-            <td id="uid<%= d.uid %>"><%= d.uid %></td>
+        <tr class="tableData">
+            <td id="uid<%= d.personId %>"><%= d.personId %></td>
             <td id="name<%= d.uid %>"><%= d.name %></td>
-            <% leafs.forEach(function(cd, ci){ %>
-                <td valign="top">
-                    <div id="div<%= d.uid %>p<%= cd.id %>">*</div>
-                </td>
+            <% leafs.forEach(function(e, j){ %>
+            <td valign="top">
+                <div id="div<%= d.personId %>p<%= e %>">*</div>
+            </td>
             <% }); %>
         </tr>
         <% }); %>
-
     </script>
 
 
@@ -104,35 +104,64 @@
         var $pl;
         var TV = new ViewTree();
         var units = [];
+        var __leafs = [];
 
+        function Init(){
+            loadUnitList();
+            loadTableData(init_unit_performance);
+
+        }
         //----------------------加载部门信息
         function loadUnitList(){
             ajaxData('get_units', {}, function(data)
             {
                 units = data.map(function(d){ return d[0]; });
-                addUnitSelEx('unitsel1', data, loadUnitPeople);
+                addUnitSelEx('unitsel1', data, loadUnitSetting);
                 addYearMonthList("unitsel1");
+
             });
         }
 
-        function loadUnitPeople(unitInfo){
+        function loadUnitSetting(unitInfo){
             var unitId = unitInfo[1];
             loadTableData(unitId);
 
+            //get_performance_value_unit
             //cout(unitId);
 
         }
-        function addYearMonthList(id){
-            var input = '<input type="text" class="form-control" style="width: 80px; height: 25px" value="'+ GetMonthNow() +'" id="datetimepicker">';
-            var div = '<div id="yearMonthSel" style="float:right; margin-right:20px;">' + input + '</div>';
+        //获取部门人员具体绩效值
+        function loadUnitPerformance(unitId, dataTime, userId){
+            ajaxData('get_performance_value_unit', {'userId':userId, 'dataTime':dataTime, 'unitId':unitId}, function(dt)
+            {
+                var data = dt.data;
+                setTableData(values(data));
+                cout(data);
 
-            $("#" + id).append(div);
-            $("#yearMonthSel").html();
-            $('#datetimepicker').datetimepicker({
-                format: 'yyyy-mm'
             });
 
-            //"unitsel1";
+        }
+        function getLastMonth(){
+            var _date = new Date(), y = _date.getFullYear(), m = _date.getMonth() + 1;
+            if(m==1){ y = y - 1; m = 13; }
+            m--;
+            return y + "-" + (m>9 ? m : ("0"+m));
+        }
+
+        //增加绩效时间选择相关
+        function addYearMonthList(id){
+            var input = '<input type="text" class="form-control" style="width: 80px; height: 25px" value="'+ getLastMonth() +'" id="datetimepicker">';
+            var div = '<div id="yearMonthSel" style="float:right; margin-right:20px;">' + input + '</div>';
+            $('.form_date').remove();
+            $("#" + id).append(div);
+
+            $('#datetimepicker').datetimepicker({
+                language:  'zh-CN', format: 'yyyy-mm',weekStart: 0, todayBtn:  1, autoclose: 1, todayHighlight: 1, startView: 3, minView: 3, forceParse: 0,
+            }).on('changeDate', function(e){
+                var selDate = $("#datetimepicker").val();
+                var unitId = $('#unitsel1sel1').val();
+                loadUnitPerformance(unitId, selDate, "10001");
+            });
         }
 
 
@@ -142,21 +171,31 @@
         //从服务器获取部门绩效设置信息
         */
         function loadTableData(unitId){
-            ajaxData('get_performance_setting_unit', {'user':10001, 'unitId':unitId}, function(dt)
+            var userId = "10001";
+            ajaxData('get_performance_setting_unit', {'user':userId, 'unitId':unitId}, function(dt)
             {
-                //cout(dt.data.children);
-
                 setTableHead(dt.data.children);
-
+                var selDate = $("#datetimepicker2").val();
+                if(selDate==undefined) selDate = getLastMonth();
+                loadUnitPerformance(unitId, selDate, userId);
 
             });
         }
+        
         //设置表头
         function setTableHead(children){
             var tmData = getTableData(children);
             var tm_table = $("#tm_view1").html();
+            __leafs = tmData.leafs;
             $("#table1").html(ejs.render(tm_table, tmData));
             $("#pthroot").html("绩效因素");
+        }
+
+        //设置表行
+        function setTableData(data){
+            var tm_table = $("#tm_view2").html();
+            $("#table1>.tableData").remove();
+            $("#table1").append(ejs.render(tm_table, {'leafs':__leafs, 'data':data}));
         }
 
         function getTableData(list){
@@ -178,9 +217,7 @@
         }
 
 
-        loadTableData(init_unit_performance);
-        loadUnitList();
-
+        Init();
 
         $(document).ready(function() {
 

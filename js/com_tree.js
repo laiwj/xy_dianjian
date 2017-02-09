@@ -110,9 +110,13 @@ var ViewTree = function (){
             });
         }
         var leafs = [];
-        traversal(tree, function(n){
-            if(n['isLeaf']==1) leafs.push(n);
+        layers.forEach(function(ly, i){
+            ly.forEach(function(e, j){
+                if(e.isLeaf==1)leafs.push(e.id);
+            });
         });
+        //traversal(tree, function(n){ if(n['isLeaf']==1) leafs.push(n); });
+
         tree['id'] = "root";
         return [layers, leafs];
     };
