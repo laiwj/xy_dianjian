@@ -37,6 +37,7 @@
         #table2 tr td{  border:0px; padding-top: 8px}
         #table1>tr>th:first-child{ max-width: 120px; }
         #table1>tr>td:first-child{ max-width: 120px; }
+        .inputH{ line-height: 28px; height: 28px; padding-top: 2px }
 
     </style>
     <div class="m-sm bg-main">
@@ -104,28 +105,34 @@
     </script>
     <script id="tm_edit1" type="text/template">
         <div style="margin: 20px; width: 400px">
-            <div style="border: 1px solid #ccc; padding: 20px; margin-right: 2px; padding-top: 10px">
+            <div style="border: 1px solid #ccc; padding:10px 15px 15px 1px; margin-right: 2px">
                 <table id="table2">
                     <tr>
                         <td colspan="6" style="text-align:left; font-weight: 600">
-                            <input type="radio" name="ys_edit" id="radio_edit0" value="0" />
-                            <span id="lbEdit0" class="pointer label label-primary"> 添加自定义因素</span>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="ys_edit" id="radio_edit0" value="0" />
+                                <span id="lbEdit0" class="pointer label label-primary"> 添加自定义因素</span>
+                            </label>
                         </td>
                     </tr>
                     <tr>
-                        <td></td><td>名称：</td><td><input type="text" id="edit_name0" class=""></td><td> </td><td>权重：</td>
+                        <td></td><td>名称：</td><td><input type="text" id="edit_name0" class="form-control inputH"></td><td> </td><td>权重：</td>
                         <td><select id="edit_value0"><option>10%</option><option>20%</option></select></td>
                     </tr>
                     <tr height="18px"><td colspan="6"></td></tr>
 
                     <tr>
                         <td colspan="6" style="text-align:left; font-weight: 600">
-                            <input type="radio" checked="checked" name="ys_edit" id="radio_edit1" value="1" />
-                            <span id="lbEdit1" class="pointer label label-primary"> 添加系统因素</span>
+                            <label class="checkbox-inline">
+                                <input type="radio" checked="checked" name="ys_edit" id="radio_edit1" value="1" />
+                                <span id="lbEdit1" class="pointer label label-primary"> 添加系统因素</span>
+                            </label>
                         </td>
                     </tr>
                     <tr>
-                        <td></td><td>名称：</td><td><select id="edit_name1"><option>加班时间</option></select></td><td> </td><td>权重：</td>
+                        <td></td><td>名称：</td><td><select id="edit_name1" style="" class="form-control inputH">
+                        <option>加班时间</option></select></td><td> </td><td>权重：
+                    </td>
                         <td>
                             <select id="edit_value1"><option>10%</option><option>20%</option></select>
                         </td>

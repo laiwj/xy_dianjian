@@ -327,13 +327,13 @@ var ViewTree = function (){
             $("#edit_value1").append("<option value='"+ i*10 +"'>"+ i*10 +"%</option>");
         }
         $("#btnAddSubmit").unbind('click').on('click', submitAddNewParentClass);
-        $("#lbEdit0").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(0).trigger("click");});
-        $("#lbEdit1").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(1).trigger("click");});
-
-        //*************************************************************
-        //弹出效果搞定
+        //$("#lbEdit0").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(0).trigger("click");});
+        //$("#lbEdit1").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(1).trigger("click");});
 
     };
+    function getEditHtml(){
+
+    }
 
     function editNode(treeId, nodeId, data){
         //cout(data);

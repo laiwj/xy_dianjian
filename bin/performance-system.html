@@ -1,0 +1,265 @@
+<xmp>
+    <meta charset=utf-8>
+
+    <link rel="stylesheet" href="../css/bootstrap-treeview.min.css" type="text/css" />
+    <link href="../css/bootstrap-theme.min.css" rel="stylesheet">
+    <!-- Prism -->
+    <link href="../css/prism.css" rel="stylesheet">
+    <link href="../css/footable.bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/colorbox.css" />
+    <link rel="stylesheet" href="../css/select2.min.css" />
+
+    <!--[if lt IE 9]>
+    <script src="../js/html5shiv.min.js"></script>
+    <script src="../js/respond.min.js"></script>
+    <![endif]-->
+
+    <style type="text/css">
+
+        .pointer{cursor: pointer}
+
+        .key-add{color:#5cb85c}
+        .key-del{color:red}
+        .key-edit{color:#31b0d5}
+
+        div.treeview>ul>li>span.badge:nth-last-child(1){color:#5cb85c }
+        div.treeview>ul>li>span.badge:nth-last-child(2){color:red }
+        div.treeview>ul>li>span.badge:nth-last-child(3){color:#31b0d5 }
+
+
+        .hide{display: none}
+        .td_value{ width: 100%;border-right: 0px; border-bottom:1px solid #ccc; height:29px; padding-top:10px;text-align: center;  }
+        .newParent{padding-bottom: 8px; margin-top: 8px; padding-left: 38px;}
+        #table2 tr td{  border:0px; padding-top: 8px; padding-right: 20px}
+
+
+    </style>
+    <div class="m-sm bg-main">
+        <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto" style="margin-top:5px; margin-bottom: 45px">
+            <div class="col col-sm-12">
+                <div class="title">全局指标设定</div>
+                <div id="view" class="w-full" style="min-height:395px; height: auto;">
+                    <table id="table1" class="table" style="width: 100%;">
+                        <thead>
+                        <tr>
+                            <th>绩效因素</th>
+                            <th>数据来源</th>
+                            <th title="数据和绩效分值对应关系，正相关或负相关">计算函数</th>
+                            <th title="绩效分起始值">最低分</th>
+                            <th title="数据中忽略范围，例如迟到3次以内绩效均为满分">偏置值</th>
+                            <th title="该值对应绩效100分">满分参考值</th>
+                            <th>是否启用</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tbody1">
+                        </tbody>
+                    </table>
+                    <div style="padding-left:15px;"><span id="badgeAdd" class="badge key-add pointer" title="增加新的系统指标">✛</span></div>
+                </div>
+                <div class="panel panel-default" style="margin-bottom: 50px">
+                    <div class="panel-body">
+                        <button type="button" class="btn btn-warning floatR" style="margin-left: 30px" id="tbSubmit">保存设置</button>
+                        <button type="button" class="btn btn-default floatR">取消更改</button>
+                    </div>
+                    <div class="panel-footer">*以上关键词来自"深信服"初始分类及网站分类识别系统，所有改动保存后才能生效</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/bootstrap-3.3.7.min.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/prism.js"></script>
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <script src="../js/moment.min.js"></script>
+    <script type="text/javascript" src="../js/jquery.colorbox-min.js" ></script>
+    <script src="../js/com_tree.js"></script>
+    <script src="../js/select2.min.js"></script>
+
+    <script id="tm_table1" type="text/html">
+        <% data.forEach(function(e){ %>
+        <tr id="line<%= e.id %>" class="trTbody">
+            <td id="key<%= e.id %>"><%= e.name %></td>
+            <td>
+                <select id="source<%= e.id %>" class="form-control"><option value="0">人工录入</option><option value="1">系统生成</option></select>
+            </td>
+            <td>
+                <select id="func<%= e.id %>" class="form-control"><option value="0">线性递增</option><option value="1">线性递减</option>
+                    <option value="2">两侧递减（波峰）</option><option value="3">两侧递增（波谷）</option></select>
+            </td>
+            <td><select id="min<%= e.id %>" class="e-min form-control"><option value="0">0</option></select></td>
+            <td>
+                <select id="bias<%= e.id %>" class="e-bias js-example-basic-single form-control" style="width: 100%; min-width: 60px; ">
+                    <option value="0">0</option>
+                </select>
+            </td>
+            <td>
+                <select id="max<%= e.id %>" class="e-max js-example-basic-single form-control" style="width: 100%; min-width: 60px; ">
+                    <option value="-1">max</option><option value="-2">average</option>
+                </select>
+            </td>
+            <td>
+                <div class="checkbox">
+                    <label><input id="enable<%= e.id %>" type="checkbox"> 启用</label>
+                </div>
+            </td>
+        </tr>
+        <% }); %>
+    </script>
+
+    <script id="tm_add1" type="text/template">
+        <div style="margin: 20px; width: 400px">
+            <div style="border: 1px solid #ccc; padding: 20px; margin-right: 5px;">
+                <table id="table2"><tr><td>名称：</td><td><input type="text" id="edit_name" class="form-control"></td></tr></table>
+            </div>
+            <div style="margin-bottom: 40px; width: 100%; min-height: 30px; clear: both; padding-top: 14px; padding-right: 5px">
+                <div class="floatR"><button type="button" class="btn btn-primary" id="btnAddOK"> 确定 </button></div>
+            </div>
+        </div>
+    </script>
+
+    <script language="javascript">
+        "use strict";
+        var units = [];
+        var __lsOther = {};
+        var $pl;
+        var __tempc = null;
+        var __tempIds = {};
+
+        function loadTable(){
+            var dt = [{'id':0, 'name':'指标1'}, {'id':1, 'name':'指标2'}];
+            $("#tbody1").html(ejs.render($("#tm_table1").html(), {'data':dt}));
+
+            loadSelectData();
+
+        }
+
+        function addViewForLine(id){
+            for(var i=1; i<101; i++){
+                $("#"+ id +" .e-min").append("<option value='"+ i +"'>"+ i +"</option>");
+                $("#"+ id +" .e-bias").append("<option value='"+ i +"'>"+ i +"</option>");
+                $("#"+ id +" .e-max").append("<option value='"+ (101-i) +"p'>"+ (101-i) +"%</option>");
+            }
+        }
+        //增加控件数据项
+        function loadSelectData(){
+            $("#badgeAdd").on('click', loadAddFrame);
+            $(".js-example-basic-single").select2({});
+            $("#table1 .trTbody").each(function(i, d){ addViewForLine(d.id); });
+
+            //select2控件扩展（允许手动输入新值）
+            $("body").on('keyup', ".select2-search__field", function(){
+                LimitInput(this);
+                var v = $(this).val();
+                if(v=="")return;
+                var selId = $(this).parent().next().find("ul")[0].id.split("-")[1];
+                var c = $("#"+selId + " option[value='"+ v +"']").length;
+                if(c==0)$("#"+selId).append("<option value='"+v+"'>"+v+"</option>");
+                $("#"+selId).val(v);
+
+            });
+
+        }
+        //弹出框-新增因素
+        function loadAddFrame(){
+            $.colorbox({
+                title:'增加系统因素', opacity:0.8, overlayClose:false,escKey:false, inline:false, speed:0,
+                html:ejs.render($("#tm_add1").html(), { }),
+                onComplete:function(){
+                    $("#cboxWrapper").css("border", "5px solid #bbb");
+                    $("#cboxWrapper").css("background-color", "#bbb");
+                    $("#cboxClose").css("margin", "-5px 10px 10px 0px");
+                }
+            });
+            $("#btnAddOK").unbind('click').on('click', okAddNewName);
+        }
+        //确定事件响应
+        function okAddNewName(){
+            function _getTempId(){
+                while(true){
+                    var r = parseInt(Math.random()*(1000) + 1000);
+                    if(!(r in __tempIds)){
+                        __tempIds[r] = 1; return r;
+                    }
+                }
+            }
+            var eName = $("#edit_name").val().trim(), _lsName = {};
+            $("#tbody1 tr>td:first-child").each(function(i, d){ _lsName[$(d).text()]=1; });
+            if(eName in _lsName){
+                alert("该名称已存在，请重新输入");
+                return;
+            }
+            var eId = "temp" + _getTempId();
+            var dt = [{'id':eId, 'name':eName }];
+            $("#tbody1").append(ejs.render($("#tm_table1").html(), {'data':dt}));
+            addViewForLine("line" + eId);
+            $(".js-example-basic-single").select2({});
+            hideLoading();
+        }
+        //----------------------------------------------------
+        //下面继续保存事件处理代码
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+        //加载全部
+        function loadTreeData(){
+            showLoading();
+            ajaxData('get_performance_common', {user:10001}, function(dt)
+            {
+                cout(dt.data);
+                var data = dt.data;
+                var tree = ViewTree.formatTree(dt.data.children);
+                data['treeList'] = ViewTree.getNodeList(tree);
+                var tm_table = $("#tm_table1").html();
+                $("#table1").html(ejs.render(tm_table, { 'd':data }));
+
+                var treeId = 'tree99999p0';
+                ViewTree.__treeview_data[treeId] = tree;
+                ViewTree.reloadTree(treeId, tree);
+
+                hideLoading();
+            }, function(){
+                hideLoading();
+            });
+        }
+
+
+
+        loadTable();
+        //loadTreeData();
+
+        $(document).ready(function() {
+
+            //$("#table1>tr>td>div").on('click', 'ul>li>span.badge', clickNodeForOperate);
+
+
+
+        });
+
+
+
+
+
+
+    </script>
+
+
+
+</xmp>

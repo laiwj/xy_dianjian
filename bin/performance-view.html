@@ -36,8 +36,9 @@
         .td_value{ width: 100%;border-right: 0px; border-bottom:1px solid #ccc; height:30px; padding-top:10px;text-align: center;  }
         .newParent{padding-bottom: 8px; margin-top: 8px; padding-left: 38px;}
         #table2 tr td{  border:0px; padding-top: 8px}
-
-
+        .e-value{ border: 1px solid #fff; width: 100%}
+        .e-error{ color:red; }
+        .e-system{ color:#1f6377 }
     </style>
     <div class="m-sm bg-main">
         <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto" style="margin-top:5px; margin-bottom: 45px">
@@ -78,7 +79,7 @@
             <tr>
                 <% ly.forEach(function(e, j){ %>
                     <th id="pth<%= e.id %>" rowspan="<%= e.isLeaf==1 ? (common.height-e.height) : 1 %>"
-                        colspan="<%= e.leafCount %>" valign="top"><%= e.name %> | <%= e.value %>%</th>
+                        colspan="<%= e.leafCount %>" valign="top"><%= e.name %> | <%= e.value %></th>
                 <% }); %>
             </tr>
         <% }); %>
@@ -90,7 +91,9 @@
             <td id="name<%= d.uid %>"><%= d.name %></td>
             <% leafs.forEach(function(e, j){ %>
             <td valign="top">
-                <div id="div<%= d.personId %>p<%= e %>">*</div>
+                <div id="div<%= d.personId %>p<%= e %>">
+                    <input type="number" class="e-value form-control" placeholder="" />
+                </div>
             </td>
             <% }); %>
         </tr>
@@ -111,6 +114,7 @@
             loadTableData(init_unit_performance);
 
         }
+
         //----------------------加载部门信息
         function loadUnitList(){
             ajaxData('get_units', {}, function(data)
@@ -181,7 +185,7 @@
 
             });
         }
-        
+
         //设置表头
         function setTableHead(children){
             var tmData = getTableData(children);
@@ -196,16 +200,33 @@
             var tm_table = $("#tm_view2").html();
             $("#table1>.tableData").remove();
             $("#table1").append(ejs.render(tm_table, {'leafs':__leafs, 'data':data}));
+            setLimitInput();
+
         }
 
+        //限制键盘只能按数字键、小键盘数字键、退格键
+        function setLimitInput(){
+            $(".e-value").on('afterpaste', function (e) {
+                LimitInput(this);
+                return;
+            });
+            $(".e-value").on("keyup", function (e) {
+                if((e.keyCode>34 && e.keyCode<41) || e.keyCode==46) return;
+                LimitInput(this);
+            });
+            $(".e-value").on("change", function (e) {
+                var v = parseInt(this.value);
+                if(v>=0 && v<=100){
+                    if($(this).hasClass("e-error"))$(this).removeClass("e-error");
+                }else{
+                    if(!$(this).hasClass("e-error"))$(this).addClass("e-error");
+                }
+            });
+        }
+
+
+
         function getTableData(list){
-            //测试数据
-            var ps = [{'id':1, 'name':'主要因素一', 'value':30}, {'id':2, 'name':'主要因素二', 'value':50}, {'id':3, 'name':'主要因素三', 'value':20}];
-            var dt = {'uid':100, 'unit':'科技部', 'children':[{'id':101, 'pid':1, 'name':'电影'},
-                {'id':102, 'pid':1, 'name':'购物'}, {'id':1011, 'pid':101, 'name':'日韩'},
-                {'id':201, 'pid':2, 'name':'自然'}, {'id':202, 'pid':2, 'name':'人文'}
-            ]};
-            //var list = dt.children.concat(ps)
             var _tree = ViewTree.formatTree(list);
             var height = ViewTree.getTreeHeight(_tree);
             var data = TV.getTreeTableData(_tree);

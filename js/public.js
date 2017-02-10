@@ -261,7 +261,13 @@ function delCookie(name)
 		document.cookie= name + "="+cval+";expires="+exp.toGMTString();
 }
 
-
+//限制文本框数字
+function LimitInput(obj){
+	if(obj.value.length==1){obj.value=obj.value.replace(/[^0-9]/g,'')}else{
+		obj.value=obj.value.replace(/\D/g,'');
+		if(obj.value!="")$(obj).val(parseInt(obj.value));
+	}
+}
 Date.prototype.format = function(fmt) {
 	var o = {
 		"M+" : this.getMonth()+1,                 //月份
