@@ -75,7 +75,7 @@
 		return m<0 || h>24 ? "" : tm;
 	}
 
-	function ajaxData(key, data, _callbackS, _callbackE){
+	function ajaxData(key, data, _callbackS, _callbackE, _callbackC){
 		var cbkf = (parseInt(Math.random() * 1000) + 1000).toString();
 		data["session"] = getCookie('session');
 		$.ajax({
@@ -90,6 +90,10 @@
 			{
 				if(_callbackE)_callbackE(data);
 				alert("error");
+			},
+			complete:function(data)
+			{
+				if(_callbackC)_callbackC(data);
 			}
 		});
 	}

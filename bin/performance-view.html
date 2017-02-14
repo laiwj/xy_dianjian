@@ -79,7 +79,7 @@
             <tr>
                 <% ly.forEach(function(e, j){ %>
                     <th id="pth<%= e.id %>" rowspan="<%= e.isLeaf==1 ? (common.height-e.height) : 1 %>"
-                        colspan="<%= e.leafCount %>" valign="top"><%= e.name %> | <%= e.value %></th>
+                        colspan="<%= e.leafCount %>" valign="top"><%= e.name %> | <%= e.value %>%</th>
                 <% }); %>
             </tr>
         <% }); %>
@@ -88,7 +88,7 @@
         <% data.forEach(function(d, i){ %>
         <tr class="tableData">
             <td id="uid<%= d.personId %>"><%= d.personId %></td>
-            <td id="name<%= d.uid %>"><%= d.name %></td>
+            <td id="name<%= d.uid %>" style="min-width: 70px; text-align: center"><%= d.name %></td>
             <% leafs.forEach(function(e, j){ %>
             <td valign="top">
                 <div id="div<%= d.personId %>p<%= e %>">

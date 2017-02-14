@@ -31,7 +31,7 @@
         .td_value{ width: 100%;border-right: 0px; border-bottom:1px solid #ccc; height:29px; padding-top:10px;text-align: center;  }
         .newParent{padding-bottom: 8px; margin-top: 8px; padding-left: 38px;}
         #table2 tr td{  border:0px; padding-top: 8px; padding-right: 20px}
-
+        .trHighlight{ color:red }
 
     </style>
     <div class="m-sm bg-main">
@@ -54,14 +54,14 @@
                         <tbody id="tbody1">
                         </tbody>
                     </table>
-                    <div style="padding-left:15px;"><span id="badgeAdd" class="badge key-add pointer" title="增加新的系统指标">✛</span></div>
+                    <div style="padding-left:15px;margin-bottom: 15px"><span id="badgeAdd" class="badge key-add pointer" title="增加新的系统指标">✛</span></div>
                 </div>
                 <div class="panel panel-default" style="margin-bottom: 50px">
                     <div class="panel-body">
                         <button type="button" class="btn btn-warning floatR" style="margin-left: 30px" id="tbSubmit">保存设置</button>
                         <button type="button" class="btn btn-default floatR">取消更改</button>
                     </div>
-                    <div class="panel-footer">*以上关键词来自"深信服"初始分类及网站分类识别系统，所有改动保存后才能生效</div>
+                    <div class="panel-footer">*所有改动保存后才能生效</div>
                 </div>
             </div>
         </div>
@@ -97,12 +97,12 @@
             </td>
             <td>
                 <select id="max<%= e.id %>" class="e-max js-example-basic-single form-control" style="width: 100%; min-width: 60px; ">
-                    <option value="-1">max</option><option value="-2">average</option>
+                    <option value="-1">max</option>
                 </select>
             </td>
             <td>
                 <div class="checkbox">
-                    <label><input id="enable<%= e.id %>" type="checkbox"> 启用</label>
+                    <label><input id="enable<%= e.id %>" type="checkbox" value="0"> 启用</label>
                 </div>
             </td>
         </tr>
@@ -127,16 +127,165 @@
         var $pl;
         var __tempc = null;
         var __tempIds = {};
+        var __data = {};
 
-        function loadTable(){
-            var dt = [{'id':0, 'name':'指标1'}, {'id':1, 'name':'指标2'}];
-            $("#tbody1").html(ejs.render($("#tm_table1").html(), {'data':dt}));
+        function Init(){
 
-            loadSelectData();
+            $("#tbSubmit").on('click', submitSystem);
+            loadSystemData();
+
 
         }
 
+        function getSubmitdata(){
+            var data = {};
+            var keys = {'source':'source', 'mapFunc':'func', 'minScore':'min', 'bias':'bias'};
+
+            $("#tbody1>tr").each(function(i, d){
+                var id = d.id.replace("line", "");
+                data[id] = { 'id':id };
+                for(var k in keys){
+                    data[id][k] = parseFloat($("#"+ keys[k] + id).val());
+                }
+                data[id]['maxData'] = $("#max" + id).val();
+                data[id]['name'] = $("#key"+id).text();
+                data[id]['enable'] = $("#enable"+id).is(':checked');
+            });
+            return data;
+        }
+
+        /*  向服务器提交 */
+        function submitSystem(){
+            var _temp = getSubmitdata(), data = checkSystemData(_temp);
+            showLoading();
+            if(data.length==0){
+                hideLoading();
+                return;
+            }
+            ajaxData('change_performance_system', {'user':10001, 'data':JSON.stringify(data)}, function(dt)
+            {
+                var eCount = 0;
+                dt.data.forEach(function(d){
+                    var id = "line"+ d.id;
+                    if(d.error==1){ //错误
+                        HighLightLine(id);
+                        eCount++;
+                    } else{
+                        removeHighLightLine(id);
+                        var sId = d.id;
+                        if(d.id.indexOf("temp")!=-1 && d.lastId>0){ //新插入
+                            cout("-------temp--------");
+                            sId = d.lastId;
+                            changeViewLineId(d.id, sId);
+                            _temp[d.id].id = sId;
+                        }
+                        __data[sId] = _temp[d.id];
+                    }
+                });
+                if(eCount>0)alert("部分数据（高亮标识的行）输入有误，请检查后重新提交!");
+            }, null, function(){
+                hideLoading();
+            });
+
+        }
+        function changeViewLineId(oldId, id){
+            var lse = ["line", "key", "source", "func", "min", "bias", "max", "enable"];
+            lse.forEach(function(e){
+                cout($("#"+e+id).length);
+                //------------------------修改行内所有元素为新Id-------------------------
+                //明天继续
+
+
+
+
+
+
+
+            });
+            //$("linetemp")
+        }
+        //高亮效果
+        function HighLightLine(trId){
+            var lse = ["td", "select", "span"];
+            lse.forEach(function(e){
+                var obj = $("#"+trId + " " + e);
+                if(!obj.hasClass("trHighlight"))obj.addClass("trHighlight");
+            });
+            $("#"+trId + " span").css("color", "red");
+        }
+        //去除高亮效果
+        function removeHighLightLine(trId){
+            var lse = ["td", "select", "span"];
+            lse.forEach(function(e){
+                var obj = $("#"+trId + " " + e);
+                if(obj.hasClass("trHighlight"))obj.removeClass("trHighlight");
+            });
+            $("#"+trId + " span").css("color", "#58666e");
+        }
+
+        //检测本地待提交数据
+        function checkSystemData(source){
+            function _checkLine(objs){
+                var line = __data[objs["id"]];
+                for(var k in objs)if(k!="style" && objs[k]!=line[k])return false;
+                return true;
+            }
+            var lines = [];
+            for(var id in source){
+                if(id.indexOf("temp")==-1){
+                    source[id]['style'] = 1;    //更新
+                    if(!_checkLine(source[id]))lines.push(source[id]);
+                }else{
+                    source[id]['style'] = 0;             //插入
+                    lines.push(source[id]);
+                }
+            }
+            return lines;
+        }
+
+        //--------------------------------------------------------------------------------------
+        //*******************************************加载系统数据********************************
+        function loadSystemData(){
+            ajaxData('get_performance_system', {user:10001}, function(dt)
+            {
+                __data = {};
+                dt.data.forEach(function(d){
+                    __data[d.id] = d;
+                });
+                $("#tbody1").html(ejs.render($("#tm_table1").html(), {'data':values(dt.data)}));
+                loadSelectData();
+                setViewData(__data);
+                cout(__data);
+                HighLightLine("line1");
+
+            }, function(){
+                hideLoading();
+            });
+        }
+
+        //若列表无此值，则增加新值
+        function addSelectNewData(selId, value){
+            var c = $("#"+ selId + " option[value='"+ value +"']").length;
+            if(0==c)$("#"+ selId).append("<option value='"+ value +"'>"+ value +"</option>");
+        }
+        //根据服务器数据设置页面内容
+        function setViewData(data){
+            var keys = {'source':'source', 'mapFunc':'func', 'minScore':'min', 'bias':'bias', 'maxData':'max'};
+            $("#tbody1>tr").each(function(i, d){
+                var id = d.id.replace("line", "");
+                addSelectNewData("bias"+ id, data[id]['bias']);
+                addSelectNewData("max"+ id, data[id]['maxData']);
+                for(var k in keys){
+                    $("#"+ keys[k] + id).val(data[id][k]);
+                }
+                if(data[id]['enable']==1)$("#enable"+id).attr("checked","true");
+            });
+        }
+
+
+
         function addViewForLine(id){
+            $("#"+ id +" .e-max").append("<option value='-2'>average</option>");
             for(var i=1; i<101; i++){
                 $("#"+ id +" .e-min").append("<option value='"+ i +"'>"+ i +"</option>");
                 $("#"+ id +" .e-bias").append("<option value='"+ i +"'>"+ i +"</option>");
@@ -158,10 +307,11 @@
                 var c = $("#"+selId + " option[value='"+ v +"']").length;
                 if(c==0)$("#"+selId).append("<option value='"+v+"'>"+v+"</option>");
                 $("#"+selId).val(v);
-
             });
 
         }
+
+        //-----------------------------------------------------------------------------------------------------
         //弹出框-新增因素
         function loadAddFrame(){
             $.colorbox({
@@ -175,6 +325,7 @@
             });
             $("#btnAddOK").unbind('click').on('click', okAddNewName);
         }
+
         //确定事件响应
         function okAddNewName(){
             function _getTempId(){
@@ -214,35 +365,8 @@
 
 
 
-
-
-        
-
-        //加载全部
-        function loadTreeData(){
-            showLoading();
-            ajaxData('get_performance_common', {user:10001}, function(dt)
-            {
-                cout(dt.data);
-                var data = dt.data;
-                var tree = ViewTree.formatTree(dt.data.children);
-                data['treeList'] = ViewTree.getNodeList(tree);
-                var tm_table = $("#tm_table1").html();
-                $("#table1").html(ejs.render(tm_table, { 'd':data }));
-
-                var treeId = 'tree99999p0';
-                ViewTree.__treeview_data[treeId] = tree;
-                ViewTree.reloadTree(treeId, tree);
-
-                hideLoading();
-            }, function(){
-                hideLoading();
-            });
-        }
-
-
-
-        loadTable();
+        Init();
+        //loadTable();
         //loadTreeData();
 
         $(document).ready(function() {
