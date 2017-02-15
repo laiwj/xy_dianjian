@@ -37,7 +37,7 @@
     <div class="m-sm bg-main">
         <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto" style="margin-top:5px; margin-bottom: 45px">
             <div class="col col-sm-12">
-                <div class="title">全局指标设定</div>
+                <div class="title">系统因素配置</div>
                 <div id="view" class="w-full" style="min-height:395px; height: auto;">
                     <table id="table1" class="table" style="width: 100%;">
                         <thead>
@@ -157,11 +157,9 @@
         /*  向服务器提交 */
         function submitSystem(){
             var _temp = getSubmitdata(), data = checkSystemData(_temp);
+            if(data.length==0)return;
+
             showLoading();
-            if(data.length==0){
-                hideLoading();
-                return;
-            }
             ajaxData('change_performance_system', {'user':10001, 'data':JSON.stringify(data)}, function(dt)
             {
                 var eCount = 0;
@@ -188,21 +186,12 @@
             });
 
         }
+        //将临时ID替换为新插入的id
         function changeViewLineId(oldId, id){
             var lse = ["line", "key", "source", "func", "min", "bias", "max", "enable"];
             lse.forEach(function(e){
-                cout($("#"+e+id).length);
-                //------------------------修改行内所有元素为新Id-------------------------
-                //明天继续
-
-
-
-
-
-
-
+                $("#"+e+oldId).attr("id", e+id);
             });
-            //$("linetemp")
         }
         //高亮效果
         function HighLightLine(trId){
@@ -246,6 +235,7 @@
         //--------------------------------------------------------------------------------------
         //*******************************************加载系统数据********************************
         function loadSystemData(){
+            showLoading();
             ajaxData('get_performance_system', {user:10001}, function(dt)
             {
                 __data = {};
@@ -256,9 +246,7 @@
                 loadSelectData();
                 setViewData(__data);
                 cout(__data);
-                HighLightLine("line1");
-
-            }, function(){
+            }, null, function(){
                 hideLoading();
             });
         }

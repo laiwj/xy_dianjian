@@ -15,7 +15,10 @@
     <![endif]-->
 
     <style type="text/css">
-
+        th,td{ border: 1px solid #CCCCCC; background-color: white; height: auto; min-height: 30px; text-align: center }
+        #table1 li{ height: 30px; border-bottom: 1px solid #ddd; border-right: 0px;border-left: 0px  }
+        #table1 ul{ border-top: 0px }
+        th{ text-align: center; height: 30px; padding-top: 5px; line-height:30px  }
         .pointer{cursor: pointer}
 
         .key-add{color:#5cb85c}
@@ -30,31 +33,20 @@
         .hide{display: none}
         .td_value{ width: 100%;border-right: 0px; border-bottom:1px solid #ccc; height:29px; padding-top:10px;text-align: center;  }
         .newParent{padding-bottom: 8px; margin-top: 8px; padding-left: 38px;}
-        #table2 tr td{  border:0px; padding-top: 8px; padding-right: 20px}
 
+        .e-value{ border: 1px solid #fff; width: 100%}
+        .e-error{ color:red; }
+        .e-system{ color:#1f6377 }
 
     </style>
     <div class="m-sm bg-main">
         <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto" style="margin-top:5px; margin-bottom: 45px">
             <div class="col col-sm-12">
-                <div class="title">全局指标设定</div>
+                <div class="title" id="unitsel1">系统数据管理</div>
                 <div id="view" class="w-full" style="min-height:395px; height: auto;">
                     <table id="table1" class="table" style="width: 100%;">
-                        <thead>
-                        <tr>
-                            <th>绩效因素</th>
-                            <th>数据来源</th>
-                            <th title="数据和绩效分值对应关系，正相关或负相关">计算函数</th>
-                            <th title="绩效分起始值">最低分</th>
-                            <th title="数据中忽略范围，例如迟到3次以内绩效均为满分">偏置值</th>
-                            <th title="该值对应绩效100分">满分参考值</th>
-                            <th>是否启用</th>
-                        </tr>
-                        </thead>
-                        <tbody id="tbody1">
-                        </tbody>
+
                     </table>
-                    <div style="padding-left:15px;"><span id="badgeAdd" class="badge key-add pointer" title="增加新的系统指标">✛</span></div>
                 </div>
                 <div class="panel panel-default" style="margin-bottom: 50px">
                     <div class="panel-body">
@@ -76,35 +68,34 @@
     <script src="../js/moment.min.js"></script>
     <script type="text/javascript" src="../js/jquery.colorbox-min.js" ></script>
     <script src="../js/com_tree.js"></script>
+    <script src="../js/unitMonth.js"></script>
     <script src="../js/select2.min.js"></script>
 
     <script id="tm_table1" type="text/html">
-        <% data.forEach(function(e){ %>
-        <tr id="line<%= e.id %>" class="trTbody">
-            <td id="key<%= e.id %>"><%= e.name %></td>
-            <td>
-                <select id="source<%= e.id %>" class="form-control"><option value="0">人工录入</option><option value="1">系统生成</option></select>
-            </td>
-            <td>
-                <select id="func<%= e.id %>" class="form-control"><option value="0">线性递增</option><option value="1">线性递减</option>
-                    <option value="2">两侧递减（波峰）</option><option value="3">两侧递增（波谷）</option></select>
-            </td>
-            <td><select id="min<%= e.id %>" class="e-min form-control"><option value="0">0</option></select></td>
-            <td>
-                <select id="bias<%= e.id %>" class="e-bias js-example-basic-single form-control" style="width: 100%; min-width: 60px; ">
-                    <option value="0">0</option>
-                </select>
-            </td>
-            <td>
-                <select id="max<%= e.id %>" class="e-max js-example-basic-single form-control" style="width: 100%; min-width: 60px; ">
-                    <option value="-1">max</option><option value="-2">average</option>
-                </select>
-            </td>
-            <td>
-                <div class="checkbox">
-                    <label><input id="enable<%= e.id %>" type="checkbox"> 启用</label>
+        <tr><th colspan="3">人员</th><th colspan="<%= keyCount %>">系统数据</th></tr>
+        <tr>
+            <th>部门</th>
+            <th>工号</th>
+            <th>姓名</th>
+            <% data.forEach(function(e){ %>
+            <th id="th<%= e.id %>"><%= e.name %></th>
+            <% }); %>
+        </tr>
+    </script>
+
+    <script id="tm_view1" type="text/html">
+        <% data.forEach(function(d){ %>
+        <tr class="tableData" id="unit<%= d.unitId %>ps<%= d.personId %>">
+            <td style="padding: 2px 10px"><%= d.unit %></td>
+            <td id="user<%= d.personId %>"><%= d.personId %></td>
+            <td style="min-width: 70px; text-align: center"><%= d.name %></td>
+            <% keys.forEach(function(e, j){ %>
+            <td valign="top">
+                <div>
+                    <input id="div<%= d.personId %>p<%= e.id %>" type="number" class="e-value form-control" placeholder="" />
                 </div>
             </td>
+            <% }); %>
         </tr>
         <% }); %>
     </script>
@@ -122,21 +113,224 @@
 
     <script language="javascript">
         "use strict";
-        var units = [];
-        var __lsOther = {};
-        var $pl;
-        var __tempc = null;
-        var __tempIds = {};
+        var __units = {};
+        var __keys = [];
+        var __data = {};    //缓存数据： p - value
 
-        function loadTable(){
-            var dt = [{'id':0, 'name':'加班时间'}, {'id':1, 'name':'加班次数'}];
-            $("#tbody1").html(ejs.render($("#tm_table1").html(), {'data':dt}));
+        function Init(){
+            loadUnitList();
+            loadSystemData(init_unit_performance);
 
-            //loadSelectData();
+            //loadTableData(init_unit_performance);
+            //loadTableData(init_unit_performance);
+
+            $("#tbSubmit").on('click', submitSystem);
 
         }
 
 
+        //----------------------加载部门信息
+        function loadUnitList(){
+            ajaxData('get_units', {}, function(data)
+            {
+                data.forEach(function(d){ __units[d[1]] = d[0]; });
+                addUnitSelEx('unitsel1', data, _loadUnitSystemData);
+                addYearMonthList("unitsel1", loadUnitSystemData);
+
+            });
+        }
+
+        //上
+        //````````````````````````````````````````````````````````````````````````````````````````````````````````````
+        function getSubmitdata(){
+            var data = {};
+            $("#table1>.tableData").each(function(i, d){
+                var _index = d.id.indexOf("ps");
+                var unitId = d.id.substr(0, _index).replace("unit", ""), pId = d.id.substr(_index+2);
+                if(!(unitId in data))data[unitId] = {};
+                if(!(pId in data[unitId]))data[unitId][pId] = {};
+                $(d).find(".e-value").each(function(i, e){
+                    if(e.value=="")return;
+                    if(!checkValueOk(e.value))return;
+                    if(isNaN(e.value))return;
+                    var eId = e.id.substr(e.id.lastIndexOf("p")+1);
+                    data[unitId][pId][eId] = parseFloat(e.value);
+                });
+            });
+            return data;
+        }
+
+        //打包需要上传的数据
+        //注：
+        //若已有值，被改动并置空但未输入新值，提交时不保存该项改动
+        function checkLineUpload(srcs, u, p, lines){
+            var objs = (p in __data) ? __data[p] : {};
+            if(!(u in lines))lines[u] = {};
+            for(var k in srcs){
+                if(k in objs){
+                    cout(k);
+                    if(srcs[k]!=objs[k]){   //值有改动
+                        if(!(p in lines[u]))lines[u][p]=[];
+                        lines[u][p].push([k, srcs[k], 1, 0]);  //更新
+                        alert("ch");
+                    }else{alert("ok");}
+                }else{          //新值
+                    if(!(p in lines[u]))lines[u][p]=[];
+                    lines[u][p].push([k, srcs[k], 0, 0]);      //插入
+                }
+            }
+        }
+
+        //检测本地待提交数据
+        function checkSystemData(source){
+            var lines = {};
+            for(var u in source){
+                for(var p in source[u]){
+                    checkLineUpload(source[u][p], u, p, lines);
+                }
+            }
+            return lines;
+        }
+
+        /*  向服务器提交 */
+        function submitSystem(){
+            var _temp = getSubmitdata(), data = checkSystemData(_temp), _index=0;
+            for(var u in data){
+                _index += Object.keys(data[u]).length;
+            }
+            if(_index==0)return;
+            var selDate = $("#datetimepicker").val();
+            if(selDate==undefined){
+                alert("绩效时间错误！");
+                return;
+            }
+
+            showLoading();
+            ajaxData('change_performance_system_data', {'user':10001, 'dataTime':selDate, 'data':JSON.stringify(data)}, function(dt)
+            {
+                //--------------------------------------------------
+                //休息片刻
+
+                return;
+
+
+
+
+
+                var eCount = 0;
+                dt.data.forEach(function(d){
+                    var id = "line"+ d.id;
+                    if(d.error==1){ //错误
+                        HighLightLine(id);
+                        eCount++;
+                    } else{
+                        removeHighLightLine(id);
+                        var sId = d.id;
+                        if(d.id.indexOf("temp")!=-1 && d.lastId>0){ //新插入
+                            cout("-------temp--------");
+                            sId = d.lastId;
+                            changeViewLineId(d.id, sId);
+                            _temp[d.id].id = sId;
+                        }
+                        __data[sId] = _temp[d.id];
+                    }
+                });
+                if(eCount>0)alert("部分数据（高亮标识的行）输入有误，请检查后重新提交!");
+            }, null, function(){
+                hideLoading();
+            });
+
+        }
+
+        //下
+        //*************************************************************************************************************
+        function loadSystemData(unitId){
+            var userId = "10001";
+            showLoading();
+            ajaxData('get_performance_system', {user:10001}, function(dt)
+            {
+                __keys = {};
+                dt.data.forEach(function(d){
+                    __keys[d.id] = d;
+                });
+                //表头
+                $("#table1").html(ejs.render($("#tm_table1").html(), { 'data':dt.data, 'keyCount':dt.data.length }));
+                //表身
+                var selDate = $("#datetimepicker").val();
+                if(selDate==undefined) selDate = getLastMonth();
+                loadUnitSystemData(unitId, selDate, userId);
+
+            }, null, function(){
+                hideLoading();
+            });
+        }
+        //参数补全
+        function _loadUnitSystemData(unitInfo){
+            var unitId = unitInfo[1], userId = "10001", selDate = $("#datetimepicker2").val();
+            if(selDate==undefined) selDate = getLastMonth();
+            loadUnitSystemData(unitId, selDate, userId);
+        }
+        //获取部门人员绩效数据
+        function loadUnitSystemData(unitId, dataTime, userId){
+            cout([unitId, dataTime, userId]);
+            ajaxData('get_performance_value_system', {'userId':userId, 'dataTime':dataTime, 'unitId':unitId}, function(dt)
+            {
+                var data = dt.data;
+                for(var p in dt.data){
+                    dt.data[p]['unit'] = __units[dt.data[p].unitId];
+                }
+                setTableData(values(data));
+
+            });
+
+        }
+        //有效性检测
+        function checkValueOk(value){
+            var v = parseFloat(value);
+            if(v<0)return false;
+            return true;
+        }
+
+        //文本框限制输入
+        function setLimitInput(){
+            $(".e-value").on('afterpaste', function (e) {
+                return;
+            });
+            $(".e-value").on("keyup", function (e) {
+                if(e.keyCode==69 || e.keyCode==189) this.value = this.value.replace("e", "").replace("-", "");
+            });
+            $(".e-value").on("change", function (e) {
+                if(checkValueOk(this.value)){
+                    if($(this).hasClass("e-error"))$(this).removeClass("e-error");
+                }else{
+                    if(!$(this).hasClass("e-error"))$(this).addClass("e-error");
+                }
+            });
+        }
+        //设置表行
+        function setTableData(data){
+            $("#table1>.tableData").remove();
+            cout("---------------------------------");
+            cout(data);
+            $("#table1").append(ejs.render($("#tm_view1").html(), {'keys':values(__keys), 'data':data}));
+            data.forEach(function(d){
+                __data[d.personId] = {};
+                d.children.forEach(function(e){
+                    var id="#div"+ d.personId + "p" + e.key;
+                    if($(id).length!=1)return;
+                    $(id).val(e.value);
+                    __data[d.personId][e.key] = e.value;
+                });
+            });
+
+            setLimitInput();
+
+            //setLimitInput();
+
+        }
+        function loadViewData(){
+
+        }
 
         //弹出框-新增因素
         function loadAddFrame(){
@@ -171,29 +365,10 @@
 
 
 
-
-
-
-
-        //加载全部
-        function loadSystemData(){
-            showLoading();
-            ajaxData('get_performance_common', {user:10001}, function(dt)
-            {
-                cout(dt.data);
-                var data = dt.data;
-
-
-                hideLoading();
-            }, function(){
-                hideLoading();
-            });
-        }
-
-
-
-        loadTable();
+        Init();
+        //loadTable();
         //loadTreeData();
+        //loadSystemData();
 
         $(document).ready(function() {
 
