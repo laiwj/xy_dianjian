@@ -10,6 +10,7 @@ var ViewTree = function (){
     ViewTree.__common_index = {};
     ViewTree.__treeview_data = {};       //save all data here.
     ViewTree.__common_style = -1;
+    ViewTree.__common_system = [];
     ViewTree._after_change = loadLocalTreeData;
 
     var IsExistNodeByName = function (data, name){
@@ -326,6 +327,9 @@ var ViewTree = function (){
             $("#edit_value0").append("<option value='"+ i*10 +"'>"+ i*10 +"%</option>");
             $("#edit_value1").append("<option value='"+ i*10 +"'>"+ i*10 +"%</option>");
         }
+        ViewTree.__common_system.forEach(function(d){
+            $("#edit_name1").append("<option value='"+ d.name +"'>"+ d.name +"</option>");
+        });
         $("#btnAddSubmit").unbind('click').on('click', submitAddNewParentClass);
         //$("#lbEdit0").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(0).trigger("click");});
         //$("#lbEdit1").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(1).trigger("click");});

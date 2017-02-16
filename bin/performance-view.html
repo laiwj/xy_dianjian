@@ -46,9 +46,16 @@
             <div class="col col-sm-12">
                 <div class="title" id="unitsel1">部门绩效计算</div>
                 <div id="view" class="w-full" style="min-height:395px; height: auto;">
-                    <table id="table1" style="width: 100%; margin-bottom: 60px">
+                    <table id="table1" style="width: 100%;margin-bottom: 20px ">
 
                     </table>
+                </div>
+                <div class="panel panel-default" style="margin-bottom: 50px">
+                    <div class="panel-body">
+                        <button type="button" class="btn btn-warning floatR" style="margin-left: 30px" id="tbSubmit">保存设置</button>
+                        <button type="button" class="btn btn-default floatR">取消更改</button>
+                    </div>
+                    <div class="panel-footer">*所有改动保存后才能生效</div>
                 </div>
             </div>
 
@@ -68,6 +75,7 @@
     <script type="text/javascript" src="../js/jquery.colorbox-min.js" ></script>
     <script src="../js/com_tree.js"></script>
     <script src="../js/unitMonth.js"></script>
+    <script src="../js/cellData.js"></script>
     <script type="text/javascript" src="../js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
     <script type="text/javascript" src="../js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
 
@@ -90,15 +98,15 @@
             </tr>
         <% }); %>
     </script>
-    <script id="tm_view2" type="text/html">
+    <script id="tm_tbody1" type="text/html">
         <% data.forEach(function(d, i){ %>
-        <tr class="tableData">
+        <tr class="tableData" id="unit<%= d.unitId %>ps<%= d.personId %>">
             <td id="uid<%= d.personId %>"><%= d.personId %></td>
             <td id="name<%= d.uid %>" style="min-width: 70px; text-align: center"><%= d.name %></td>
-            <% leafs.forEach(function(e, j){ %>
+            <% keys.forEach(function(e, j){ %>
             <td valign="top">
-                <div id="div<%= d.personId %>p<%= e %>">
-                    <input type="number" class="e-value form-control" placeholder="" />
+                <div>
+                    <input  id="value<%= d.personId %>p<%= e.id %>" type="number" class="e-value form-control" placeholder="" />
                 </div>
             </td>
             <% }); %>
@@ -113,48 +121,39 @@
 
         var $pl;
         var TV = new ViewTree();
-        var units = [];
+        var __units = [];
         var __leafs = [];
+        var __CD = new CellData();
+        CellData.__change_key = "change_performance_value";
+        CellData.checkValue = function(v){ return (parseFloat(v)>=0 && parseFloat(v)<=100) ? true : false;}
+
 
         function Init(){
             loadUnitList();
             loadTableData(init_unit_performance);
 
+
+            $("#tbSubmit").on('click', __CD.submitSystem);
         }
 
         //----------------------加载部门信息
         function loadUnitList(){
             ajaxData('get_units', {}, function(data)
             {
-                units = data.map(function(d){ return d[0]; });
+                data.forEach(function(d){ __units[d[1]] = d[0]; });
                 addUnitSelEx('unitsel1', data, loadUnitSetting);
                 addYearMonthList("unitsel1", loadUnitPerformance);
-
             });
         }
 
         function loadUnitSetting(unitInfo){
             var unitId = unitInfo[1];
             loadTableData(unitId);
-
-            //get_performance_value_unit
-            //cout(unitId);
-
-        }
-        //获取部门人员具体绩效值
-        function loadUnitPerformance(unitId, dataTime, userId){
-            ajaxData('get_performance_value_unit', {'userId':userId, 'dataTime':dataTime, 'unitId':unitId}, function(dt)
-            {
-                var data = dt.data;
-                setTableData(values(data));
-                cout(data);
-
-            });
-
         }
 
 
 
+        //下
         /*
         //*****************************************************************************
         //服务器交互
@@ -172,46 +171,35 @@
             });
         }
 
+        //获取部门人员具体绩效值
+        function loadUnitPerformance(unitId, dataTime, userId){
+            ajaxData('get_performance_value_unit', {'userId':userId, 'dataTime':dataTime, 'unitId':unitId}, function(dt)
+            {
+                var data = dt.data;
+                for(var p in dt.data){
+                    dt.data[p]['unit'] = __units[dt.data[p].unitId];
+                }
+                __CD.setTableData(values(data));
+
+                cout(data);
+
+            });
+        }
+
         //设置表头
         function setTableHead(children){
             var tmData = getTableData(children);
             var tm_table = $("#tm_view1").html();
             __leafs = tmData.leafs;
+            CellData.__keys = {};
+            tmData.leafs.forEach(function(d){
+                CellData.__keys[d] = {'id':d};
+            });
             $("#table1").html(ejs.render(tm_table, tmData));
             $("#pthroot").html("绩效因素");
         }
 
-        //设置表行
-        function setTableData(data){
-            var tm_table = $("#tm_view2").html();
-            $("#table1>.tableData").remove();
-            $("#table1").append(ejs.render(tm_table, {'leafs':__leafs, 'data':data}));
-            setLimitInput();
-
-        }
-
-        //限制键盘只能按数字键、小键盘数字键、退格键
-        function setLimitInput(){
-            $(".e-value").on('afterpaste', function (e) {
-                LimitInput(this);
-                return;
-            });
-            $(".e-value").on("keyup", function (e) {
-                if((e.keyCode>34 && e.keyCode<41) || e.keyCode==46) return;
-                LimitInput(this);
-            });
-            $(".e-value").on("change", function (e) {
-                var v = parseInt(this.value);
-                if(v>=0 && v<=100){
-                    if($(this).hasClass("e-error"))$(this).removeClass("e-error");
-                }else{
-                    if(!$(this).hasClass("e-error"))$(this).addClass("e-error");
-                }
-            });
-        }
-
-
-
+        //获取表格树的前置信息
         function getTableData(list){
             var _tree = ViewTree.formatTree(list);
             var height = ViewTree.getTreeHeight(_tree);

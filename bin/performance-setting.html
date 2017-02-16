@@ -131,8 +131,8 @@
                     </tr>
                     <tr>
                         <td></td><td>名称：</td><td><select id="edit_name1" style="" class="form-control inputH">
-                        <option>加班时间</option></select></td><td> </td><td>权重：
-                    </td>
+                            </select></td><td> </td><td>权重：
+                        </td>
                         <td>
                             <select id="edit_value1"><option>10%</option><option>20%</option></select>
                         </td>
@@ -177,6 +177,7 @@
             showLoading();
             ajaxData('get_all_performance_setting', {user:10001}, function(data)
             {
+                ViewTree.__common_system = data.systems;
                 loadParent(data.roots);
                 for(var u in data.setting){
                     data.setting[u]['children'] = data.setting[u]['children'].concat(data.common);
@@ -201,9 +202,9 @@
             });
         }
 
-
+        /*
         //加载弹出框（添加因素）
-        function loadNewFrame(treeId, nodeId){
+        function loadNewFrameEx(treeId, nodeId){
             $.colorbox({
                 title:'绩效设置相关', opacity:0.8, overlayClose:false,escKey:false, inline:false, speed:0,
                 html:ejs.render($("#tm_edit1").html(), { 'treeId':treeId, 'nodeId':nodeId }),
@@ -219,10 +220,8 @@
 
             //*************************************************************
             //弹出效果搞定
-
-
         }
-
+        */
 
         function loadTree(_dt){
             var data = [];

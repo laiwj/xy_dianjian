@@ -117,7 +117,7 @@
                     </tr>
                     <tr>
                         <td></td><td>名称：</td><td><select id="edit_name1" style="" class="form-control inputH">
-                            <option>加班时间</option></select></td><td> </td><td>权重：
+                            </select></td><td> </td><td>权重：
                         </td>
                         <td>
                             <select id="edit_value1"><option>10%</option><option>20%</option></select>
@@ -149,13 +149,12 @@
         ViewTree.__common_style = 1;
         ViewTree._after_change = loadTreeData;
 
-
         //加载全部
         function loadTreeData(){
             showLoading();
             ajaxData('get_performance_common', {user:10001}, function(dt)
             {
-                cout(dt.data);
+                ViewTree.__common_system = dt.data.systems;
                 var data = dt.data;
                 var tree = ViewTree.formatTree(dt.data.children);
                 data['treeList'] = ViewTree.getNodeList(tree);
