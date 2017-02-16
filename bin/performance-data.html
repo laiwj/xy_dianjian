@@ -116,7 +116,7 @@
     <script language="javascript">
         "use strict";
         var __units = {};
-        //var __keys = [];
+        var __keys = [];
         //var __data = {};    //缓存数据： p - value
         var __CD = new CellData();
         CellData.__change_key = "change_performance_system_data";
@@ -125,9 +125,7 @@
             loadUnitList();
             loadSystemData(init_unit_performance);
 
-
             $("#tbSubmit").on('click', __CD.submitSystem);
-
 
         }
 
@@ -150,10 +148,11 @@
             showLoading();
             ajaxData('get_performance_system', {user:10001}, function(dt)
             {
-                CellData.__keys = {};
+                __keys = {};
                 dt.data.forEach(function(d){
-                    CellData.__keys[d.id] = d;
+                    __keys[d.id] = d;
                 });
+                CellData.__keys = values(__keys);
                 //表头
                 $("#table1").html(ejs.render($("#tm_table1").html(), { 'data':dt.data, 'keyCount':dt.data.length }));
                 //表身

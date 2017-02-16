@@ -5,12 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e34e6279-a52d-4c6f-959e-84c6e4c38088" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/js/cellData.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/performance-common.html" afterPath="$PROJECT_DIR$/bin/performance-common.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/performance-data.html" afterPath="$PROJECT_DIR$/bin/performance-data.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/performance-setting.html" afterPath="$PROJECT_DIR$/bin/performance-setting.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/performance-view.html" afterPath="$PROJECT_DIR$/bin/performance-view.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/cellData.js" afterPath="$PROJECT_DIR$/js/cellData.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/com_tree.js" afterPath="$PROJECT_DIR$/js/com_tree.js" />
     </list>
     <ignored path="emergency.iws" />
@@ -45,25 +43,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="performance-view.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/bin/performance-view.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.7419353">
-              <caret line="135" column="56" selection-start-line="135" selection-start-column="56" selection-end-line="135" selection-end-column="56" />
-              <folding>
-                <element signature="n#style#0;n#div#1;n#div#0;n#div#0;n#div#0;n#html#0;n#xmp#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#table#0;n#div#1;n#div#0;n#div#0;n#div#0;n#html#0;n#xmp#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#div#2;n#div#0;n#div#0;n#div#0;n#html#0;n#xmp#0;n#!!top" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="performance-data.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/performance-data.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-7.112903">
-              <caret line="121" column="63" selection-start-line="121" selection-start-column="63" selection-end-line="121" selection-end-column="63" />
+            <state vertical-scroll-proportion="-7.483871">
+              <caret line="152" column="20" selection-start-line="152" selection-start-column="20" selection-end-line="152" selection-end-column="20" />
               <folding>
                 <element signature="n#style#0;n#div#1;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#table#0;n#div#1;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
@@ -73,11 +57,25 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cellData.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="performance-view.html" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/bin/performance-view.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.5516055">
+              <caret line="237" column="48" selection-start-line="237" selection-start-column="48" selection-end-line="237" selection-end-column="48" />
+              <folding>
+                <element signature="n#style#0;n#div#1;n#div#0;n#div#0;n#div#0;n#html#0;n#xmp#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#table#0;n#div#1;n#div#0;n#div#0;n#div#0;n#html#0;n#xmp#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#div#2;n#div#0;n#div#0;n#div#0;n#html#0;n#xmp#0;n#!!top" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="cellData.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/cellData.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.23684211">
-              <caret line="28" column="20" selection-start-line="28" selection-start-column="20" selection-end-line="28" selection-end-column="20" />
+            <state vertical-scroll-proportion="-21.2">
+              <caret line="115" column="22" selection-start-line="115" selection-start-column="22" selection-end-line="115" selection-end-column="22" />
               <folding />
             </state>
           </provider>
@@ -141,6 +139,16 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="com_tree.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/js/com_tree.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="192" column="26" selection-start-line="192" selection-start-column="13" selection-end-line="192" selection-end-column="26" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
     </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
@@ -189,13 +197,13 @@
         <option value="$PROJECT_DIR$/js/public.js" />
         <option value="$PROJECT_DIR$/js/unitMonth.js" />
         <option value="$PROJECT_DIR$/bin/index.html" />
-        <option value="$PROJECT_DIR$/js/com_tree.js" />
         <option value="$PROJECT_DIR$/bin/performance-common.html" />
         <option value="$PROJECT_DIR$/bin/performance-setting.html" />
         <option value="$PROJECT_DIR$/bin/performance-system.html" />
         <option value="$PROJECT_DIR$/bin/performance-data.html" />
-        <option value="$PROJECT_DIR$/bin/performance-view.html" />
         <option value="$PROJECT_DIR$/js/cellData.js" />
+        <option value="$PROJECT_DIR$/js/com_tree.js" />
+        <option value="$PROJECT_DIR$/bin/performance-view.html" />
       </list>
     </option>
   </component>
@@ -442,7 +450,7 @@
     <option name="totallyTimeSpent" value="7539000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="0" width="1684" height="1017" extended-state="0" />
+    <frame x="-8" y="0" width="1684" height="1017" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13908873" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -703,6 +711,19 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="14.375">
           <caret line="169" column="4" selection-start-line="169" selection-start-column="4" selection-end-line="169" selection-end-column="4" />
+          <folding>
+            <element signature="n#div#2;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#div#3;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#table#0;n#div#3;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="e#8910#9109#0" expanded="false" />
+            <element signature="e#9160#9362#0" expanded="false" />
+            <element signature="e#9411#9549#0" expanded="false" />
+            <element signature="e#9678#10134#0" expanded="false" />
+            <element signature="e#11135#11429#0" expanded="false" />
+            <element signature="e#12348#12765#0" expanded="false" />
+            <element signature="e#12819#12979#0" expanded="false" />
+            <element signature="e#14405#15146#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -875,14 +896,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/com_tree.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="8.684211">
-          <caret line="330" column="78" selection-start-line="330" selection-start-column="78" selection-end-line="330" selection-end-column="78" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/js/public.js">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-6.051724">
@@ -900,8 +913,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-data.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-7.112903">
-          <caret line="121" column="63" selection-start-line="121" selection-start-column="63" selection-end-line="121" selection-end-column="63" />
+        <state vertical-scroll-proportion="-7.483871">
+          <caret line="152" column="20" selection-start-line="152" selection-start-column="20" selection-end-line="152" selection-end-column="20" />
           <folding>
             <element signature="n#style#0;n#div#1;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#table#0;n#div#1;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
@@ -910,23 +923,31 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/js/cellData.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-21.2">
+          <caret line="115" column="22" selection-start-line="115" selection-start-column="22" selection-end-line="115" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/com_tree.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="192" column="26" selection-start-line="192" selection-start-column="13" selection-end-line="192" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-view.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.7419353">
-          <caret line="135" column="56" selection-start-line="135" selection-start-column="56" selection-end-line="135" selection-end-column="56" />
+        <state vertical-scroll-proportion="0.5516055">
+          <caret line="237" column="48" selection-start-line="237" selection-start-column="48" selection-end-line="237" selection-end-column="48" />
           <folding>
             <element signature="n#style#0;n#div#1;n#div#0;n#div#0;n#div#0;n#html#0;n#xmp#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#table#0;n#div#1;n#div#0;n#div#0;n#div#0;n#html#0;n#xmp#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#2;n#div#0;n#div#0;n#div#0;n#html#0;n#xmp#0;n#!!top" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/cellData.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.23684211">
-          <caret line="28" column="20" selection-start-line="28" selection-start-column="20" selection-end-line="28" selection-end-column="20" />
-          <folding />
         </state>
       </provider>
     </entry>

@@ -2,7 +2,7 @@
 
 var CellData = function(){
     CellData.__data = {};
-    CellData.__keys = {};
+    CellData.__keys = [];
     CellData.__change_key = "";
     CellData.checkValue = null;
 
@@ -100,7 +100,7 @@ var CellData = function(){
     //设置表行
     this.setTableData = function (data){
         $("#table1>.tableData").remove();
-        $("#table1").append(ejs.render($("#tm_tbody1").html(), {'keys':values(CellData.__keys), 'data':data}));
+        $("#table1").append(ejs.render($("#tm_tbody1").html(), {'keys':CellData.__keys, 'data':data}));
         data.forEach(function(d){
             CellData.__data[d.personId] = {};
             d.children.forEach(function(e){
@@ -110,8 +110,10 @@ var CellData = function(){
                 CellData.__data[d.personId][e.key] = e.value;
             });
         });
-
+        var lsLine = data.filter(function(d){ return d.children.length; });
         setLimitInput();
+
+        return lsLine;
     }
 
 };
@@ -147,7 +149,6 @@ function setLimitInput(callback){
         if(e.keyCode==69 || e.keyCode==189) this.value = this.value.replace("e", "").replace("-", "");
     });
     $(".e-value").on("change", function (e) {
-        cout(CellData.checkValue(this.value));
         if(checkValueOk(this.value) && (CellData.checkValue==null || CellData.checkValue(this.value))){
             if($(this).hasClass("e-error"))$(this).removeClass("e-error");
         }else{

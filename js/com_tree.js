@@ -77,6 +77,17 @@ var ViewTree = function (){
         });
     };
 
+    /** 计算叶子结点权值 **/
+    ViewTree.getLeafWeight = function (node){
+        if(node.id=="root")node['value'] = 100;
+        node.value = 1.0 * node.value / 100;
+        if(!('nodes' in node))return;
+        for(var i=0; i<node['nodes'].length; i++){
+            node['nodes'][i].value *= node.value;
+            ViewTree.getLeafWeight(node['nodes'][i]);
+        }
+    };
+
     //获取子树-根据id
     /** 暂未使用 **/
     this.getSubTreeById = function (tree, id){
@@ -163,8 +174,9 @@ var ViewTree = function (){
         //(getTreeHeightEx(tree));
         return height[0] + 1;
     };
+    //*********暂时已弃用*********
     var _getNodeList = function (node, list){
-        if('id' in node)list.push([node['id'], node['name'], node['value']]);
+        if('id' in node)list.push([node['id'], ('name' in node) ? node['name'] : "", node['value']]);
         if(!('nodes' in node))return;
         node['nodes'].forEach(function(d){
             _getNodeList(d, list);
@@ -172,7 +184,21 @@ var ViewTree = function (){
     };
     ViewTree.getNodeList = function (tree){
         var list = [];
-        _getNodeList(tree, list);
+        traversal(tree, function(node){
+            if('id' in node)list.push([node['id'], ('name' in node) ? node['name'] : "", node['value']]);
+        });
+        //_getNodeList(tree, list);
+        return list;
+    };
+    ViewTree.getNodeListEx = function (tree){
+        var list = [];
+        traversal(tree, function(node){
+            if('id' in node){
+                var line = {};
+                for(var k in node) line[k] = node[k];
+                list.push(line);
+            }
+        });
         return list;
     };
     //获取子孙节点

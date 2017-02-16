@@ -110,7 +110,7 @@
                 </div>
             </td>
             <% }); %>
-            <td id="score<%= d.personId %>"></td>
+            <td id="score<%= d.personId %>" class="score" style=" text-align: center"></td>
         </tr>
         <% }); %>
     </script>
@@ -123,10 +123,11 @@
         var TV = new ViewTree();
         var __units = [];
         var __leafs = [];
+        var __config = {};
         var __CD = new CellData();
         CellData.__change_key = "change_performance_value";
-        CellData.checkValue = function(v){ return (parseFloat(v)>=0 && parseFloat(v)<=100) ? true : false;}
-
+        CellData.checkValue = checkValue;
+        function checkValue(v){ return (parseFloat(v)>=0 && parseFloat(v)<=100) ? true : false; }
 
         function Init(){
             loadUnitList();
@@ -151,7 +152,32 @@
             loadTableData(unitId);
         }
 
-
+        /*
+        *
+        *计算方法
+        * */
+        function getPersonByCell(id){
+            return id.substr(0, id.lastIndexOf("p")).replace("value", "");
+        }
+        function setPersonScore(pId){
+            var line = {}, full = true;
+            __leafs.forEach(function(e){
+                var value = $("#value" + pId + "p" + e).val() || 0;
+                if(!(checkValueOk(value) && checkValue(value)))full = false;
+                line[e] = parseFloat(value);
+                if(line[e]<0)line[e] = 0;
+            });
+            //if(!full)return;
+            var score = calcScore(line);
+            $("#score"+pId).html(score);
+        }
+        function calcScore(line){
+            var score = 0.0;;
+            __leafs.forEach(function(e){
+                score += 1.0 * line[e] * __config[e].value;
+            });
+            return score;
+        }
 
         //下
         /*
@@ -179,24 +205,55 @@
                 for(var p in dt.data){
                     dt.data[p]['unit'] = __units[dt.data[p].unitId];
                 }
-                __CD.setTableData(values(data));
+                var lsLine = __CD.setTableData(values(data));
+                lsLine.forEach(function(d){
+                    setPersonScore(d.personId);
+                });
 
-                cout(data);
+                //触发计算方法
+                $(".e-value").on('change', function(e){ setPersonScore( getPersonByCell(this.id) );} );
 
+                //cout(data);
             });
         }
 
         //设置表头
         function setTableHead(children){
             var tmData = getTableData(children);
-            var tm_table = $("#tm_view1").html();
             __leafs = tmData.leafs;
-            CellData.__keys = {};
+            CellData.__keys = [];
             tmData.leafs.forEach(function(d){
-                CellData.__keys[d] = {'id':d};
+                CellData.__keys.push({'id':d});
             });
-            $("#table1").html(ejs.render(tm_table, tmData));
+
+            $("#table1").html(ejs.render($("#tm_view1").html(), tmData));
             $("#pthroot").html("绩效因素");
+
+            ViewTree.getLeafWeight(tmData.tree);
+            var lsChild = ViewTree.getNodeListEx(tmData.tree);
+            lsChild.forEach(function(d){
+                __config[d[0]] = { 'id':d[0], 'name':d[1], 'value':d[2] };
+            });
+            var ls = ViewTree.getNodeListEx(tmData.tree);
+            //------------------------------明天继续-------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            cout(ls);
+            cout(lsChild);
+            cout(tmData);
         }
 
         //获取表格树的前置信息
@@ -207,7 +264,7 @@
             var layers = data[0], leafs = data[1];
             var users = [{'uid':10001, 'name':'lucy'}, {'uid':10002, 'name':'lily'}, {'uid':10003, 'name':'david'}];
             var tmData = {'common':{'height':height, 'degree':leafs.length},
-                          'layers':layers, 'leafs':leafs, 'data':users };
+                          'layers':layers, 'leafs':leafs, 'data':{}, 'tree':_tree };
             return tmData;
         }
 
