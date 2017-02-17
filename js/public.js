@@ -288,3 +288,8 @@ Date.prototype.format = function(fmt) {
 	}
 	return fmt;
 };
+
+function getObjValue(obj, key){
+	return (key in obj) ? obj[key] : null;
+}
+

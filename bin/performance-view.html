@@ -40,6 +40,7 @@
         .e-error{ color:red; }
         .e-system{ color:#1f6377 }
         .score{ color:#27c24c }
+        .disabled{ background-color:#fff; }
     </style>
     <div class="m-sm bg-main">
         <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto" style="margin-top:5px; margin-bottom: 45px">
@@ -124,6 +125,8 @@
         var __units = [];
         var __leafs = [];
         var __config = {};
+        var __lines = {};
+        var __tree = null;
         var __CD = new CellData();
         CellData.__change_key = "change_performance_value";
         CellData.checkValue = checkValue;
@@ -176,7 +179,7 @@
             __leafs.forEach(function(e){
                 score += 1.0 * line[e] * __config[e].value;
             });
-            return score;
+            return score.toFixed(2);
         }
 
         //下
@@ -202,10 +205,25 @@
             ajaxData('get_performance_value_unit', {'userId':userId, 'dataTime':dataTime, 'unitId':unitId}, function(dt)
             {
                 var data = dt.data;
+                __lines = dt.data;
                 for(var p in dt.data){
                     dt.data[p]['unit'] = __units[dt.data[p].unitId];
                 }
                 var lsLine = __CD.setTableData(values(data));
+
+                //加载权重
+                ViewTree.getLeafWeight(__tree);
+                var lsChild = ViewTree.getNodeListEx(__tree);
+                lsChild.forEach(function(d){
+                    __config[d.id] = d;
+                    //禁用设置
+                    if(getObjValue(d, 'isLeaf')!=1 || getObjValue(d, 'nature')!=1)return;
+                    for(var p in __lines){
+                        $("#value"+p+"p"+ d.id).attr("disabled", "true").css("background-color", "#ecf5ff");
+                    }
+                });
+
+                //计算分值
                 lsLine.forEach(function(d){
                     setPersonScore(d.personId);
                 });
@@ -213,7 +231,6 @@
                 //触发计算方法
                 $(".e-value").on('change', function(e){ setPersonScore( getPersonByCell(this.id) );} );
 
-                //cout(data);
             });
         }
 
@@ -221,6 +238,7 @@
         function setTableHead(children){
             var tmData = getTableData(children);
             __leafs = tmData.leafs;
+            __tree = tmData.tree;
             CellData.__keys = [];
             tmData.leafs.forEach(function(d){
                 CellData.__keys.push({'id':d});
@@ -228,32 +246,6 @@
 
             $("#table1").html(ejs.render($("#tm_view1").html(), tmData));
             $("#pthroot").html("绩效因素");
-
-            ViewTree.getLeafWeight(tmData.tree);
-            var lsChild = ViewTree.getNodeListEx(tmData.tree);
-            lsChild.forEach(function(d){
-                __config[d[0]] = { 'id':d[0], 'name':d[1], 'value':d[2] };
-            });
-            var ls = ViewTree.getNodeListEx(tmData.tree);
-            //------------------------------明天继续-------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            cout(ls);
-            cout(lsChild);
-            cout(tmData);
         }
 
         //获取表格树的前置信息
