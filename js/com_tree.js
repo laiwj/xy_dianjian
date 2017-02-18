@@ -295,15 +295,18 @@ var ViewTree = function (){
         $("#" + treeId).remove();
         p.prepend('<div id="'+ treeId +'"></div>');
     }
-    ViewTree.reloadTree = function (treeId, data){
+    ViewTree.reloadTree = function (treeId, data, style){
         _removeTreeView(treeId);
         if(!('nodes' in data))return;
         var option = getTreeOption();
         option['data'] = data.nodes;         // data is not optional
         option['levels'] = ViewTree.getTreeHeight(data);
         $("#" + treeId).treeview(option);
-        loadTableStyle();
+        if(style==undefined)loadTableStyle();
 
+    };
+    ViewTree.loadViewStyle = function(){
+        loadTableStyle();
     };
 
     function clickNodeForOperate(e){
@@ -326,9 +329,9 @@ var ViewTree = function (){
             $(this).find("span.badge").eq(-3).attr("title", "修改该分类名称或其对应值");
         });
         $("tr>td>div.newParent>span.badge").attr("title", "增加新的分类");
-        $("tr>td>div.newParent>span.badge").unbind('click');
-        $("tr>td>div.newParent>span.badge").on('click', function(e){
+        $("tr>td>div.newParent>span.badge").unbind('click').on('click', function(e){
             var treeId = $(this).parent().attr('id').replace("new", "tree");
+
             addNewParentClass(treeId);
             //cout(__treeview_data[treeId]);
         });

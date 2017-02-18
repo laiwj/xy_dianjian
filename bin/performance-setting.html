@@ -185,16 +185,15 @@
                 var setting = values(data.setting);
                 setting.sort(function(a, b){ return b.children.length - a.children.length; });
                 var lines = loadTree(setting);
-                var tm_table = $("#tm_table1").html();
-                $("#table1").html(ejs.render(tm_table, { data:lines, common:ViewTree.__common }));
+                $("#table1").html(ejs.render($("#tm_table1").html(), { data:lines, common:ViewTree.__common }));
                 lines.forEach(function(d){
                     for(var p in d.tree){
                         var treeId = 'tree' + d.uid + "p" + p;
                         ViewTree.__treeview_data[treeId] = d.tree[p];
-                        ViewTree.reloadTree(treeId, d.tree[p]);
+                        ViewTree.reloadTree(treeId, d.tree[p], false);
                     }
                 });
-
+                ViewTree.loadViewStyle();
 
                 hideLoading();
             }, function(){
