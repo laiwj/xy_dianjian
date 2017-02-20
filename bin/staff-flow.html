@@ -223,7 +223,7 @@ $(document).ready(function() {
 			for(var w in lsw){
 				var ste = __flow_data.hasOwnProperty(w) ? __flow_data[w].hasOwnProperty(lst[i]) : false;
 				line.push( !ste ? 0 : Object.keys(__flow_data[w][lst[i]]).reduce(function(a, b){
-					return a + __flow_data[w][lst[i]][b][src];
+					return a + __flow_data[w][lst[i]][b][src] || 0;
 				}, 0) );
 			}
 			data.push(line);

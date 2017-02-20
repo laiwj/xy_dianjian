@@ -158,10 +158,11 @@
                 //表身
                 var selDate = $("#datetimepicker").val();
                 if(selDate==undefined) selDate = getLastMonth();
+
                 loadUnitSystemData(unitId, selDate, userId);
 
             }, null, function(){
-                hideLoading();
+                //hideLoading();
             });
         }
 
@@ -175,15 +176,19 @@
         //获取部门人员绩效数据
         function loadUnitSystemData(unitId, dataTime, userId){
             cout([unitId, dataTime, userId]);
+            showLoading();
             ajaxData('get_performance_value_system', {'userId':userId, 'dataTime':dataTime, 'unitId':unitId}, function(dt)
             {
                 var data = dt.data;
+                cout(dt);
                 for(var p in dt.data){
                     dt.data[p]['unit'] = __units[dt.data[p].unitId];
                 }
 
                 __CD.setTableData(values(data));
 
+            }, null, function(){
+                hideLoading();
             });
 
         }

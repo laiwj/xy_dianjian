@@ -18,10 +18,9 @@ function addYearMonthList(id, callback){
     $('#datetimepicker').datetimepicker({
         language:  'zh-CN', format: 'yyyy-mm',weekStart: 0, todayBtn:  1, autoclose: 1, todayHighlight: 1, startView: 3, minView: 3, forceParse: 0,
     }).on('changeDate', function(e){
-        alert(1);
         var selDate = $("#datetimepicker").val();
         var unitId = $("#"+id+"sel1").val();
-        alert(selDate);
+        //alert(selDate);
         callback(unitId, selDate, "10001");
         //loadUnitPerformance(unitId, selDate, "10001");
 

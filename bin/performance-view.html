@@ -190,6 +190,7 @@
         */
         function loadTableData(unitId){
             var userId = "10001";
+            showLoading();
             ajaxData('get_performance_setting_unit', {'user':userId, 'unitId':unitId}, function(dt)
             {
                 setTableHead(dt.data.children);
@@ -202,6 +203,7 @@
 
         //获取部门人员具体绩效值
         function loadUnitPerformance(unitId, dataTime, userId){
+            showLoading();
             ajaxData('get_performance_value_unit', {'userId':userId, 'dataTime':dataTime, 'unitId':unitId}, function(dt)
             {
                 var data = dt.data;
@@ -231,7 +233,7 @@
                 //触发计算方法
                 $(".e-value").on('change', function(e){ setPersonScore( getPersonByCell(this.id) );} );
 
-            });
+            },null,function(){ hideLoading();});
         }
 
         //设置表头
