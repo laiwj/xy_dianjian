@@ -26,16 +26,13 @@
 			<div class="w-full">
 				<div class="title" id="unitsel2">网络访问分类设置</div>
 				<div id="view1" style="width: 100%;">
-					<button class="btn btn-primary btn-lg ladda-button center-block" id="showmore" data-style="contract-overlay">
-						<span class="ladda-label"></span>
-					</button>
 					<table class="table" id="tbMain">
 						<thead>
 						<tr>
-							<th width="150px">分类</th><th>所属关键词</th><th>编辑</th><th width="200px">IP/域名定义</th>
+							<th width="150px">分类</th><th>所属关键词</th><th>编辑</th><th width="200px">是否工作以外</th>
 						</tr>
 						</thead>
-						<tbody>
+						<tbody id="tbBody">
 						</tbody>
 					</table>
 				</div>
@@ -76,6 +73,31 @@
 
 </div>
 
+	<script id="tm_tbMain1" type="text/html">
+		<% for(var id in roots){ %>
+		<tr id='tbMaintr<%= id %>'>
+			<td><span><%= roots[id].name %></span><i id='tdEditI<%= id %>' class='tdEditI pointer m-l-s fa fa-edit' title='修改分类名'> </i></td>
+			<td>
+				<% roots[id].children.forEach(function(d){ %>
+				<div id="tbMaintd<%= d[1] %>" class="alert-info" style="min-width: 50px; width: auto;display:inline-block; margin-right: 5px; margin-bottom: 5px">
+					<button type="button" class="close delWord" title="删除该关键词" data-dismiss="alert" aria-hidden="true">&times;</button><%= d[0] %>
+				</div>
+				<% }); %>
+			</td>
+			<td><button type="button" id="editBtn<%= id %>"  class="editBtn btn btn-info btn-sm" title="添加关键词" data-toggle="modal" data-target="#myModal">增加</button></td>
+			<td>
+				<div class="checkbox">
+					<label title="用于计算有效工作时间"><input id="enable<%= id %>" type="checkbox" value="0"> 工作以外</label>
+				</div>
+			</td>
+		</tr>
+		<% } %>
+	</script>
+	<script id="tm_word1" type="text/html">
+		<div id="tbMaintd<%= id %>" class="alert-info" style="min-width: 50px; width: auto;display:inline-block; margin-right: 5px; margin-bottom: 5px">
+			<button type="button" class="close delWord" title="删除该关键词" data-dismiss="alert" aria-hidden="true">&times;</button><%= name %>
+		</div>
+	</script>
 
 <script src="../js/echarts.min.js"></script>
 <script src="../js/bootstrap-3.1.1.min.js"></script>
@@ -86,7 +108,7 @@
 <script src="../js/footable.min.js"></script>
 <script src="../js/spin.js"></script>
 <script src="../js/ladda.js"></script>
-
+<script type="text/javascript" src="../js/jquery.colorbox-min.js" ></script>
 
 <script language="javascript">
 "use strict";
@@ -99,80 +121,86 @@ var __tempc = null;
 
 $(document).ready(function() {
 	//$('#view1').height(document.body.clientHeight - $("#view2").offset().top-52-3-42);
-	var $showmore=$('#showmore');
-	$showmore.on('click', loadshots);
-	$showmore.trigger('click');
+	//var $showmore=$('#showmore');
+	//$showmore.on('click', loadshots);
+	////$showmore.trigger('click');
 	$("#tbSubmit").on('click', loadSubmit);
 
 	Init();
 	function loadSubmit2(){
-		$('#showmore').removeClass('hide');
-		$showmore.trigger('click');
+		//$('#showmore').removeClass('hide');
+		//$showmore.trigger('click');
 	}
 
 	function Init() {
 		$('.form_date').remove();
-		InitModel("myModal");
+		//InitModel("myModal");
+		loadshots();
 		$("#modalSelOk").on('click', selOK);
 
 	}
 
 	function loadshots(){
+		showLoading();
+		/*
 		var l = Ladda.create(this);
 		$pl = l;
 		l.start();
 		l.setProgress(0.3);
 		$showmore.find('.ladda-label').text('loading...');
-
+		*/
 		ajaxData('get_network_config', {'userId':10001}, function(data)
 		{
 			cout(data);
 			__lsOther = data.lso;
-			loadRoot(data.lsr);
-			loadClass(data.lsp, data.lsc);
+			loadTable(data.lsr, data.lsp, data.lsc);
+
 			loadOther(__lsOther);
 			__tempc = data.toke;
 
-			l.setProgress(1);
-			l.stop();
-			$showmore.addClass('hide');
-		});
+			//l.setProgress(1);
+			//l.stop();
+			//$showmore.addClass('hide');
+		}, null, function(){ hideLoading(); });
 	}
 
 });
 
-	function InitModel(id){ $("#"+id).on('hide.bs.modal', function(){ $('.modal-backdrop').remove();}) }
+	//function InitModel(id){ $("#"+id).on('hide.bs.modal', function(){ $('.modal-backdrop').remove();}) }
 	//为主分类增加关键词
 	function selOK(){
 		var id = $("#modalsel1").val();
 		if(!id || id==-1)return;
 		var name=$("#modalsel1").find("option:selected").text(), rid = $("#myModalLabel").attr('title');
-		$('#tbMaintr'+ rid).find('td:eq(1)').append(getNewLabel(id, name));
+		$('#tbMaintr'+ rid).find('td:eq(1)').append( ejs.render($("#tm_word1").html(), {'id':id, 'name':name}));
 		delete __lsOther[name];
 	}
+
 	//加载主分类
-	function loadRoot(lsr){
+	function loadTable(lsr, lsp, lsc){
+		var roots = {};
 		for(var r in lsr){
-			var row = $(getNewRow(r, lsr[r], '', ''));
-			$("#tbMain").append(row);
-			($("#editBtn"+r).on('click', changeTitle));
-			($("#tdEditI"+r).on('click', changeRoot));
+			roots[r] = {'id':r, 'name':lsr[r].name, 'notWork':lsr[r].notWork,'children':[]};
+		}
+		for(var p in lsp){
+			if(!(lsp[p][2] in roots))continue;
+			roots[lsp[p][2]].children.push(lsp[p]);
+		}
+		for(var c in lsc){
+			if(!(lsc[c][2] in roots))continue;
+			roots[lsc[c][2]].children.push(lsc[c]);
+		}
+		$("#tbBody").html(ejs.render($("#tm_tbMain1").html(), {'roots':roots}));
+		$(".delWord").on('click', closeLabel);
+		$(".editBtn").on('click', changeContent);
+		$(".tdEditI").on('click', changeRoot);
+		for(var id in lsr){
+			if(lsr[id]['notWork']==1)$("#enable"+id).attr("checked","true");
 		}
 	}
-	//加载主分类对应关键词
-	function loadClass(lsp, lsc){
-		for(var p in lsp) {
-			var obj = $('#tbMaintr'+ lsp[p][2]).find('td:eq(1)');
-			obj.append(getNewLabel(lsp[p][1], p));
-			$("#tbMaintd"+lsp[p][1]).find("button").on('click', closeLabel);
-		}
-		for(var p in lsc) {
-			var obj = $('#tbMaintr'+ lsc[p][2]).find('td:eq(1)');
-			obj.append(getNewLabel(lsc[p][1], p));
-			$("#tbMaintd"+lsc[p][1]).find("button").on('click', closeLabel);
-		}
-	}
+
 	//加载未确定的分类信息
+	//可选择列表内容
 	function loadOther(lsOther){
 		$("#modalsel1").html("");
 		var opt = "";
@@ -184,7 +212,7 @@ $(document).ready(function() {
 	}
 
 	//修改模态框标题
-	function changeTitle(){
+	function changeContent(){
 		var t = $(this).parent().parent().children(":first").find("span").html();
 		var rid = $(this).parent().parent().attr("id").replace("tbMaintr", "");
 		$("#myModalLabel").html('添加 '+ t +' 子类别');
@@ -211,16 +239,6 @@ $(document).ready(function() {
 		var id = parseInt($(this).parent().attr("id").replace("tbMaintd", "")), name = $(this).parent().html().replace(/<[^]+>/g, '');
 		__lsOther[name] = [name, id, -2];
 	}
-	function getNewLabel(id, name){
-		return '<div id="tbMaintd' + id + '" class="alert-info" style="min-width: 50px; width: auto;display:inline-block; margin-right: 5px; margin-bottom: 5px">' +
-				'<button type="button" class="close" title="删除该关键词" data-dismiss="alert" aria-hidden="true">&times;</button>' + name + '</div>';
-	}
-	function getNewRow(id, col1, col2, col3, col4){
-		col2 = col2 || ''; col4 = col4 || '';
-		col3 = col3 || '<button type="button" id="editBtn'+ id +'"  class="btn btn-info btn-sm" title="添加关键词" data-toggle="modal" data-target="#myModal">增加</button>';
-		return "<tr id='tbMaintr"+ id +"'><td><span>" + col1 + "</span><i id='tdEditI"+ id +"' class='pointer m-l-s fa fa-edit' title='修改分类名'> </i></td><td>"+
-				col2 +"</td><td>"+ col3 +"</td><td>"+ col4 +"</td>";
-	}
 
 
 	//submit
@@ -228,21 +246,22 @@ $(document).ready(function() {
 		var cdt = {}, rdt = {};
 		$("#tbMain>tbody>tr").each(function(i, d){
 			var rid = parseInt($(d).attr('id').replace('tbMaintr', ''));
-			$(d).find('div').each(function(ci, cd){
+			$(d).find('div.alert-info').each(function(ci, cd){
 				var cid = parseInt($(cd).attr('id').replace('tbMaintd', ''));
 				cdt[cid] = rid;
 			});
-			rdt[rid] = $(d).find('td:first>span').html();
+			rdt[rid] = [$(d).find('td:first>span').html(), $("#enable"+rid).is(':checked')];
 		});
 		return {'root':rdt, 'child':cdt};
 	}
 
 	function loadSubmit(){
-		$pl.start();
+		showLoading();
+		//$pl.start();
 		//$('#showmore').html("");
-		$pl.setProgress(0.3);
-		$('#showmore').removeClass('hide');
-		$('#showmore').find('.ladda-label').text('');
+		//$pl.setProgress(0.3);
+		//$('#showmore').removeClass('hide');
+		//$('#showmore').find('.ladda-label').text('');
 		var dt = getCommitData();
 		ajaxToInput('set_network_config', {'csrfmiddlewaretoken':__tempc, 'userId':10001,
 			'root':JSON.stringify(dt.root), 'child':JSON.stringify(dt.child)}, "view1");
@@ -251,6 +270,42 @@ $(document).ready(function() {
 
 
 
+/*
+
+//加载主分类
+function loadRootEx(lsr){
+	for(var r in lsr){
+		var row = $(getNewRow(r, lsr[r], '', ''));
+		$("#tbMain").append(row);
+		($("#editBtn"+r).on('click', changeContent));
+		($("#tdEditI"+r).on('click', changeRoot));
+	}
+}
+//加载主分类对应关键词
+function loadClassEx(lsp, lsc){
+	for(var p in lsp) {
+		var obj = $('#tbMaintr'+ lsp[p][2]).find('td:eq(1)');
+		obj.append(getNewLabel(lsp[p][1], p));
+		$("#tbMaintd"+lsp[p][1]).find("button").on('click', closeLabel);
+	}
+	for(var p in lsc) {
+		var obj = $('#tbMaintr'+ lsc[p][2]).find('td:eq(1)');
+		obj.append(getNewLabel(lsc[p][1], p));
+		$("#tbMaintd"+lsc[p][1]).find("button").on('click', closeLabel);
+	}
+}
+function getNewLabel(id, name){
+	return '<div id="tbMaintd' + id + '" class="alert-info" style="min-width: 50px; width: auto;display:inline-block; margin-right: 5px; margin-bottom: 5px">' +
+			'<button type="button" class="close" title="删除该关键词" data-dismiss="alert" aria-hidden="true">&times;</button>' + name + '</div>';
+}
+function getNewRow(id, col1, col2, col3, col4){
+	col2 = col2 || ''; col4 = col4 || '';
+	col3 = col3 || '<button type="button" id="editBtn'+ id +'"  class="btn btn-info btn-sm" title="添加关键词" data-toggle="modal" data-target="#myModal">增加</button>';
+	return "<tr id='tbMaintr"+ id +"'><td><span>" + col1 + "</span><i id='tdEditI"+ id +"' class='pointer m-l-s fa fa-edit' title='修改分类名'> </i></td><td>"+
+			col2 +"</td><td>"+ col3 +"</td><td>"+ col4 +"</td>";
+}
+
+*/
 
 
 

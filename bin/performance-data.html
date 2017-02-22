@@ -51,6 +51,14 @@
                 </div>
                 <div class="panel panel-default" style="margin-bottom: 50px">
                     <div class="panel-body">
+
+                        <form id= "uploadForm">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="mZ7guEjxHvnn9Z0XpsWOmE7xTwHjIHae">
+                            <input type="file" name="filecsrftoken"/>
+                            <input id="btnUpload" type="button" value="上传" onclick="" />
+                        </form>
+
+                        <button type="button" class="btn btn-info floatL" style="" id="tbImport">导入数据</button>
                         <button type="button" class="btn btn-warning floatR" style="margin-left: 30px" id="tbSubmit">保存设置</button>
                         <button type="button" class="btn btn-default floatR">取消更改</button>
                     </div>
@@ -59,7 +67,6 @@
             </div>
         </div>
     </div>
-
 
     <script src="../js/bootstrap.min.js"></script>
     <script src="../js/bootstrap-3.3.7.min.js"></script>
@@ -126,9 +133,28 @@
             loadSystemData(init_unit_performance);
 
             $("#tbSubmit").on('click', __CD.submitSystem);
+            $("#btnUpload").on('click', doUpload);
 
         }
-
+        function doUpload() {
+            var formData = new FormData($( "#uploadForm" )[0]);
+            //alert("Step1");
+            $.ajax({
+                url: 'http://10.101.1.177:8000/add_file_upload/' ,
+                type: 'POST',
+                data: formData,
+                async: true,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (returndata) {
+                    cout(returndata);
+                },
+                error: function (returndata) {
+                    cout(returndata);
+                }
+            });
+        }
         //----------------------加载部门信息
         function loadUnitList(){
             ajaxData('get_units', {}, function(data)
@@ -139,7 +165,6 @@
 
             });
         }
-
 
         //下
         //*************************************************************************************************************

@@ -82,6 +82,7 @@
 			type:'GET', url:serverUrl + '/' + key + '/',
 			//type:'GET', url:'http://118.123.173.86:8000/' + key + '/',
 			data:data, dataType:'jsonp', jsonpCallback: 'call1back' + cbkf + 'a',
+			crossDomain: true,
 			success:function(data)
 			{
 				if(_callbackS)_callbackS(data);
@@ -256,6 +257,21 @@ function getCookie(name)
 	else
 		return null;
 }
+function GetCookie(name) {
+	var cookieValue = null;
+	if (document.cookie && document.cookie != '') {
+		var cookies = document.cookie.split(';');
+		for (var i = 0; i < cookies.length; i++) {
+			var cookie = jQuery.trim(cookies[i]);
+			if (cookie.substring(0, name.length + 1) == (name + '=')) {
+				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+				break;
+			}
+		}
+	}
+	return cookieValue;
+}
+
 function delCookie(name)
 {
 	var exp = new Date();
