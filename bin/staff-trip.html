@@ -332,6 +332,8 @@ $(document).ready(function() {
 			if(__myChart3C)__myChart3C.hideLoading();
 			if(_u=='所有部门')__trip_data_map = data['data'];
 			cout("map data ok.");
+			//cout(data);
+
 			loadMapImages(_u);
 		});
 	}
@@ -384,13 +386,18 @@ $(document).ready(function() {
 		$("#" + id).html("");
 		var name = mapToProvince(p), city = getProvinceCapital(name);
 		var temp = {}, dData = [], maxV = 5, _pcd = {};
-		if (__trip_data_map_sum.hasOwnProperty(name)) {
-			temp = __trip_data_map_sum[name];
+		var key = (p in {'北京':1, '上海':1, '天津':1, '重庆':1}) ? p+"市" : name;
+		/* 数据中直辖市以市的形式出现 */
+
+		if (__trip_data_map_sum.hasOwnProperty(key)) {
+			temp = __trip_data_map_sum[key];
 			dData = items(temp.children).map(function (d) {
 				var c = d[0].replace("市", "");
-				_pcd[c] = d[1].value;
 				if(maxV<d[1].value)maxV = d[1].value;
-				return {name: c, value: getProvince(temp.name)['citys'][d[0]][d[0]].concat(d[1].value)};
+				var _rst = {name: c, value: getProvince(temp.name)['citys'][d[0]][d[0]].concat(d[1].value)};
+				if(p in {'北京':1, '上海':1, '天津':1, '重庆':1})_rst['value'][2] = temp.value;
+				_pcd[c] = _rst['value'][2];
+				return _rst;
 			});
 		}
 		if(dData.length==0)dData.push({name:city[0], value:[city[1], city[2], 1]});
@@ -445,7 +452,7 @@ function loadMapMove(id, _dt) {
 		backgroundColor: '#404a59',
 		title: { text: '出差流动', subtext: '电建集团', left: 'center', textStyle: { color: '#fff' }},
 		tooltip: { trigger: 'item', formatter:function(p){
-			cout(p);
+			if(p.componentSubType=="lines")return;
 			return p.name + " " + ((_pcd.hasOwnProperty(p.name)) ? _pcd[p.name]: 0) + "次"; } },
 		legend: { orient: 'vertical', top: 'top', left: 'right',
 			data: ['成都 Top10'], textStyle: { color: '#fff' },  selectedMode: 'single'
