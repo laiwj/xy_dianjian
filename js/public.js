@@ -22,7 +22,7 @@
 	var init_unit_performance = "10224";
 	var Units = { 10421:"征地移民处", 10426:"水工处", 10406:"机电处" };
 
-	var serverIp = "http://10.101.1.177";
+	//var serverIp = "http://10.101.1.177";
 	//var serverIp = "http://118.123.173.86";
 	var serverIp = "http://127.0.0.1";
 	var serverPort = 8000;
@@ -55,6 +55,8 @@
             }
         )	 		
 	}
+	function _$(id){ return document.getElementById(id); }
+	
 	function Init3(option, id){
 		var myChart = echarts.init(document.getElementById(id));
 		myChart.setOption(option);

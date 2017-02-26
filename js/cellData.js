@@ -156,3 +156,59 @@ function setLimitInput(callback){
         }
     });
 }
+
+function checkFileType(obj){
+	var filename = $(obj).val(); 
+	var mime = filename.toLowerCase().substr(filename.lastIndexOf("."));
+	if(!(mime in {'.xls':1, '.xlsx':1, '.csv':1})){
+		alert("文件格式错误，请选择表格格式文件！");
+		return false;
+	}
+	return true;
+}
+
+//文件上传
+function uploadCommon(cellKeys) {
+	$("#unitName").val($("#unitsel1sel1").find("option:selected").text());
+	var formData = new FormData($( "#uploadForm" )[0]);
+    if(!checkFileType(_$("inputfile")))return;
+
+    showLoading();
+    $.ajax({
+        url: serverUrl + '/add_file_upload/' ,
+        type: 'POST', data: formData,
+        async: true, cache: false, contentType: false, processData: false,
+        success: function (dt) {
+            cout(dt);
+            if(dt.error){
+            	alert(dt.message);
+            	return;
+            }
+            setCellDataByName(dt.data, cellKeys);
+        },
+        error: function (returndata) {
+            //cout(returndata);
+        },
+        complete: function(){ hideLoading(); }
+    });
+}
+
+//加载来自文件导入数据
+function setCellDataByName(data, cellKeys){
+	var names = {};
+	for(var d in cellKeys)names[cellKeys[d].name] = d;
+	
+	for(var u in data){
+		for(var p in data[u]){
+			for(var n in data[u][p]){
+				if(!(n in names))continue;
+				var id="#value"+ p + "p" + names[n];
+	            if($(id).length!=1)return;
+	            $(id).val(data[u][p][n]);
+	            if(!$(id).hasClass("cellImport"))$(id).addClass("cellImport");
+			}
+		}
+	}
+	return;
+}
+

@@ -16,17 +16,9 @@
 
     <style type="text/css">
         th,td{ border: 1px solid #CCCCCC; background-color: white; height: auto; min-height: 30px}
-        #table1 li{ height: 30px; border-bottom: 1px solid #ddd; border-right: 0px;border-left: 0px  }
-        #table1 ul{ border-top: 0px }
+        #table1 th:last-child{min-width: 50px} 
         .pointer{cursor: pointer}
 
-        .key-add{color:#5cb85c}
-        .key-del{color:red}
-        .key-edit{color:#31b0d5}
-        tr>td>div.newParent>span.badge{color:#5cb85c; cursor: pointer}
-        div.treeview>ul>li>span.badge:nth-last-child(1){color:#5cb85c }
-        div.treeview>ul>li>span.badge:nth-last-child(2){color:red }
-        div.treeview>ul>li>span.badge:nth-last-child(3){color:#31b0d5 }
 
         th{ text-align: center; height: 30px; padding-top: 5px }
         tr td{ min-width: 40px; height: 30px }
@@ -41,6 +33,9 @@
         .e-system{ color:#1f6377 }
         .score{ color:#27c24c }
         .disabled{ background-color:#fff; }
+        
+        .fileInput{border:1px solid #ccc; padding:4px 0px 4px 4px}
+		.cellImport{ color: blue; }
     </style>
     <div class="m-sm bg-main">
         <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto" style="margin-top:5px; margin-bottom: 45px">
@@ -53,8 +48,22 @@
                 </div>
                 <div class="panel panel-default" style="margin-bottom: 50px">
                     <div class="panel-body">
-                        <button type="button" class="btn btn-warning floatR" style="margin-left: 30px" id="tbSubmit">保存设置</button>
-                        <button type="button" class="btn btn-default floatR">取消更改</button>
+                    	<form id= "uploadForm" class="form-inline" role="form">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="mZ7guEjxHvnn9Z0XpsWOmE7xTwHjIHae">
+                            <input type="hidden" name="unitName" id="unitName" />
+                            <div class="form-group">
+								<label class="sr-only" for="inputfile">文件输入</label>
+								<input type="file" class="fileInput" id="inputfile" onchange="checkFileType(this)" name="filecsrftoken">
+							</div>
+							<div class="form-group">
+								<button type="button" class="btn btn-info floatL" style="" id="btnUpload">导入数据</button>
+							</div>
+							<div class="form-group floatR">
+                        		<button type="button" class="btn btn-warning floatR" style="margin-left: 30px" id="tbSubmit">保存设置</button>
+                        		<button type="button" class="btn btn-default floatR">取消更改</button>
+                        	</div>
+                        </form>
+                        
                     </div>
                     <div class="panel-footer">*所有改动保存后才能生效</div>
                 </div>
@@ -123,7 +132,8 @@
         var $pl;
         var TV = new ViewTree();
         var __units = [];
-        var __leafs = [];
+        //var __leafs = [];
+        var __keys = {};	//仅叶子节点
         var __config = {};
         var __lines = {};
         var __tree = null;
@@ -138,6 +148,7 @@
 
 
             $("#tbSubmit").on('click', __CD.submitSystem);
+            $("#btnUpload").on('click', doUpload);
         }
 
         //----------------------加载部门信息
@@ -154,7 +165,12 @@
             var unitId = unitInfo[1];
             loadTableData(unitId);
         }
-
+        
+        function doUpload() {
+        	uploadCommon(__keys);	
+        }
+        
+       
         /*
         *
         *计算方法
@@ -164,21 +180,21 @@
         }
         function setPersonScore(pId){
             var line = {}, full = true;
-            __leafs.forEach(function(e){
+            for(var e in __keys){
                 var value = $("#value" + pId + "p" + e).val() || 0;
                 if(!(checkValueOk(value) && checkValue(value)))full = false;
                 line[e] = parseFloat(value);
                 if(line[e]<0)line[e] = 0;
-            });
+            }
             //if(!full)return;
             var score = calcScore(line);
             $("#score"+pId).html(score);
         }
         function calcScore(line){
             var score = 0.0;;
-            __leafs.forEach(function(e){
-                score += 1.0 * line[e] * __config[e].value;
-            });
+            for(var e in __keys){
+            	score += 1.0 * line[e] * __config[e].value;
+            }
             return score.toFixed(2);
         }
 
@@ -239,13 +255,17 @@
         //设置表头
         function setTableHead(children){
             var tmData = getTableData(children);
-            __leafs = tmData.leafs;
+            var cache = children.reduce(function(a, b){ a[b.id] = b.text; return a; }, {});
+            //__leafs = tmData.leafs;
+            
             __tree = tmData.tree;
             CellData.__keys = [];
+            __keys = {};
             tmData.leafs.forEach(function(d){
                 CellData.__keys.push({'id':d});
+                __keys[d] = {'id':d, 'name':cache[d]};
             });
-
+            
             $("#table1").html(ejs.render($("#tm_view1").html(), tmData));
             $("#pthroot").html("绩效因素");
         }

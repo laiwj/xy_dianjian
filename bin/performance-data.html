@@ -18,17 +18,11 @@
         th,td{ border: 1px solid #CCCCCC; background-color: white; height: auto; min-height: 30px; text-align: center }
         #table1 li{ height: 30px; border-bottom: 1px solid #ddd; border-right: 0px;border-left: 0px  }
         #table1 ul{ border-top: 0px }
+        #table1 th:first-child {min-width:90px}
+        #table1 th:nth-child(2) {min-width:60px}
+        
         th{ text-align: center; height: 30px; padding-top: 5px; line-height:30px  }
         .pointer{cursor: pointer}
-
-        .key-add{color:#5cb85c}
-        .key-del{color:red}
-        .key-edit{color:#31b0d5}
-
-        div.treeview>ul>li>span.badge:nth-last-child(1){color:#5cb85c }
-        div.treeview>ul>li>span.badge:nth-last-child(2){color:red }
-        div.treeview>ul>li>span.badge:nth-last-child(3){color:#31b0d5 }
-
 
         .hide{display: none}
         .td_value{ width: 100%;border-right: 0px; border-bottom:1px solid #ccc; height:29px; padding-top:10px;text-align: center;  }
@@ -39,6 +33,8 @@
         .e-system{ color:#1f6377 }
         .cellHighlight{ color:red;background-color: #ffd2d2 }
 
+		.fileInput{border:1px solid #ccc; padding:4px 0px 4px 4px}
+		.cellImport{ color: blue; }
     </style>
     <div class="m-sm bg-main">
         <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto" style="margin-top:5px; margin-bottom: 45px">
@@ -52,15 +48,22 @@
                 <div class="panel panel-default" style="margin-bottom: 50px">
                     <div class="panel-body">
 
-                        <form id= "uploadForm">
+                        <form id= "uploadForm" class="form-inline" role="form">
                             <input type="hidden" name="csrfmiddlewaretoken" value="mZ7guEjxHvnn9Z0XpsWOmE7xTwHjIHae">
-                            <input type="file" name="filecsrftoken"/>
-                            <input id="btnUpload" type="button" value="上传" onclick="" />
+                            <input type="hidden" name="unitName" id="unitName" />
+                            <div class="form-group">
+								<label class="sr-only" for="inputfile">文件输入</label>
+								<input type="file" class="fileInput" id="inputfile" onchange="checkFileType(this)" name="filecsrftoken">
+							</div>
+							<div class="form-group">
+								<button type="button" class="btn btn-info floatL" style="" id="btnUpload">导入数据</button>
+							</div>
+							<div class="form-group floatR">
+								<button type="button" class="btn btn-warning floatR" style="margin-left: 30px" id="tbSubmit">保存设置</button>
+                        		<button type="button" class="btn btn-default floatR">取消更改</button>	
+                        	</div>
                         </form>
-
-                        <button type="button" class="btn btn-info floatL" style="" id="tbImport">导入数据</button>
-                        <button type="button" class="btn btn-warning floatR" style="margin-left: 30px" id="tbSubmit">保存设置</button>
-                        <button type="button" class="btn btn-default floatR">取消更改</button>
+                        
                     </div>
                     <div class="panel-footer">*所有改动保存后才能生效</div>
                 </div>
@@ -123,7 +126,7 @@
     <script language="javascript">
         "use strict";
         var __units = {};
-        var __keys = [];
+        var __keys = {};
         //var __data = {};    //缓存数据： p - value
         var __CD = new CellData();
         CellData.__change_key = "change_performance_system_data";
@@ -134,27 +137,13 @@
 
             $("#tbSubmit").on('click', __CD.submitSystem);
             $("#btnUpload").on('click', doUpload);
+            
 
         }
         function doUpload() {
-            var formData = new FormData($( "#uploadForm" )[0]);
-            //alert("Step1");
-            $.ajax({
-                url: 'http://10.101.1.177:8000/add_file_upload/' ,
-                type: 'POST',
-                data: formData,
-                async: true,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function (returndata) {
-                    cout(returndata);
-                },
-                error: function (returndata) {
-                    cout(returndata);
-                }
-            });
+        	uploadCommon(__keys);	
         }
+        
         //----------------------加载部门信息
         function loadUnitList(){
             ajaxData('get_units', {}, function(data)
@@ -177,6 +166,7 @@
                 dt.data.forEach(function(d){
                     __keys[d.id] = d;
                 });
+                //cout(__keys);
                 CellData.__keys = values(__keys);
                 //表头
                 $("#table1").html(ejs.render($("#tm_table1").html(), { 'data':dt.data, 'keyCount':dt.data.length }));
@@ -185,7 +175,7 @@
                 if(selDate==undefined) selDate = getLastMonth();
 
                 loadUnitSystemData(unitId, selDate, userId);
-
+				
             }, null, function(){
                 //hideLoading();
             });
@@ -209,7 +199,7 @@
                 for(var p in dt.data){
                     dt.data[p]['unit'] = __units[dt.data[p].unitId];
                 }
-
+				
                 __CD.setTableData(values(data));
 
             }, null, function(){
