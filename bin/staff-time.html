@@ -10,7 +10,7 @@
 	<script src="../js/respond.min.js"></script>
 	<![endif]-->
 <style type="text/css">
-
+	#table-data2 th, td{ text-align: center}
 
 </style>
 <div class="m-sm bg-main">  
@@ -52,6 +52,7 @@ var pieSelectName = "nosel";
 var units = [];
 var __myChart1 = null;
 var maxY = -1;
+var __persons = {};
 $(document).ready(function() {
 
 	//function DateF(date){ return parseInt(date/60 + 5) + ":" + parseInt(date % 60); }
@@ -60,7 +61,7 @@ $(document).ready(function() {
 
 	Init();
 
-	loadPersonTime('view2');
+	// loadPersonTime('view2');
 	loadOnlineDataByUnit();
 
 
@@ -88,44 +89,73 @@ $(document).ready(function() {
 		});
 	}
 	//-----------------------------------------------------------------------------
-	function loadOnlineDataByUnit(_u, dateStart, dateEnd){
-		__myChart1 = echarts.init(document.getElementById("view1")).showLoading();
-		_u = _u || init_unit_online;
+	function getDateSel(dateStart, dateEnd) {
 		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();
 		dateStart = dateStart || startDate;
 		dateEnd = dateEnd || endDate;
-		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd, 'unit':_u};
+		return {'dateStart':dateStart, 'dateEnd':dateEnd};
+	}
+	function loadOnlineDataByUnit(_u, dateStart, dateEnd){
+		ShowLoading("view1");
+		_u = _u || init_unit_online;
+		var sel = getDateSel(dateStart, dateEnd);
+		var adt = {'dateStart':sel.dateStart, 'dateEnd':sel.dateEnd, 'unit':_u};
 		ajaxData('get_online_unit', adt, function(data)
 		{
-			//__flow_data = data['data'];
-			cout(data.unit);
+			__persons = data.person;
 
+			//无数据情况
+			if(0==Object.keys(__persons).length){
+				HideLoading("view1");
+				loadTable({}, _u);
+				loadPersonTime('view2', {}, _u);
+				return;
+			}
+			/* 为了传输效率，将类型列表缓存至 data.typeNames */
+			for(var p in data.person){
+				var tps = data.person[p]['types'].map(function(d){
+					return (d in data.typeNames) ? data.typeNames[d] : d;
+				});
+				data.person[p]['types'] = tps;
+			}
+			/* 部门访问时间加和 */
+			var sumTime = {};
+			for(var p in data.workTime){
+				for(var t in data.workTime[p].data){
+					if(!(t in sumTime))sumTime[t] = 0;
+					sumTime[t] += data.workTime[p]['data'][t];
+				}
+			}
+			//核心图表
 			loadTimes(data.unit, {'level':'unit', 'name':_u }, data.scale, data.maxCount);
+			//表格数据
 			loadTable(data.person, _u);
-			//loadTimes();
+			//时间统计图
+			loadPersonTime('view2', sumTime, _u);
+
 			__myChart1.hideLoading();
 		});
 	}
 	function loadOnlineDataByPerson(_person, _name){
-//		if(_u==undefined)_u = $("#unitsel1sel1").val() ;
-//		var datesel = getDateByMonth($("#pheadsel1").val()), //dateEnd = $("#pheadsel2").val();
-//				dateStart = datesel.dateStart || init_date_start, dateEnd = datesel.dateEnd || init_date_end;
 		__myChart1 = echarts.init(document.getElementById("view1")).showLoading();
-		var dateStart = init_date_start, dateEnd = init_date_end;
-		dateStart = "2015-02-02"; dateEnd = "2016-11-02";
-		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd, 'person':_person};
+		var sel = getDateSel();
+		var adt = {'dateStart':sel.dateStart, 'dateEnd':sel.dateEnd, 'person':_person};
+
+		loadPersonTime('view2', __persons[_person].workTime.data, _name);
 		ajaxData('get_online_person', adt, function(data)
 		{
 			loadTimes(data.data, {'level':'person', 'pid':_person, 'name':_name }, data.scale, data.maxCount);
 			__myChart1.hideLoading();
 		});
 	}
+
 	//上网数据规范化·需要
 	function formatDataTimes(scale, data){
 		var fmt = {}, x=[], flag = false, maxY = 0;
 		for(var t in data){
-			fmt[t] = []
-			for(var i=0; i<1440; i+=scale){
+			fmt[t] = [];
+			/* x轴显示范围范围 默认0-1440 */
+			for(var i=480; i<1080; i+=scale){
 				if(!flag)x.push(TimeMTS(i));
 				fmt[t].push(data[t].hasOwnProperty(i) ? data[t][i] : 0);
 			}
@@ -164,10 +194,13 @@ $(document).ready(function() {
 	}
 
 	//--------------------------------------图2------------------------------------------
-	function loadPersonTime(id){
+	function formatPersonData(data){
+		return Object.keys(data).map(function(d){ return {'name':d, 'data':[parseFloat((data[d]/60).toFixed(2))] }; });
+	}
+	function loadPersonTime(id, data, title){
 		$('#' + id).highcharts({
 			chart: { type: 'bar', marginLeft:25 },
-			title: { text: '李**时间统计' },
+			title: { text: title + ' 时间统计' },
 			subtitle: { text: '' },
 			xAxis: {
 				categories: [''],
@@ -186,19 +219,15 @@ $(document).ready(function() {
 				backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF')
 			},
 			credits: { enabled: false },
-			series: [{ name: '会议', data: [1.2]},
-			{ name: '看电影', data: [1.5]},
-			{ name: '收发邮件', data: [0.7]},
-			{name: '玩游戏', data: [2]},
-			{ name: '上网', data: [4.5]}
-			]
+			series: formatPersonData(data)
 		});	
 	}
+
 	//---------------------------------表格相关----------------------------------------
 	function formatDataTable(person, _u){
 		var dt = [];
 		for(var pid in person){
-			dt.push({"id":pid, "name":person[pid]['name'], "unit": _u, "flux":0,
+			dt.push({"id":pid, "name":person[pid]['name'], "unit": _u, "workTime":person[pid].workTime.percent + "%",
 				"counts":person[pid]['sum'], "types":person[pid]['types'].join("、") });
 		}
 		return dt;
@@ -209,7 +238,7 @@ $(document).ready(function() {
 			{"name":"id", "title":"ID", "visible":true},
 			{"name":"name","title":"姓名","breakpoints":"xs sm"},//,"style":{"width":80,"maxWidth":80}},
 			{"name":"unit", "title":"部门", "breakpoints":"xs sm"},
-			{"name":"flux","title":"访问流量", "type":"number"},
+			{"name":"workTime","title":"有效工作时间比", "visible":true },
 			{"name":"counts", "title":"访问频次", "type":"number"},
 			{"name":"types", "title":"访问内容分类"}
 		];

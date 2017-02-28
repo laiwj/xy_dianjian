@@ -4,8 +4,8 @@
 	var init_flow_date_end = "2016-06-13";
 	var init_trip_date_start = "2014-04-13";
 	var init_trip_date_end = "2016-10-22";
-	var init_network_date_start = "2016-02-18";
-	var init_network_date_end = "2016-02-26";
+	var init_network_date_start = "2017-01-01";
+	var init_network_date_end = "2017-02-26";
 	var init_people_date_start = "2014-04-13";
 	var init_people_date_end = "2016-11-20";
 	var init_date_start = "2015-10-02";
@@ -175,37 +175,7 @@ function tableClick(ft, tbId, _callback){
 		_tableClick(tbId, _callback);
 	});
 }
-function csrfSafeMethod(method) {
-	// these HTTP methods do not require CSRF protection
-	return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-function sameOrigin(url) {
-	// test that a given url is a same-origin URL
-	// url could be relative or scheme relative or absolute
-	var host = document.location.host; // host + port
-	var protocol = document.location.protocol;
-	var sr_origin = '//' + host;
-	var origin = protocol + sr_origin;
-	origin = serverUrl;
-	// Allow absolute or scheme relative URLs to same origin
-	return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
-		(url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
-			// or any other URL that isn't scheme relative or absolute i.e relative.
-		!(/^(\/\/|http:|https:).*/.test(url));
-}
-function ajaxSet(csrftoken) {
-	$.ajaxSetup({
-		crossDomain: true,
-		beforeSend: function (xhr, settings) {
-			if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-				// Send the token to same-origin, relative URLs only.
-				// Send the token only if the method warrants CSRF protection
-				// Using the CSRFToken value acquired earlier
-				xhr.setRequestHeader("X-CSRFToken", csrftoken);
-			}
-		}
-	});
-}
+
 function ajaxToInput(key, data, viewId){
 	var url = serverUrl + '/' + key + '/';
 	var div = $("<div style='display: none'></div>");
@@ -312,3 +282,11 @@ function getObjValue(obj, key){
 	return (key in obj) ? obj[key] : null;
 }
 
+function ShowLoading(id){
+	return echarts.init(document.getElementById(id)).showLoading();
+}
+function HideLoading(id) {
+	var obj = document.getElementById(id);
+	echarts.init(obj).clear();
+	obj.innerHTML = "<h3 style='margin: 30px'>暂无数据</h3>";
+}

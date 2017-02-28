@@ -18,7 +18,7 @@
         th,td{ border: 1px solid #CCCCCC; background-color: white; height: auto; min-height: 30px; text-align: center }
         #table1 li{ height: 30px; border-bottom: 1px solid #ddd; border-right: 0px;border-left: 0px  }
         #table1 ul{ border-top: 0px }
-        #table1 th:first-child {min-width:90px}
+        #table1 th:first-child {min-width:100px}
         #table1 th:nth-child(2) {min-width:60px}
         
         th{ text-align: center; height: 30px; padding-top: 5px; line-height:30px  }
@@ -194,8 +194,8 @@
             showLoading();
             ajaxData('get_performance_value_system', {'userId':userId, 'dataTime':dataTime, 'unitId':unitId}, function(dt)
             {
-                var data = dt.data;
                 cout(dt);
+                var data = dt.data;
                 for(var p in dt.data){
                     dt.data[p]['unit'] = __units[dt.data[p].unitId];
                 }
@@ -207,18 +207,6 @@
             });
 
         }
-
-
-
-        //确定事件响应
-        function okAddNewName(){
-
-        }
-        //----------------------------------------------------
-        //下面继续保存事件处理代码
-
-
-
 
 
 

@@ -29,17 +29,21 @@ var CellData = function(){
         return data;
     };
 
-    //打包需要上传的数据
-    //★★★★★注：
+    /*
+    * 打包需要上传的数据
+    * ★★★★★注：
+    * srcs : 新数据
     //若已有值，被改动并置空但未输入新值，提交时不保存该项改动
+    */
     var checkLineUpload = function (srcs, u, p, lines){
         var objs = (p in CellData.__data) ? CellData.__data[p] : {};
         if(!(u in lines))lines[u] = {};
         for(var k in srcs){
             if(k in objs){
-                if(srcs[k]!=objs[k]){   //值有改动
+                if(srcs[k]!=objs[k].value){   //值有改动
                     if(!(p in lines[u]))lines[u][p]=[];
-                    lines[u][p].push([k, srcs[k], 1, 0]);  //更新
+                    var style = (objs[k].src==0) ? 1 : 0;   //0-人工，1-系统
+                    lines[u][p].push([k, srcs[k], style, 0]);  //更新
                 }
             }else{          //新值
                 if(!(p in lines[u]))lines[u][p]=[];
@@ -71,7 +75,6 @@ var CellData = function(){
             alert("绩效时间错误！");
             return;
         }
-
         showLoading();
         ajaxData(CellData.__change_key, {'user':10001, 'dataTime':selDate, 'data':JSON.stringify(data)}, function(dt)
         {
@@ -84,7 +87,7 @@ var CellData = function(){
                 } else{
                     removeHighLightCell(id);
                     if($("#"+id).length!=1)return;
-                    CellData.__data[d.pid][d.eid] = $("#"+id).val();
+                    CellData.__data[d.pid][d.eid] = {'value':$("#"+id).val(), 'src':0};
                 }
             });
 
@@ -107,7 +110,8 @@ var CellData = function(){
                 var id="#value"+ d.personId + "p" + e.key;
                 if($(id).length!=1)return;
                 $(id).val(e.value);
-                CellData.__data[d.personId][e.key] = e.value;
+                var src = ('src' in e) ? e.src : 1;
+                CellData.__data[d.personId][e.key] = {'value':e.value, 'src':src};
             });
         });
         var lsLine = data.filter(function(d){ return d.children.length; });
@@ -172,6 +176,7 @@ function uploadCommon(cellKeys) {
 	$("#unitName").val($("#unitsel1sel1").find("option:selected").text());
 	var formData = new FormData($( "#uploadForm" )[0]);
     if(!checkFileType(_$("inputfile")))return;
+    formData.append("names", values(cellKeys).map(function(d){ return d.name; }).join(","));
 
     showLoading();
     $.ajax({
@@ -179,7 +184,6 @@ function uploadCommon(cellKeys) {
         type: 'POST', data: formData,
         async: true, cache: false, contentType: false, processData: false,
         success: function (dt) {
-            cout(dt);
             if(dt.error){
             	alert(dt.message);
             	return;
