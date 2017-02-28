@@ -215,6 +215,7 @@
   "use strict";
   //window.onresize = function () { location.reload(); }
   var __limit = {'setting-time':1};
+  var __menus = [];
   checkLogin();
 
   function signin(){
@@ -225,8 +226,11 @@
   }
   function loadMain(){
     var target = getQueryString("key") || "staff-flow";
-    var human=["staff-flow", "staff-clock", "staff-time", "staff-people"];
-    if(human.indexOf(target)!=-1)$("#p_human").toggleClass('active');
+    __menus.forEach(function(m){
+      var cn = m.chlidren.map(function(c){ return c.url; });
+      if(cn.indexOf(target)!=-1)$("#"+m.id).toggleClass('active');
+    });
+
     $.ajaxSetup({ cache:false });
     $.ajaxSetup({ async: false });
     $("<div></div>").load(target + ".html", function(){
@@ -253,13 +257,13 @@
 
   +function ($) {
     $(function(){
-      var menus = [{ name:"员工行为分析", icon:'user text-info-dker', id:'p_human', chlidren:[
+      __menus = [{ name:"员工行为分析", icon:'user text-info-dker', id:'p_human', chlidren:[
         {name:'办公流动分析', url:'staff-flow'}, {name:'出差流动分析', url:'staff-trip'},
         {name:'打卡异常分析', url:'staff-card'}, {name:'代打卡分析', url:'staff-interval'},
         {name:'工作时间分布', url:'staff-time'},
         {name:'员工关系分析', url:'staff-people'}
       ]},
-        {name:"绩效分析", icon:'time text-success', chlidren:[
+        {name:"绩效分析", icon:'time text-success', id:'p_performance', chlidren:[
           {name:'系统因素配置', url:'performance-system'},
           {name:'系统数据管理', url:'performance-data'},
           {name:'通用绩效设置', url:'performance-common'},
@@ -278,7 +282,7 @@
       ]}];
 
       var tm_menu = $("#tm_menu1").html();
-      $("#bar-human").after(ejs.render(tm_menu, { menu: menus }));
+      $("#bar-human").after(ejs.render(tm_menu, { menu: __menus }));
       $("#bar-data").after(ejs.render(tm_menu, { menu: datas }));
 
       //------------------------------------------------------------------------

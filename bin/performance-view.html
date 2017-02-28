@@ -135,7 +135,8 @@
         //var __leafs = [];
         var __keys = {};	//仅叶子节点
         var __config = {};
-        var __lines = {};
+        //var __lines = {};
+        var __nodes = [];
         var __tree = null;
         var __CD = new CellData();
         CellData.__change_key = "change_performance_value";
@@ -195,6 +196,7 @@
             for(var e in __keys){
             	score += 1.0 * line[e] * __config[e].value;
             }
+            //cout(__config[e].value);
             return score.toFixed(2);
         }
 
@@ -222,17 +224,15 @@
             showLoading();
             ajaxData('get_performance_value_unit', {'userId':userId, 'dataTime':dataTime, 'unitId':unitId}, function(dt)
             {
-                var data = dt.data;
-                __lines = dt.data;
+                var data = dt.data, __lines = dt.data;
                 for(var p in dt.data){
                     dt.data[p]['unit'] = __units[dt.data[p].unitId];
                 }
                 var lsLine = __CD.setTableData(values(data));
-                cout(__lines);
 
-                //加载权重
-                ViewTree.getLeafWeight(__tree);
+
                 var lsChild = ViewTree.getNodeListEx(__tree);
+
                 lsChild.forEach(function(d){
                     __config[d.id] = d;
                     //禁用设置
@@ -257,18 +257,17 @@
         function setTableHead(children){
             var tmData = getTableData(children);
             var cache = children.reduce(function(a, b){ a[b.id] = b.text; return a; }, {});
-            //__leafs = tmData.leafs;
-            
+            $("#table1").html(ejs.render($("#tm_view1").html(), tmData));
+            $("#pthroot").html("绩效因素");
+
             __tree = tmData.tree;
+            ViewTree.getLeafWeight(__tree);  /* 加载权重 */
             CellData.__keys = [];
             __keys = {};
             tmData.leafs.forEach(function(d){
                 CellData.__keys.push({'id':d});
                 __keys[d] = {'id':d, 'name':cache[d]};
             });
-            
-            $("#table1").html(ejs.render($("#tm_view1").html(), tmData));
-            $("#pthroot").html("绩效因素");
         }
 
         //获取表格树的前置信息
