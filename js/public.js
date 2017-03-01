@@ -2,11 +2,11 @@
 	var public_time_select = "#public_time_select";
 	var init_flow_date_start = "2015-10-22";
 	var init_flow_date_end = "2016-06-13";
-	var init_trip_date_start = "2014-04-13";
+	var init_trip_date_start = "2015-10-22";
 	var init_trip_date_end = "2016-10-22";
 	var init_network_date_start = "2017-01-01";
 	var init_network_date_end = "2017-02-26";
-	var init_people_date_start = "2014-04-13";
+	var init_people_date_start = "2016-04-13";
 	var init_people_date_end = "2016-11-20";
 	var init_date_start = "2015-10-02";
 	var init_date_end = "2015-12-13";
@@ -19,7 +19,7 @@
 	var init_unit_interval = "所有部门";
 	var init_unit_flow = "所有部门";
 	var public_all_unit = "所有部门";
-	var init_unit_performance = "10224";
+	var init_unit_performance = "10425";
 	var Units = { 10421:"征地移民处", 10426:"水工处", 10406:"机电处" };
 
 	//var serverIp = "http://10.101.1.177";

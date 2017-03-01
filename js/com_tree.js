@@ -11,6 +11,8 @@ var ViewTree = function (){
     ViewTree.__treeview_data = {};       //save all data here.
     ViewTree.__common_style = -1;
     ViewTree.__common_system = [];
+    ViewTree.__common_system_cache = {};
+    ViewTree.__common_cache = {};        //其它普遍因素
     ViewTree._after_change = loadLocalTreeData;
 
     var IsExistNodeByName = function (data, name){
@@ -52,7 +54,7 @@ var ViewTree = function (){
             createTree(node, lsC, src);
         }
         return tree;
-    }
+    };
     //建树过程 - 递归
     var createTree = function (parent, lsc, src){
         if(!(parent.id in lsc))return;
@@ -98,7 +100,7 @@ var ViewTree = function (){
             }
         });
         return data;
-    }
+    };
 
     //获取树各节点子孙叶子节点数目信息
     this.getTreeTableData = function(tree){
@@ -203,19 +205,24 @@ var ViewTree = function (){
     };
     //获取子孙节点
     //*注：此算法未经深入验证
-    var _getChildrenListById = function (node, id, list, flag){
-        if(flag==true)list.push(node['id']);
+    var _getChildrenListById = function (node, id, list, flag, callback){
+        if(flag==true)callback(node);
         if(!('nodes' in node))return;
         node['nodes'].forEach(function(d){
             if(d['id']==id)
-                _getChildrenListById(d, id, list, true);
+                _getChildrenListById(d, id, list, true, callback);
             else
-                _getChildrenListById(d, id, list, flag);
+                _getChildrenListById(d, id, list, flag, callback);
         });
     };
     ViewTree.getChildrenListById = function (tree, id){
         var list = [];
-        _getChildrenListById(tree, id, list, false);
+        _getChildrenListById(tree, id, list, false, function(node){ list.push(node['id']); });
+        return list;
+    };
+    ViewTree.getChildrenListByIdEx = function (tree, id){
+        var list = [];
+        _getChildrenListById(tree, id, list, false, function(node){ list.push(node); });
         return list;
     };
 
@@ -298,12 +305,21 @@ var ViewTree = function (){
     ViewTree.reloadTree = function (treeId, data, style){
         _removeTreeView(treeId);
         if(!('nodes' in data))return;
+        traversal(data, function(node){
+            if(('tags' in node) && ('id' in node)){
+                //系统因素，不能添加子节点
+                if(node.nature==1) node.tags = ['✎', '✕'];
+                //通用因素， 不能被删除和修改
+                if(node.id in ViewTree.__common_cache) node.tags = (node.nature==1) ? [] : ['✛'];
+
+            }
+        });
+
         var option = getTreeOption();
         option['data'] = data.nodes;         // data is not optional
         option['levels'] = ViewTree.getTreeHeight(data);
         $("#" + treeId).treeview(option);
         if(style==undefined)loadTableStyle();
-
     };
     ViewTree.loadViewStyle = function(){
         loadTableStyle();
@@ -323,24 +339,41 @@ var ViewTree = function (){
 
     //表现层：事件，效果等
     var loadTableStyle = function (){
-        $("#table1>tr>td>div.treeview>ul>li").each(function(i, d){
-            $(this).find("span.badge").eq(-1).attr("title", "在该分类下添加子分类");
-            $(this).find("span.badge").eq(-2).attr("title", "删除该分类及其所有子分类");
-            $(this).find("span.badge").eq(-3).attr("title", "修改该分类名称或其对应值");
+        //__icons = ['✎', '✕', '✛']
+        var titles = ["修改该分类名称或其对应值", "删除该分类及其所有子分类", "在该分类下添加子分类"];
+        var colors = ["#31b0d5", "red", "#5cb85c"];
+        __icons.forEach(function(d, i){
+            var $obj = $("#table1").find("span.badge").filter(function(){ return $(this).text() === d});
+            $obj.attr("title", titles[i]);
+            $obj.css("color", colors[i]);
         });
+
         $("tr>td>div.newParent>span.badge").attr("title", "增加新的分类");
         $("tr>td>div.newParent>span.badge").unbind('click').on('click', function(e){
             var treeId = $(this).parent().attr('id').replace("new", "tree");
-
             addNewParentClass(treeId);
-            //cout(__treeview_data[treeId]);
+
         });
         $("#table1>tr>td>div").off('click', 'ul>li>span.badge', clickNodeForOperate);
         $("#table1>tr>td>div").on('click', 'ul>li>span.badge', clickNodeForOperate);
     };
 
     //加载弹出框（添加因素）
-    var loadNewFrame = function (treeId, nodeId){
+    var loadNewFrame = function (treeId, nodeId, isRoot){
+        var tree = ViewTree.__treeview_data[treeId], weight = 0, names = {};
+        if(tree!=undefined && ('nodes' in tree)){   //有树存在
+            var _temp = tree.nodes.map(function(d){ return d; });
+            _temp.unshift( {value:0} );
+            var children = isRoot ? _temp: ViewTree.getChildrenListByIdEx(tree, nodeId);
+            weight = children.reduce(function(a, b, i){ a += (i==0) ? 0 : b.value ; return a; }, 0);
+            names = ViewTree.getNodeListEx(tree).reduce(function(a, b){  a[b.name]=1; return a; }, {});
+        }
+
+        if(weight>=100){
+            alert("该分支下所配权重已达到100%， 请调整后再添加！");
+            return;
+        };
+        /* 弹出设置框 */
         $.colorbox({
             title:'绩效设置相关', opacity:0.8, overlayClose:false,escKey:false, inline:false, speed:0,
             html:ejs.render($("#tm_edit1").html(), { 'treeId':treeId, 'nodeId':nodeId }),
@@ -352,16 +385,16 @@ var ViewTree = function (){
         });
         $("#edit_value0").html("");
         $("#edit_value1").html("");
-        for(var i=0; i<=10; i++){
-            $("#edit_value0").append("<option value='"+ i*10 +"'>"+ i*10 +"%</option>");
-            $("#edit_value1").append("<option value='"+ i*10 +"'>"+ i*10 +"%</option>");
+
+        for(var i=10-weight/10; i>0; i--){
+            $("#edit_value0").append("<option value='"+ i*10 +"'>"+ i*10 +"%</option><option value='"+ (i*10-5) +"'>"+ (i*10-5) +"%</option>");
+            $("#edit_value1").append("<option value='"+ i*10 +"'>"+ i*10 +"%</option><option value='"+ (i*10-5) +"'>"+ (i*10-5) +"%</option>");
         }
         ViewTree.__common_system.forEach(function(d){
+            if(d.name in names) return;
             $("#edit_name1").append("<option value='"+ d.name +"'>"+ d.name +"</option>");
         });
         $("#btnAddSubmit").unbind('click').on('click', submitAddNewParentClass);
-        //$("#lbEdit0").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(0).trigger("click");});
-        //$("#lbEdit1").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(1).trigger("click");});
 
     };
     function getEditHtml(){
@@ -375,17 +408,18 @@ var ViewTree = function (){
 
     var addChildClass = function (treeId, nodeId, data){
         //var newData = [];
-        loadNewFrame(treeId, nodeId);
+        loadNewFrame(treeId, nodeId, false);
 
     };
     var addNewParentClass = function (treeId){
         var nodeId = treeId.substr(treeId.lastIndexOf("p")+1);
-        loadNewFrame(treeId, nodeId);
+        loadNewFrame(treeId, nodeId, true);
     };
 
     //删除节点
     function removeNode(treeId, nodeId, data){
         var unitId = treeId.match(/tree(\S*)p/)[1];
+
         //后台删除数据
         removeNodeServer(nodeId, ViewTree.__common_style, unitId, function(){
             var list = ViewTree.getChildrenListById(data, nodeId);
@@ -491,14 +525,12 @@ var ViewTree = function (){
     function reloadLocalValue(treeId, data){
         var Id = treeId.replace("tree", "");
         var list = ViewTree.getNodeList(data);
-        cout(list);
 
         var html = "<div>";
         for(var i=0; i<list.length; i++)
             html += '<div id="ys' + list[i][0] + '"' + ' class="td_value">' + list[i][2] + '%</div>';
         html += "</div>";
         $("#value" + Id).html(html);
-
 
     }
     //-------------------------------------------------------------------------------------------------------

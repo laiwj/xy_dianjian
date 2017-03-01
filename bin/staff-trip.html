@@ -275,20 +275,23 @@ $(document).ready(function() {
 
 		});
 	}
-	//-----------------------------------------------------------------------------------------------------------
-
-
-
 
 
 	//-------------------------------------------------表格2---------------------------------------------
 	function formatDataTable2(_dt, _unit){
-		function formatStr(str){ return (str.length>21)?str.substr(0, 21)+'...':str}
+		function formatStr(str){ return (str.length>21)?str.substr(0, 32)+'...':str}
 		var dt = [];
+
 		for(var u in _dt){
 			if(_unit!=undefined && _unit!='所有部门' && _unit!=u )continue;
-			for(var k in _dt[u])dt.push({"id":k, "name":_dt[u][k].name, "unit":u,
-					"dates":formatStr(_dt[u][k].dates.join(",")), "counts":_dt[u][k].dates.length});
+			for(var p in _dt[u]){
+				var txt = [], counts = 0;
+				_dt[u][p].target.forEach(function(t){
+					txt.push(t[0] + "(" + t[1] + ")");
+					counts += t[1];
+				});
+				dt.push({"id":p, "name":_dt[u][p].name, "unit":u, "counts":counts, "targets":formatStr(txt.join(",")) });
+			}
 		};
 		dt.sort(function(a, b){ return b.counts - a.counts; });
 		return dt;
@@ -299,7 +302,8 @@ $(document).ready(function() {
 			{"name":"id","title":"ID", "visible":false},//,"style":{"width":80,"maxWidth":80}},
 			{"name":"name","title":"姓名"},
 			{"name":"unit", "title":"部门"},
-			{"name":"dates","title":"出差日期", "breakpoints":"xs sm"},
+			//{"name":"dates","title":"出差日期", "breakpoints":"xs sm"},
+			{"name":"targets","title":"出差目的地", "breakpoints":"xs sm"},
 			{"name":"counts", "title":"累计频次", "type":"number", "visible":true},
 		];
 		var ft = $('#'+tbId).footable({
@@ -307,6 +311,11 @@ $(document).ready(function() {
 		});
 		tableClick(ft, tbId);
 	}
+
+
+
+
+
 
 	//--------------------------------------------地图相关---------------------------------------------------------
 	function InitMapViews(id){
@@ -475,7 +484,7 @@ function loadMapMove(id, _dt) {
 			itemStyle: { normal: { color: color[0] } },
 		}]
 	};
-	cout(option1);
+	//cout(option1);
 	__myChart3P = Init3(option1, id);
 	__myChart3P.on('click', function(p){
 		if(p.componentType!='geo')return;
@@ -488,46 +497,5 @@ function loadMapMove(id, _dt) {
 });
 
 
-/*
-//堆积图 - 主要代码
-function loadTripImage2(id, _data, page, month){
-	__metux_view2 = true;
-	month = month || __current_month;
-	page = page || __current_page;
-	_data = __trip_data[month];
-	var units = Object.keys(_data), lg = [], mid = parseInt(units.length/2);
-	//units = (page==0) ? units.slice(0, mid) : units.slice(mid-1, units.length);
-	var temp = units.map(function(d){
-		var lstp = [];
-		for(var k in _data[d]){
-			lstp.push(_data[d][k]);
-			lg.push([k, d, _data[d][k]]);
-		}
-		return lstp;
-	});
-	var data = lg.map(function(d, i){
-		return { name:d, type:'bar', stack:lg[0], data:units.map(function(rd){ return rd==d[1] ? d[2] : 0; }) }
-	});
-	var max = temp.reduce(function(a, b){ var e=b.reduce(function(c, d){ return c+d; }, 0); return a>e ? a : e  }, 0) ;
-	var option = {
-		tooltip : { axisPointer:{ type : 'shadow' }, formatter:function(p){
-			return p.seriesName.split(',')[0] + ' : ' + p.data + '次<br/>' + p.name;
-		}},
-		grid: { x:30, x2:15, y:10, y2:40 },
-		calculable : true,
-		xAxis : [ { type : 'category', data : units, axisLabel: { interval:0, rotate:45,
-			formatter: function (name) { return echarts.format.truncateText(name, 45, '12px Microsoft Yahei', '…'); }, tooltip: { show: true }}  } ],
-		yAxis : [ { type : 'value' } ],
-		series : data
-	};
-	__myChart2 = Init3(option, id);
-	//设置时间轴位置
-	__ChartDatazoom.dispatchAction({
-		type: 'dataZoom', dataZoomIndex: 0, start: getMonthPostion(month)[0], end: getMonthPostion(month)[1]
-	});
-	__current_month = month;
-	__metux_view2 = false;
-}
-*/
 </script>
 </xmp>

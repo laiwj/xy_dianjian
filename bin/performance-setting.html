@@ -24,21 +24,19 @@
         .key-del{color:red}
         .key-edit{color:#31b0d5}
         tr>td>div.newParent>span.badge{color:#5cb85c; cursor: pointer}
-        div.treeview>ul>li>span.badge:nth-last-child(1){color:#5cb85c }
-        div.treeview>ul>li>span.badge:nth-last-child(2){color:red }
-        div.treeview>ul>li>span.badge:nth-last-child(3){color:#31b0d5 }
 
         th{ text-align: center; height: 30px}
         tr td{ min-width: 40px; }
         tr td:first-child{ text-align: center;}
         tr td.treeview{text-align: left}
         .hide{display: none}
-        .td_value{ width: 100%;border-right: 0px; border-bottom:1px solid #ccc; height:29px; padding-top:10px;text-align: center;  }
+        .td_value{ width: 100%;border-right: 0px; border-bottom:1px solid #ccc; height:29px; padding-top:5px;text-align: center;  }
         .newParent{padding-bottom: 8px; margin-top: 8px; padding-left: 38px;}
         #table2 tr td{  border:0px; padding-top: 8px}
         #table1>tr>th:first-child{ max-width: 120px; }
         #table1>tr>td:first-child{ max-width: 120px; }
         .inputH{ line-height: 28px; height: 28px; padding-top: 2px }
+        .treeview ul>li{ padding-top: 5px; }
 
     </style>
     <div class="m-sm bg-main">
@@ -179,10 +177,15 @@
             ajaxData('get_all_performance_setting', {user:10001}, function(data)
             {
                 ViewTree.__common_system = data.systems;
+                ViewTree.__common_system_cache = data.systems.reduce(function(a, b){ a[b.id] = b.name; return a; }, {});
+                ViewTree.__common_cache = data.common.reduce(function(a, b){
+                    a[b.id] = {'name':b.name, 'nature':b.nature}; return a; }, {});
                 loadParent(data.roots);
                 for(var u in data.setting){
                     data.setting[u]['children'] = data.setting[u]['children'].concat(data.common);
                 }
+                cout(data);
+
                 var setting = values(data.setting);
                 setting.sort(function(a, b){ return b.children.length - a.children.length; });
                 var lines = loadTree(setting);
@@ -201,27 +204,6 @@
                 hideLoading();
             });
         }
-
-        /*
-        //加载弹出框（添加因素）
-        function loadNewFrameEx(treeId, nodeId){
-            $.colorbox({
-                title:'绩效设置相关', opacity:0.8, overlayClose:false,escKey:false, inline:false, speed:0,
-                html:ejs.render($("#tm_edit1").html(), { 'treeId':treeId, 'nodeId':nodeId }),
-                onComplete:function(){
-                    $("#cboxWrapper").css("border", "5px solid #bbb");
-                    $("#cboxWrapper").css("background-color", "#bbb");
-                    $("#cboxClose").css("margin", "-5px 10px 10px 0px");
-                }
-            });
-            $("#btnAddSubmit").unbind('click').on('click', submitAddNewParentClass);
-            $("#lbEdit0").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(0).trigger("click");});
-            $("#lbEdit1").unbind('click').on('click', function(){ $("input:radio[name='ys_edit']").eq(1).trigger("click");});
-
-            //*************************************************************
-            //弹出效果搞定
-        }
-        */
 
         function loadTree(_dt){
             var data = [];
