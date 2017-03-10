@@ -17,7 +17,7 @@
 	<div class="m-sm bg-main">
 		<div class="hbox hbox-auto-xs hbox-auto-xs bg-white">
 			<div class="col">
-				<div class="title" id="unitsel2">代打卡异常</div>
+				<div class="title" id="unitsel1">代打卡异常</div>
 				<div id="view2" class="w-full p-l-sm" style="height:380px"></div>
 			</div>
 		</div>
@@ -39,6 +39,7 @@
 	<script src="../js/footable.min.js"></script>
 	<script src="../js/d3.v3.min.js"></script>
 	<script src="../js/echarts.v3.min.js"></script>
+	<script src="../js/unitMonth.js"></script>
 
 	<script language="javascript">
 		"use strict";
@@ -57,8 +58,8 @@
 			ajaxData('get_units', {}, function(data)
 			{
 				units = data.map(function(d){ return d[0]; });
-				addUnitSel('unitsel2', data, selectUnitInterval);
-				$("#unitsel2sel1").val(init_unit_interval);
+				addUnitSel('unitsel1', data, selectUnitInterval);
+				$("#unitsel1sel1").val(init_unit_interval);
 			});
 		}
 		//-----------------------------增加部门选择列表---------------------------------
@@ -71,38 +72,30 @@
 			});
 		}
 		//-----------------------------增加部门选择列表---------------------------------
-		function addPublicTimeSel(clickFunc){
+		function addPublicTimeSel(){
 			$(public_time_select).html("");
-			var dateList = [], id = "phead";
-			var div = '<div style="float:right; margin-right:15px;margin-top: 2px;">', sel1 = '<select id="'+ id + 'sel1">', opt1='',
-					sel2 = '<select id="'+ id + 'sel2">', opt2='';
-			["2015", "2016"].forEach(function(y){
-				range(1,13).forEach(function(m){ dateList.push([y, m]); });
-			});
-			dateList.forEach(function(d){ opt1 += '<option value ="'+ (d[0]+'-'+d[1]+'-1') + '">'+ d[0] + '年' + d[1] + '月' +'</option>'; });
-			$(public_time_select).append(div + sel1 + opt1 + '</select>' + '</div>');
-			$("#phead" + 'sel1').val(getMonthFirstDay(init_date_month));
-			$("#phead" + 'sel1').change(function(d){ if(clickFunc)clickFunc($(this).val()); });
+			addYearMonthList("public_time_select", loadDataByDateSel, 'unitsel1');
 		}
-		function getMonthFirstDay(date){ var sp = date.split("-"); return parseInt(sp[0])+'-'+parseInt(sp[1])+'-1';  }
-		function getDateByMonth(date){ var sp = date.split("-");
-			return {'dateStart': date, 'dateEnd': sp[0] + '-' + sp[1] + '-' + (new Date(parseInt(sp[0]), parseInt(sp[1]),0)).getDate()}
-		}
+
 		//全局时间选择改变，重新加载所有
-		function loadDataByDateSel(){
+		function loadDataByDateSel(unit, dateSel){
 			//loadClockData();
-			loadIntervalData("view2");
+
+			loadIntervalData(dateSel, unit);
 		}
 
 		//---------------------------------------Document Ready----------------------------------------------------
 		$(document).ready(function() {
 			if(!__select_create){
+				addPublicTimeSel();
+
+
 				loadUnitList();
-				addPublicTimeSel(loadDataByDateSel);
+
 				__select_create = true;
 			}
 			//loadClockData(init_unit_clock);
-			loadIntervalData("view2");
+			loadIntervalData();
 
 		});
 
@@ -131,6 +124,8 @@
 			tableClick(ft, tbId);
 		}
 
+
+
 		//***********************************************图2************************************************
 		function getRGB(hex){
 			hex = hex.toString().substr(1);
@@ -155,17 +150,20 @@
 			loadTable2(__interval_data, "table-data2", _u);
 			__myChart2.hideLoading();
 		}
-		function loadIntervalData(){
-			var datesel = getDateByMonth($("#pheadsel1").val()), //dateEnd = $("#pheadsel2").val();
-					dateStart = datesel.dateStart, dateEnd = datesel.dateEnd;
+		function loadIntervalData(selDate, unit){
+			//var selDate = $("#datetimepicker").val();
+			if(selDate==undefined) selDate = getLastMonth();
+			var datesel = getDateByMonth(selDate), dateStart = datesel.dateStart, dateEnd = datesel.dateEnd;
 			var adt = {'dateStart':dateStart, 'dateEnd':dateEnd};
+			cout(adt);
+
 			__myChart2 = echarts.init(document.getElementById("view2")).showLoading();
 			ajaxData('get_interval', adt, function(data)
 			{
 				//__flow_data = data['data'];
 				__interval_data = data;
 				loadInterval("view2", data);
-				cout(data);
+				//cout(data);
 				__myChart2.hideLoading();
 			});
 		}
@@ -187,11 +185,12 @@
 			}
 			var clrs = [['rgba(120, 36, 50, 0.5)', 'rgb(251, 118, 123)', 'rgb(204, 46, 72)'],
 				['rgba(25, 100, 150, 0.5)', 'rgb(129, 227, 238)', 'rgb(25, 183, 207)'], ['rgba(25, 100, 150, 0.5)', 'rgb(129, 227, 238)', 'rgb(25, 183, 207)']];
-			range(0,40).forEach(function(i){
+			range(0,60).forEach(function(i){
 				var c = getRGB(colorS(i)), c1 = [_randColor(c[0]),_randColor(c[1]),_randColor(c[2])]
 						, c2 = [_randColor(c[0]),_randColor(c[1]),_randColor(c[2])];
 				clrs.push(['rgba('+ c1.join(',') + ',0.5)', 'rgb('+ c.join(',') +')', 'rgb('+ c2.join(',') +')']);
 			});
+
 			var ses = all.map(function(d, index){
 				return { name:d[0][4], data:d, type:'scatter',
 					symbolSize: function (c) {return rS(c[2]); },
@@ -202,7 +201,7 @@
 				};
 			});
 			var lgData = all.map(function(d){ return d[0][4]; });
-			loadNewUnits("unitsel2sel1", lgData);
+			loadNewUnits("unitsel1sel1", lgData);
 			var option = {
 				title: { text: '' },//可能代打卡的员工
 				tooltip:{ formatter: function(c){return c.data[3] + '<br />频次：' + c.data[1] + '<br />涉及部门：' + c.data[5].join('，') ; }},

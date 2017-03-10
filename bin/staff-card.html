@@ -39,6 +39,7 @@
 	<script src="../js/footable.min.js"></script>
 	<script src="../js/d3.v3.min.js"></script>
 	<script src="../js/echarts.v3.min.js"></script>
+	<script src="../js/unitMonth.js"></script>
 
 	<script language="javascript">
 		"use strict";
@@ -63,7 +64,10 @@
 		}
 
 		//-----------------------------增加部门选择列表---------------------------------
-		function addPublicTimeSel(clickFunc){
+		function addPublicTimeSel(){
+			$(public_time_select).html("");
+			addYearMonthList("public_time_select", loadClockData, 'unitsel1');
+			/*
 			$(public_time_select).html("");
 			var dateList = [], id = "phead";
 			var div = '<div style="float:right; margin-right:15px;margin-top: 2px;">', sel1 = '<select id="'+ id + 'sel1">', opt1='',
@@ -79,22 +83,14 @@
 			//$("#phead" + 'sel2').val(getMonthFirstDay(init_date_end));
 			$("#phead" + 'sel1').change(function(d){ if(clickFunc)clickFunc($(this).val()); });
 			//$("#phead" + 'sel2').change(function(d){ if(clickFunc)clickFunc($(this).val()); });
-		}
-		function getMonthFirstDay(date){ var sp = date.split("-"); return parseInt(sp[0])+'-'+parseInt(sp[1])+'-1';  }
-		function getDateByMonth(date){ var sp = date.split("-");
-			return {'dateStart': date, 'dateEnd': sp[0] + '-' + sp[1] + '-' + (new Date(2016, 12,0)).getDate()}
-		}
-		//全局时间选择改变，重新加载所有
-		function loadDataByDateSel(){
-			loadClockData();
-			//loadIntervalData("view2");
+			*/
 		}
 
 		//---------------------------------------Document Ready----------------------------------------------------
 		$(document).ready(function() {
 			if(!__select_create){
 				loadUnitList();
-				addPublicTimeSel(loadDataByDateSel);
+				addPublicTimeSel();
 				__select_create = true;
 			}
 			loadClockData(init_unit_clock);
@@ -103,10 +99,13 @@
 		});
 
 		//***********************************************函数区域*****************************************************************
-		function loadClockData(_u){
-			if(_u==undefined)_u = $("#unitsel1sel1").val();
-			var datesel = getDateByMonth($("#pheadsel1").val()), //dateEnd = $("#pheadsel2").val();
-					dateStart = datesel.dateStart, dateEnd = datesel.dateEnd;
+		function loadClockData(_u, selDate){
+			_u = _u || $("#unitsel1sel1").val();
+			selDate = selDate || getLastMonth();
+			var datesel = getDateByMonth(selDate), dateStart = datesel.dateStart, dateEnd = datesel.dateEnd;
+
+			//var datesel = getDateByMonth($("#pheadsel1").val()), //dateEnd = $("#pheadsel2").val();
+			//		dateStart = datesel.dateStart, dateEnd = datesel.dateEnd;
 			__myChart1 = echarts.init(document.getElementById("view1")).showLoading();
 			var adt = {'dateStart':dateStart, 'dateEnd':dateEnd, 'unit':_u};
 			ajaxData('get_clock', adt, function(data)

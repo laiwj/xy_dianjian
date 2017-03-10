@@ -14,6 +14,7 @@
 		#view1rtn{border: 1px solid #ccc; padding: 2px 18px;position:absolute;z-index:100; top:25px; cursor: pointer}
 		table tr th{background-color: #f0f0f2;border:1px solid #ccc}
 		table tr td{border:1px solid #ccc}
+		table tr td:nth-child(3){ text-align: center}
 	</style>
 
 <div class="m-sm bg-main">
@@ -37,15 +38,28 @@
 			</div>
 		</div>
 		<div class="col col-sm-6">
-			<div class="title"></div>
-			<div id="view2" class="w-full" style="padding-top: 16px; margin-bottom: 45px">
-				<div class="w-full" style="font-weight: 500; margin-bottom: 3px; font-family: 'Times New Roman'">活跃的人</div>
-				<div class="w-full">
-					<table id="table-data1" class="table" data-paging="true" data-sorting="true"></table>
+			<div style="height:42px;">
+				<ul id="myTab2" class="nav nav-tabs">
+					<li class="active tab2"><a href="#view2" data-toggle="tab">预览</a></li>
+					<li class="tab2"><a href="#view3" data-toggle="tab">详情</a></li>
+				</ul>
+			</div>
+
+			<div id="myTabContent" class="tab-content">
+				<div id="view2" class="w-full tab-pane fade in active" style="padding-top: 16px; margin-bottom: 45px">
+					<div class="w-full" style="font-weight: 500; margin-bottom: 3px; font-family: 'Times New Roman'">活跃的人</div>
+					<div class="w-full">
+						<table id="table-data1" class="table" data-paging="true" data-sorting="true"></table>
+					</div>
+					<div class="w-full" style="font-weight: 400; margin-bottom: 3px; font-family: 'Times New Roman'">安静的人</div>
+					<div class="w-full">
+						<table id="table-data2" class="table" data-paging="true" data-sorting="true"></table>
+					</div>
 				</div>
-				<div class="w-full" style="font-weight: 400; margin-bottom: 3px; font-family: 'Times New Roman'">安静的人</div>
-				<div class="w-full">
-					<table id="table-data2" class="table" data-paging="true" data-sorting="true"></table>
+				<div id="view3" class="w-full tab-pane fade in" style="padding-top: 16px; margin-bottom: 45px">
+					<div class="w-full">
+						<table id="table-data3" class="table" data-paging="true" data-sorting="true"></table>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -116,31 +130,53 @@ $(document).ready(function() {
 		var style = $('li.source.active>a').html();
 		getDataNet(_unit, style);
 	}
+
+
 	//-------------------------------------------表格相关------------------------------------------
 	function formatDataTable(_dt){
 		var dt = [];
+		cout(_dt);
 		_dt.forEach(function(d){
 			dt.push({"id": d.data.map(function(c){ return c[0];}).join("、"),
 				"name":d.data.map(function(c){ return c[1];}).join("、"), "unit": d.unit, "value": d.value});
 		});
+		cout(dt);
+		return dt;
+	}
+	//人员列表,	第三表
+	function formatPersonTable(persons, nodes){
+		var dt = [], temp = {};
+		nodes.forEach(function(d){
+			dt.push({ 'id':d[1], 'name':d[3], 'unit':d[5], 'value':d[4] });
+			temp[d[1]] = 1;
+		});
+		for(var p in persons){
+			if(!(p in temp)) dt.push({ 'id':p, 'name':persons[p].name, 'unit':persons[p].unit, 'value':0 });
+		}
 		return dt;
 	}
 	function loadTableEx(data, tbId){
-		var tid = tbId==0 ? "table-data1" : "table-data2", vTitle = tbId==0 ? "活跃指数" : "安静指数";
+		var tid = ["1", "2", "3"][tbId];
+		var vTitle = ["活跃指数", "安静指数", "度"][tbId];
+
+		// var tid = tbId==0 ? "table-data1" : "table-data2", vTitle = tbId==0 ? "活跃指数" : "安静指数";
 		loadTable(data, tid, vTitle);
 	}
+
 	//加载表格1
-	function loadTable(data, tbId, vTitle){
-		$('#'+tbId).html("");
+	function loadTable(_dt, tbId, vTitle){
 		var columns = [
 			{"name":"id", "title":"ID", "visible":false},
 			{"name":"name","title":"姓名","breakpoints":"xs sm"},//,"style":{"width":80,"maxWidth":80}},
 			{"name":"unit", "title":"部门", "breakpoints":"xs sm"},
 			{"name":"value","title":vTitle, "type":"number"}
 		];
+		var data = tbId<3 ? formatDataTable(_dt) : _dt;
+		tbId = "table-data" + tbId;
+		$('#'+tbId).html("");
 		var ft = $('#'+tbId).footable({
-			"columns": columns, "rows": formatDataTable(data),
-			"paging": { "size": 8 },
+			"columns": columns, "rows": data,
+			"paging": { "size": 16 },
 		});
 		tableClick(ft, tbId);
 	}
@@ -155,17 +191,19 @@ $(document).ready(function() {
 		if(_style==undefined){	_style = init_style_social;	$('#myTab a[href="#'+init_style_social+'"]').tab('show');  }
 		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd, 'style':_style, 'unit':_unit};
 		var key = (_unit=="部门网络") ? 'get_social_style_unit' : 'get_social_style';
-		ajaxData(key, adt, function(data)
+		ajaxData(key, adt, function(dts)
 		{
-			//__flow_data = data['data'];
+			var data = dts.netInfo;
 			cout(data);
 			__nodes = data.nodes;
 			__links = data.links;
 			loadNet(__links, __nodes, data.units);
 			//document.write(JSON.stringify(data));
+
 			if(data.units){
 				loadTableEx(data.active, 0);
 				loadTableEx(data.quiet, 1);
+				loadTableEx(formatPersonTable(dts.persons, __nodes), 2);
 			}
 
 			//__myChart1.hideLoading();
@@ -178,7 +216,8 @@ $(document).ready(function() {
 		//_nodes = [[0,19.12,0,28.69,-266.83,299.69],[1,2.67,0,4.00,-418.08,446.89],[2,6.32,1,9.49,-212.76,245.29],[3,6.32,1,9.49,-242.82,235.26],[4,2.67,0,4.00,-379.30,429.06],[5,2.67,0,4.00,-417.26,406.04],[6,2.67,0,4.00,-332.60,485.17],[7,2.67,0,4.00,-382.70,475.09],[8,2.67,0,4.00,-320.38,387.17],[9,2.67,0,4.00,-344.40,451.17],[10,2.67,1,4.00,-89.34,234.56],[11,66.67,1,100.00,-87.93,-6.81],[12,4.50,1,6.74,-339.78,-184.69],[13,2.67,1,4.00,-194.31,178.55],[14,2.67,1,4.00,-158.05,202.00],[15,2.67,1,4.00,-127.70,242.55],[16,17.30,2,25.94,-385.22,-393.56],[17,13.64,2,20.46,-516.56,-393.99],[18,13.64,2,20.46,-464.79,-493.58],[19,13.64,2,20.46,-515.16,-456.99],[20,13.64,2,20.46,-408.12,-464.50],[21,13.64,2,20.46,-456.44,-425.13],[22,13.64,2,20.46,-459.11,-362.51],[23,28.27,2,42.40,-313.43,-289.45],[24,20.95,7,31.43,4.63,-273.85],[25,30.10,7,45.14,82.81,-203.11],[26,20.95,6,31.43,78.65,-31.51],[27,31.92,7,47.89,-81.46,-204.20],[28,8.15,4,12.23,-225.74,82.42],[29,15.47,3,23.20,-385.68,-20.21],[30,4.50,2,6.74,-403.92,-197.70],[31,8.15,2,12.23,-281.43,-158.45],[32,2.67,1,4.00,-122.41,210.38],[33,4.50,1,6.74,-234.60,-113.15],[34,11.81,3,17.71,-387.85,58.71],[35,11.81,3,17.71,-338.23,87.48],[36,11.81,3,17.71,-453.27,58.95],[37,11.81,3,17.71,-386.45,140.06],[38,11.81,3,17.71,-446.79,123.38],[39,6.32,6,9.49,336.50,-269.56],[40,2.67,7,4.00,29.19,-460.13],[41,20.95,7,31.43,238.37,-210.01],[42,6.32,7,9.49,189.70,-346.51],[43,6.32,6,9.49,-187.00,-145.03],[44,4.50,4,6.74,-253.00,129.88],[45,2.67,4,4.00,-296.08,163.12],[46,2.67,5,4.00,550.32,522.40],[47,4.50,5,6.74,488.14,356.86],[48,41.07,8,61.60,387.90,110.46],[49,13.64,6,20.46,126.48,68.11],[50,4.50,6,6.74,127.07,-113.06],[51,13.64,6,20.46,162.64,117.66],[52,4.50,6,6.74,353.66,-205.89],[53,2.67,6,4.00,165.44,339.77],[54,8.15,6,12.23,137.69,196.11],[55,35.58,6,53.37,206.45,-13.81],[56,4.50,6,6.74,194.83,224.78],[57,20.95,8,31.43,597.66,135.18],[58,28.27,8,42.40,355.78,-74.88],[59,20.95,8,31.43,515.30,-46.17],[60,17.30,8,25.94,614.29,-69.31],[61,20.95,8,31.43,550.19,-128.18],[62,24.61,8,36.91,436.17,-12.73],[63,22.78,8,34.17,602.55,16.42],[64,24.61,8,36.91,455.82,-115.46],[65,22.78,8,34.17,516.41,47.24],[66,19.12,8,28.69,646.43,-151.06],[67,2.67,8,4.00,668.96,204.65],[68,19.12,7,28.69,78.48,-347.15],[69,19.12,7,28.69,150.36,-298.51],[70,19.12,7,28.69,137.37,-410.28],[71,17.30,7,25.94,234.88,-400.86],[72,6.32,1,9.49,40.94,113.78],[73,4.50,8,6.74,437.94,291.58],[74,4.50,8,6.74,466.05,283.36],[75,13.64,7,20.46,238.79,-314.06],[76,13.64,8,20.46,712.18,4.81]];
 		var categories = _nodes.reduce(function(a, b){ a.add(b[2]); return a;}, new set()).keys
 				.map(function(d, i){ return '社团' + (i+1);} );
-		var fltValue = _nodes.length>45 ? 2 : 2;
+		var fltValue = _nodes.length>50 ? 6 :(_nodes.length>45 ? 2 : 3);
+		if(_nodes.length>300)fltValue = 2;
 		var nodes = _nodes.map(function(d, i){
 			return { id: d[0], name:d[3], symbolSize:10, category:d[2], value:10,
 				label:{ normal: { show: d[4] < fltValue }}, itemStyle: null
@@ -192,15 +231,16 @@ $(document).ready(function() {
 			return lk;
 		});
 		var c = __printColor;
-		cout();
+
 		var option = {
 			title: { text: '员工关系网络图', subtext: '电建集团', top: 'bottom', left: 'right' },
 			tooltip: { formatter:function(pm){ if(!pm.data)return;
+				if(undefined==pm.data.name)return;
 				return ($.isEmptyObject(_lsU) || !(pm.data)) ? pm.data.name : (_lsU[pm.data.category] + '<br />' + pm.data.name); }
 			},
 			legend: [{ data: categories,// selectedMode: 'single',
 			}],
-			//animationDuration: 1500, animationEasingUpdate: 'circular',
+			animationDuration: 500, //animationEasingUpdate: 'circular',
 			series : [{
 				name: 'Les Miserables', type: 'graph', layout: 'force',
 				data: nodes, links: links, categories: categories, roam: true,
