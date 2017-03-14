@@ -103,7 +103,7 @@ $(document).ready(function() {
 		ajaxData('get_online_unit', adt, function(data)
 		{
 			__persons = data.person;
-
+			//cout(data);
 			//无数据情况
 			if(0==Object.keys(__persons).length){
 				HideLoading("view1");
@@ -175,7 +175,7 @@ $(document).ready(function() {
 		});
 		lstp.unshift('');
 		lstp.unshift('');
-		cout(ses);
+		//cout(ses);
 		var title = ' '+ (opt.level=='unit' ? '部门：' + opt.name : '员工：'+opt.name) + '时间分布';
 		var option = {
 			title: {text: title, textStyle:{fontSize: 12}},
@@ -194,6 +194,7 @@ $(document).ready(function() {
 	}
 
 	//--------------------------------------图2------------------------------------------
+	/* Highcharts */
 	function formatPersonData(data){
 		return Object.keys(data).map(function(d){ return {'name':d, 'data':[parseFloat((data[d]/60).toFixed(2))] }; });
 	}
@@ -211,7 +212,7 @@ $(document).ready(function() {
 				title: { text: '时长 (单位：小时)', align: 'high' },
 				labels: { overflow: 'justify' }
 			},
-			tooltip: { valueSuffix: ' h' },
+			tooltip: { valueSuffix: ' h', style:{} },
 			plotOptions: { bar: { dataLabels: { enabled: true } } },
 			legend: {
 				layout: 'vertical', align: 'right', verticalAlign: 'top',

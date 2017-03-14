@@ -6,11 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="e34e6279-a52d-4c6f-959e-84c6e4c38088" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/staff-card.html" afterPath="$PROJECT_DIR$/bin/staff-card.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/staff-interval.html" afterPath="$PROJECT_DIR$/bin/staff-interval.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/staff-people.html" afterPath="$PROJECT_DIR$/bin/staff-people.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/staff-time.html" afterPath="$PROJECT_DIR$/bin/staff-time.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/public.js" afterPath="$PROJECT_DIR$/js/public.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/unitMonth.js" afterPath="$PROJECT_DIR$/js/unitMonth.js" />
     </list>
     <ignored path="emergency.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -21,7 +18,6 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
   </component>
@@ -34,18 +30,18 @@
       <file leaf-file-name="performance-view.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/performance-view.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.71875">
+            <state relative-caret-position="5350">
               <caret line="214" column="57" selection-start-line="214" selection-start-column="57" selection-end-line="214" selection-end-column="57" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="staff-people.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="staff-people.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/staff-people.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.57227486">
-              <caret line="201" column="0" selection-start-line="201" selection-start-column="0" selection-end-line="201" selection-end-column="0" />
+            <state relative-caret-position="175">
+              <caret line="207" column="0" selection-start-line="207" selection-start-column="0" selection-end-line="207" selection-end-column="0" />
               <folding>
                 <element signature="n#style#0;n#div#1;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#div#0;n#div#2;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
@@ -59,14 +55,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="staff-card.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="staff-card.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bin/staff-card.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-2.5">
-              <caret line="41" column="46" selection-start-line="41" selection-start-column="46" selection-end-line="41" selection-end-column="46" />
+            <state relative-caret-position="200">
+              <caret line="168" column="29" selection-start-line="168" selection-start-column="29" selection-end-line="168" selection-end-column="29" />
               <folding>
-                <marker date="1489109896860" expanded="true" signature="2566:2613" placeholder="..." />
-                <marker date="1489109896860" expanded="true" signature="6905:6988" placeholder="..." />
+                <marker date="1489457371794" expanded="true" signature="6905:6988" ph="..." />
               </folding>
             </state>
           </provider>
@@ -75,7 +70,7 @@
       <file leaf-file-name="staff-interval.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/staff-interval.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-2.6555555">
+            <state relative-caret-position="1025">
               <caret line="41" column="46" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="46" />
               <folding>
                 <element signature="n#style#0;n#div#1;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
@@ -88,16 +83,16 @@
       <file leaf-file-name="public.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/public.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="10" column="39" selection-start-line="10" selection-start-column="39" selection-end-line="10" selection-end-column="39" />
+            <state relative-caret-position="176">
+              <caret line="159" column="0" selection-start-line="159" selection-start-column="0" selection-end-line="159" selection-end-column="0" />
               <folding>
-                <marker date="1489110143481" expanded="true" signature="4444:4484" placeholder="..." />
-                <marker date="1489110143481" expanded="true" signature="5854:5885" placeholder="..." />
-                <marker date="1489110143481" expanded="true" signature="5913:5924" placeholder="..." />
-                <marker date="1489110143481" expanded="true" signature="6320:6351" placeholder="..." />
-                <marker date="1489110143481" expanded="true" signature="6379:6390" placeholder="..." />
-                <marker date="1489110143481" expanded="true" signature="7517:7530" placeholder="..." />
-                <marker date="1489110143481" expanded="true" signature="10732:10744" placeholder="..." />
+                <marker date="1489462609456" expanded="true" signature="4449:4489" ph="..." />
+                <marker date="1489462609456" expanded="true" signature="5859:5890" ph="..." />
+                <marker date="1489462609456" expanded="true" signature="5918:5929" ph="..." />
+                <marker date="1489462609456" expanded="true" signature="6325:6356" ph="..." />
+                <marker date="1489462609456" expanded="true" signature="6384:6395" ph="..." />
+                <marker date="1489462609456" expanded="true" signature="7577:7590" ph="..." />
+                <marker date="1489462609456" expanded="true" signature="10792:10804" ph="..." />
               </folding>
             </state>
           </provider>
@@ -106,7 +101,7 @@
       <file leaf-file-name="performance-data.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/performance-data.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-18.40625">
+            <state relative-caret-position="4675">
               <caret line="187" column="56" selection-start-line="187" selection-start-column="56" selection-end-line="187" selection-end-column="56" />
               <folding />
             </state>
@@ -116,12 +111,9 @@
       <file leaf-file-name="unitMonth.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/unitMonth.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
+            <state relative-caret-position="725">
               <caret line="29" column="0" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
-              <folding>
-                <marker date="1489109314800" expanded="true" signature="325:350" placeholder="..." />
-                <marker date="1489109314800" expanded="true" signature="449:480" placeholder="..." />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -129,7 +121,7 @@
       <file leaf-file-name="staff-trip.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/staff-trip.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
+            <state relative-caret-position="7050">
               <caret line="282" column="20" selection-start-line="282" selection-start-column="20" selection-end-line="282" selection-end-column="20" />
               <folding />
             </state>
@@ -139,7 +131,7 @@
       <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.46875">
+            <state relative-caret-position="6000">
               <caret line="240" column="0" selection-start-line="240" selection-start-column="0" selection-end-line="240" selection-end-column="0" />
               <folding />
             </state>
@@ -192,7 +184,6 @@
         <option value="E:/chuixue/moban1738/test.html" />
         <option value="E:/chuixue/moban1738/assets/css/custom-styles.css" />
         <option value="$PROJECT_DIR$/js/cellData.js" />
-        <option value="$PROJECT_DIR$/bin/staff-time.html" />
         <option value="$PROJECT_DIR$/bin/performance-data.html" />
         <option value="$PROJECT_DIR$/bin/performance-view.html" />
         <option value="$PROJECT_DIR$/bin/performance-system.html" />
@@ -204,20 +195,23 @@
         <option value="$PROJECT_DIR$/js/unitMonth.js" />
         <option value="$PROJECT_DIR$/bin/staff-interval.html" />
         <option value="$PROJECT_DIR$/bin/staff-card.html" />
-        <option value="$PROJECT_DIR$/js/public.js" />
         <option value="$PROJECT_DIR$/bin/staff-people.html" />
+        <option value="$PROJECT_DIR$/bin/staff-time.html" />
+        <option value="$PROJECT_DIR$/js/public.js" />
       </list>
     </option>
   </component>
-  <component name="JsBuildToolGruntFileManager" detection-done="true" />
-  <component name="JsBuildToolPackageJson" detection-done="true" />
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
   <component name="JsGulpfileManager">
     <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="-8" />
-    <option name="width" value="1684" />
-    <option name="height" value="1017" />
+    <option name="y" value="-8" />
+    <option name="width" value="1382" />
+    <option name="height" value="744" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -244,6 +238,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -258,7 +253,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="emergency" />
+              <option name="myItemId" value="web" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -268,7 +263,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="emergency" />
+              <option name="myItemId" value="web" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
@@ -278,7 +273,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="Scratches" />
     </panes>
   </component>
@@ -308,7 +302,9 @@
     <configuration default="true" type="DartTestRunConfigurationType" factoryName="Dart Test">
       <method />
     </configuration>
-    <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma" config-file="">
+    <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma">
+      <config-file value="" />
+      <node-interpreter value="project" />
       <envs />
       <method />
     </configuration>
@@ -325,6 +321,7 @@
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-interpreter>project</node-interpreter>
       <node-options />
       <gulpfile />
       <tasks />
@@ -335,10 +332,12 @@
     <configuration default="true" type="js.build_tools.npm" factoryName="npm">
       <command value="run-script" />
       <scripts />
+      <node-interpreter value="project" />
       <envs />
       <method />
     </configuration>
     <configuration default="true" type="mocha-javascript-test-runner" factoryName="Mocha">
+      <node-interpreter />
       <node-options />
       <working-directory>$PROJECT_DIR$</working-directory>
       <pass-parent-env>true</pass-parent-env>
@@ -351,7 +350,9 @@
       <method />
     </configuration>
   </component>
-  <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -360,23 +361,25 @@
       <changelist id="e34e6279-a52d-4c6f-959e-84c6e4c38088" name="Default" comment="" />
       <created>1471945140324</created>
       <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
       <updated>1471945140324</updated>
       <workItem from="1478836859073" duration="7539000" />
       <workItem from="1487919351843" duration="6258000" />
       <workItem from="1487996656989" duration="18269000" />
       <workItem from="1488161198421" duration="27679000" />
       <workItem from="1488333191965" duration="18029000" />
+      <workItem from="1489457383449" duration="5946000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="77774000" />
+    <option name="totallyTimeSpent" value="83720000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="0" width="1684" height="1017" extended-state="1" />
+    <frame x="-8" y="-8" width="1382" height="744" extended-state="7" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14928058" sideWeight="0.4931973" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14860907" sideWeight="0.4931973" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
@@ -412,7 +415,7 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/bin/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="232" column="0" selection-start-line="232" selection-start-column="0" selection-end-line="232" selection-end-column="0" />
           <folding />
         </state>
@@ -420,7 +423,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-view.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
@@ -428,7 +431,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-common.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="40" column="44" selection-start-line="40" selection-start-column="8" selection-end-line="40" selection-end-column="44" />
           <folding />
         </state>
@@ -436,7 +439,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-setting.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
           <folding />
         </state>
@@ -444,7 +447,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/com_tree.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="417" column="0" selection-start-line="417" selection-start-column="0" selection-end-line="417" selection-end-column="0" />
           <folding />
         </state>
@@ -452,7 +455,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-view.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="214" column="57" selection-start-line="214" selection-start-column="57" selection-end-line="214" selection-end-column="57" />
           <folding />
         </state>
@@ -460,7 +463,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-common.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="40" column="44" selection-start-line="40" selection-start-column="8" selection-end-line="40" selection-end-column="44" />
           <folding />
         </state>
@@ -468,7 +471,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-setting.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
           <folding />
         </state>
@@ -476,7 +479,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/com_tree.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="417" column="0" selection-start-line="417" selection-start-column="0" selection-end-line="417" selection-end-column="0" />
           <folding />
         </state>
@@ -484,23 +487,23 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/public.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1489110143481" expanded="true" signature="4444:4484" placeholder="..." />
-            <marker date="1489110143481" expanded="true" signature="5854:5885" placeholder="..." />
-            <marker date="1489110143481" expanded="true" signature="5913:5924" placeholder="..." />
-            <marker date="1489110143481" expanded="true" signature="6320:6351" placeholder="..." />
-            <marker date="1489110143481" expanded="true" signature="6379:6390" placeholder="..." />
-            <marker date="1489110143481" expanded="true" signature="7517:7530" placeholder="..." />
-            <marker date="1489110143481" expanded="true" signature="10732:10744" placeholder="..." />
+            <marker date="1489462609456" expanded="true" signature="4449:4489" ph="..." />
+            <marker date="1489462609456" expanded="true" signature="5859:5890" ph="..." />
+            <marker date="1489462609456" expanded="true" signature="5918:5929" ph="..." />
+            <marker date="1489462609456" expanded="true" signature="6325:6356" ph="..." />
+            <marker date="1489462609456" expanded="true" signature="6384:6395" ph="..." />
+            <marker date="1489462609456" expanded="true" signature="7577:7590" ph="..." />
+            <marker date="1489462609456" expanded="true" signature="10792:10804" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/staff-trip.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="282" column="20" selection-start-line="282" selection-start-column="20" selection-end-line="282" selection-end-column="20" />
           <folding />
         </state>
@@ -508,7 +511,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="232" column="0" selection-start-line="232" selection-start-column="0" selection-end-line="232" selection-end-column="0" />
           <folding />
         </state>
@@ -518,7 +521,7 @@
     <entry file="file://$PROJECT_DIR$/css/bootstrap-treeview.min.css" />
     <entry file="file://$PROJECT_DIR$/css/font-awesome.min.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
@@ -526,7 +529,7 @@
     <entry file="file://$PROJECT_DIR$/js/bootstrap-treeview.min.js" />
     <entry file="file://$PROJECT_DIR$/js/bootstrap.min.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="5" column="28514" selection-start-line="5" selection-start-column="28513" selection-end-line="5" selection-end-column="28514" />
           <folding>
             <element signature="n#!!doc" expanded="false" />
@@ -539,7 +542,7 @@
     <entry file="file://$PROJECT_DIR$/bin/performance/js/jquery-1.8.3.min.js" />
     <entry file="file://$PROJECT_DIR$/js/jquery.min.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="1" column="35" selection-start-line="1" selection-start-column="35" selection-end-line="1" selection-end-column="35" />
           <folding />
         </state>
@@ -552,7 +555,7 @@
     <entry file="file://$PROJECT_DIR$/bin/test2.html" />
     <entry file="file://$PROJECT_DIR$/bin/test.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="169" column="4" selection-start-line="169" selection-start-column="4" selection-end-line="169" selection-end-column="4" />
         </state>
       </provider>
@@ -560,14 +563,14 @@
     <entry file="file://$PROJECT_DIR$/css/colorbox.css" />
     <entry file="file://$PROJECT_DIR$/bin/staff-clock.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="69" column="62" selection-start-line="69" selection-start-column="62" selection-end-line="69" selection-end-column="62" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/css/public.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="16" column="20" selection-start-line="16" selection-start-column="20" selection-end-line="16" selection-end-column="20" />
         </state>
       </provider>
@@ -576,28 +579,28 @@
     <entry file="file://$PROJECT_DIR$/js/select2.min.js" />
     <entry file="file://$PROJECT_DIR$/bin/staff-flow.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="225" column="66" selection-start-line="225" selection-start-column="66" selection-end-line="225" selection-end-column="66" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/config.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/province.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/setting-time.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="268" column="5" selection-start-line="268" selection-start-column="5" selection-end-line="268" selection-end-column="5" />
           <folding />
         </state>
@@ -605,29 +608,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/cellData.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="186" column="0" selection-start-line="186" selection-start-column="0" selection-end-line="186" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bin/staff-time.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="5" selection-start-line="0" selection-start-column="5" selection-end-line="0" selection-end-column="5" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-system.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="0">
           <caret line="97" column="16" selection-start-line="97" selection-start-column="16" selection-end-line="97" selection-end-column="16" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/staff-trip.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="7050">
           <caret line="282" column="20" selection-start-line="282" selection-start-column="20" selection-end-line="282" selection-end-column="20" />
           <folding />
         </state>
@@ -635,7 +630,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/com_tree.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.076327436">
+        <state relative-caret-position="0">
           <caret line="407" column="0" selection-start-line="407" selection-start-column="0" selection-end-line="407" selection-end-column="0" />
           <folding />
         </state>
@@ -643,7 +638,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-setting.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.026376147">
+        <state relative-caret-position="0">
           <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
           <folding />
         </state>
@@ -651,7 +646,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.46875">
+        <state relative-caret-position="6000">
           <caret line="240" column="0" selection-start-line="240" selection-start-column="0" selection-end-line="240" selection-end-column="0" />
           <folding />
         </state>
@@ -659,7 +654,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-common.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.31651375">
+        <state relative-caret-position="0">
           <caret line="51" column="22" selection-start-line="51" selection-start-column="22" selection-end-line="51" selection-end-column="22" />
           <folding />
         </state>
@@ -667,7 +662,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-view.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.71875">
+        <state relative-caret-position="5350">
           <caret line="214" column="57" selection-start-line="214" selection-start-column="57" selection-end-line="214" selection-end-column="57" />
           <folding />
         </state>
@@ -675,18 +670,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/unitMonth.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state relative-caret-position="725">
           <caret line="29" column="0" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
-          <folding>
-            <marker date="1489109314800" expanded="true" signature="325:350" placeholder="..." />
-            <marker date="1489109314800" expanded="true" signature="449:480" placeholder="..." />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/performance-data.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-18.40625">
+        <state relative-caret-position="4675">
           <caret line="187" column="56" selection-start-line="187" selection-start-column="56" selection-end-line="187" selection-end-column="56" />
           <folding />
         </state>
@@ -694,7 +686,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/staff-interval.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.6555555">
+        <state relative-caret-position="1025">
           <caret line="41" column="46" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="46" />
           <folding>
             <element signature="n#style#0;n#div#1;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
@@ -703,37 +695,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/bin/staff-card.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.5">
-          <caret line="41" column="46" selection-start-line="41" selection-start-column="46" selection-end-line="41" selection-end-column="46" />
-          <folding>
-            <marker date="1489109896860" expanded="true" signature="2566:2613" placeholder="..." />
-            <marker date="1489109896860" expanded="true" signature="6905:6988" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/public.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="10" column="39" selection-start-line="10" selection-start-column="39" selection-end-line="10" selection-end-column="39" />
-          <folding>
-            <marker date="1489110143481" expanded="true" signature="4444:4484" placeholder="..." />
-            <marker date="1489110143481" expanded="true" signature="5854:5885" placeholder="..." />
-            <marker date="1489110143481" expanded="true" signature="5913:5924" placeholder="..." />
-            <marker date="1489110143481" expanded="true" signature="6320:6351" placeholder="..." />
-            <marker date="1489110143481" expanded="true" signature="6379:6390" placeholder="..." />
-            <marker date="1489110143481" expanded="true" signature="7517:7530" placeholder="..." />
-            <marker date="1489110143481" expanded="true" signature="10732:10744" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/bin/staff-people.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.57227486">
-          <caret line="201" column="0" selection-start-line="201" selection-start-column="0" selection-end-line="201" selection-end-column="0" />
+        <state relative-caret-position="175">
+          <caret line="207" column="0" selection-start-line="207" selection-start-column="0" selection-end-line="207" selection-end-column="0" />
           <folding>
             <element signature="n#style#0;n#div#1;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#0;n#div#2;n#div#0;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
@@ -742,6 +707,40 @@
             <element signature="n#style#0;n#div#0;n#div#0;n#div#1;n#div#1;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#2;n#div#0;n#div#1;n#div#1;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#1;n#div#1;n#div#1;n#div#0;n#div#0;n#xmp#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bin/staff-time.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="155">
+          <caret line="206" column="30" selection-start-line="206" selection-start-column="30" selection-end-line="206" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/public.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="159" column="0" selection-start-line="159" selection-start-column="0" selection-end-line="159" selection-end-column="0" />
+          <folding>
+            <marker date="1489462609456" expanded="true" signature="4449:4489" ph="..." />
+            <marker date="1489462609456" expanded="true" signature="5859:5890" ph="..." />
+            <marker date="1489462609456" expanded="true" signature="5918:5929" ph="..." />
+            <marker date="1489462609456" expanded="true" signature="6325:6356" ph="..." />
+            <marker date="1489462609456" expanded="true" signature="6384:6395" ph="..." />
+            <marker date="1489462609456" expanded="true" signature="7577:7590" ph="..." />
+            <marker date="1489462609456" expanded="true" signature="10792:10804" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bin/staff-card.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="200">
+          <caret line="168" column="29" selection-start-line="168" selection-start-column="29" selection-end-line="168" selection-end-column="29" />
+          <folding>
+            <marker date="1489457371794" expanded="true" signature="6905:6988" ph="..." />
           </folding>
         </state>
       </provider>
