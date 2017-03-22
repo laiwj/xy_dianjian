@@ -51,7 +51,7 @@ table tfoot td{border:0px;}
 		<div class="col col-sm-12">
 			<div class="title"></div>
 			<div id="view4" class="w-full" style="height:430px; margin-bottom: 45px">
-				<table id="table-data2" class="table" data-paging="true" data-sorting="false"></table>
+				<table id="table-data2" class="table" data-paging="true" data-sorting="true"></table>
 			</div>
 		</div>
 	</div>
@@ -90,6 +90,7 @@ var __view_map1 = null;
 var __view_map2 = null;
 var __trip_data_map = {};
 var __trip_data_map_sum = {};
+var __persons = {};
 
 $(document).ready(function() {
 
@@ -139,7 +140,11 @@ $(document).ready(function() {
 		__current_view = 1;
 		__current_unit = _u;
 		loadTripImageUnit(__view2, __trip_data, __current_month, _u);
+        loadMapImages(_u)
 		loadTable2(__trip_data_all, "table-data2", _u)
+	}
+    function getUnitCurrent(){
+        return $("#unitsel2sel1").val() || "所有部门";
 	}
 	function loadUnitList(){
 		ajaxData('get_units', {}, function(data)
@@ -202,9 +207,18 @@ $(document).ready(function() {
 		{
 			if(_u=='所有部门')__trip_data_all = data['data'];
 			loadTable2(__trip_data_all, "table-data2", "所有部门")
+
+
+
+			cout(__trip_data_all);
+            cachePersons(__trip_data_all);
 		});
 	}
-
+	function cachePersons(data){
+		for(var u in data){
+		    for(var p in data[u]) __persons[p] = {'unit':u, 'name':data[u][p].name};
+		}
+	}
 	//--------------------------------------------------------------------------------------------------
 
 	//-------------------------------------------------柱状图主要代码----------------------------------------------------------
@@ -296,7 +310,11 @@ $(document).ready(function() {
 		dt.sort(function(a, b){ return b.counts - a.counts; });
 		return dt;
 	}
-	function loadTable2(data, tbId, _unit){
+    function loadTable2(dt, tbId, _unit){
+        var data = formatDataTable2(dt, _unit);
+        _loadTable(data, tbId, _unit);
+	}
+	function _loadTable(data, tbId, _unit){
 		$('#'+tbId).html("");
 		var columns = [
 			{"name":"id","title":"ID", "visible":false},//,"style":{"width":80,"maxWidth":80}},
@@ -307,7 +325,7 @@ $(document).ready(function() {
 			{"name":"counts", "title":"累计频次", "type":"number", "visible":true},
 		];
 		var ft = $('#'+tbId).footable({
-			"columns": columns, "rows": formatDataTable2(data, _unit), "paging": { "size": 8 },
+			"columns": columns, "rows": data, "paging": { "size": 8 },
 		});
 		tableClick(ft, tbId);
 	}
@@ -341,7 +359,6 @@ $(document).ready(function() {
 			if(__myChart3C)__myChart3C.hideLoading();
 			if(_u=='所有部门')__trip_data_map = data['data'];
 			cout("map data ok.");
-			//cout(data);
 
 			loadMapImages(_u);
 		});
@@ -355,9 +372,8 @@ $(document).ready(function() {
 		loadMapMove(__view_map1, top10);
 		if(top10.length==0)top10 = [[['北京市', '北京市'], 0]];
 		//top10 = [[['北京市', '北京市'], 0]];
-		//top10 = [[['陕西省', '西安市'], 0]];
 		cout(top10[0]);
-		showProvince(__view_map2, top10[0][0][0]);
+		showProvince(__view_map2, top10[0][0][0], _u);
 	}
 	//部门综合
 	function sumUnitData(_dt){
@@ -377,9 +393,9 @@ $(document).ready(function() {
 	function getTop10(_dt){
 		var data = [];
 		var tp = values(_dt).sort(function(a, b){ return b.value- a.value; });
-		for(var i=0; i<tp.length; i++){
+      	for(var i=0; i<tp.length; i++){
 			if(data.length>=10)break;
-			if(tp[i].name=="四川省" || tp[i].name=="国外" )continue
+			if(tp[i].name=="四川省" || tp[i].name=="国外" )continue;
 			if(Object.keys(tp[i].children).length==0){
 				var p = getCapital(tp[i].name);
 				data.push([[p, p], tp[i].value]);
@@ -388,28 +404,39 @@ $(document).ready(function() {
 				var ps = values(tp[i].children).sort(function(a, b){ return b.value- a.value; })[0];
 				data.push([[tp[i].name, ps.name], ps.value]);
 			}
+			//直辖市无市级划分
+            if (tp[i].name in {'北京市':1, '上海市':1, '天津市':1, '重庆市':1}) data[data.length-1][1] = tp[i].value;
 		}
 		return data;
 	}
-	function showProvince(id, p) {
+	function showProvince(id, p, _u) {
 		$("#" + id).html("");
+		var _cityp = {'北京':1, '上海':1, '天津':1, '重庆':1}, _citypx = {'北京市市辖区':1, '上海市市辖区':1, '天津市市辖区':1, '重庆市市辖区':1};
 		var name = mapToProvince(p), city = getProvinceCapital(name);
 		var temp = {}, dData = [], maxV = 5, _pcd = {};
-		var key = (p in {'北京':1, '上海':1, '天津':1, '重庆':1}) ? p+"市" : name;
+		var key = (p in _cityp) ? p+"市" : name;
+		if(key in _citypx) key =  key.replace("市辖区", "");
 		/* 数据中直辖市以市的形式出现 */
+        var _udt = __trip_data_map.hasOwnProperty(_u) ? __trip_data_map[_u] : {};
+        if(_u=='所有部门')_udt = __trip_data_map_sum;
 
-		if (__trip_data_map_sum.hasOwnProperty(key)) {
-			temp = __trip_data_map_sum[key];
+        //整理地图所需数据
+        if (_udt.hasOwnProperty(key)) {
+			temp = _udt[key];
 			dData = items(temp.children).map(function (d) {
 				var c = d[0].replace("市", "");
 				if(maxV<d[1].value)maxV = d[1].value;
 				var _rst = {name: c, value: getProvince(temp.name)['citys'][d[0]][d[0]].concat(d[1].value)};
-				if(p in {'北京':1, '上海':1, '天津':1, '重庆':1})_rst['value'][2] = temp.value;
+				if(p in _cityp){
+				    _rst['value'][2] = temp.value;
+                    if(maxV<temp.value)maxV = temp.value;
+                }
 				_pcd[c] = _rst['value'][2];
 				return _rst;
 			});
 		}
 		if(dData.length==0)dData.push({name:city[0], value:[city[1], city[2], 1]});
+
 		var scaleS = function(v){ return Math.ceil(13 * v / maxV); }
 		// myChart.showLoading();
 
@@ -437,8 +464,18 @@ $(document).ready(function() {
 			__myChart3C = Init3(option, id);
 			__myChart3C.on('mouseover', function(p){
 				$("#").tooltip();
-				cout(p);
+				//cout(p);
 			});
+            __myChart3C.on('click', function(p){
+                var c = "";
+                if(p.componentType=='geo') c = p.name;
+                else if(p.componentType=='series') c = p.data.name;
+                if(c=='' || c==undefined) return;
+                var unit = getUnitCurrent();
+                if(c in _cityp)c +="市";
+                if(key=="西藏自治区")c=c.replace("市", "地区");
+                loadTableByPlace(key, c, unit);
+            });
 			if(__myChart3C)__myChart3C.hideLoading();
 		});
 	}
@@ -457,9 +494,10 @@ function loadMapMove(id, _dt) {
 	var color = ['#a6c84c', '#ffa022', '#46bee9'];
 	var maxV = _dt.length==0 ? 1 : _dt[0][1];
 	var scaleS = function(v){ return Math.ceil(13 * v / maxV); };
+
 	var option1 = {
 		backgroundColor: '#404a59',
-		title: { text: '出差流动', subtext: '电建集团', left: 'center', textStyle: { color: '#fff' }},
+		title: { text: '出差流动', subtext: '电建集团 - Top10', left: 'center', textStyle: { color: '#fff' }},
 		tooltip: { trigger: 'item', formatter:function(p){
 			if(p.componentSubType=="lines")return;
 			return p.name + " " + ((_pcd.hasOwnProperty(p.name)) ? _pcd[p.name]: 0) + "次"; } },
@@ -488,12 +526,81 @@ function loadMapMove(id, _dt) {
 	__myChart3P = Init3(option1, id);
 	__myChart3P.on('click', function(p){
 		if(p.componentType!='geo')return;
-		showProvince(__view_map2, p.name);
+		var unit = getUnitCurrent();
+		showProvince(__view_map2, p.name, unit);
 
 	});
 
 	//$("#" + id).css('background-color', '#fff');
 }
+
+
+/* ----------------------------------------新增表格显示地域分布----------------------------------------------- */
+// 需在函数   loadMapImages 之后调用
+function loadTableByPlace(province, city, unit){
+    cout(province + "," + city + "," + unit);
+	//cout(__trip_data_map);
+	var data = [];
+    var persons = {};
+
+	if(unit=="所有部门"){
+	    for(var u in __trip_data_map){
+            var dtu = __trip_data_map.hasOwnProperty(u) ? __trip_data_map[u] : {};
+            getPlaceDataUnit(province, city, dtu, persons);
+		}
+	}else{
+        var dtu = __trip_data_map.hasOwnProperty(unit) ? __trip_data_map[unit] : {};
+        getPlaceDataUnit(province, city, dtu, persons)
+	}
+	//数据规整
+	for(var p in persons){
+		if(!(p in __persons))continue;
+		var targets = [];
+		for(var plc in persons[p].place){
+            targets.push(plc+"("+ Object.keys(persons[p].place[plc])[0] +")");
+		}
+		//var tp = Object.keys(persons[p].place);
+	    data.push({'id':p, 'name':__persons[p].name, 'unit':__persons[p].unit, 'targets':targets.join(","), 'counts':persons[p].value });
+	}
+	_loadTable(data, "table-data2", unit);
+	cout(persons);
+
+
+}
+
+function getPlaceDataUnit(province, city, dtu, persons){
+	function viewPersons(dtp, place){
+        items(dtp).forEach(function(p){
+            if(!(p[0] in persons))persons[p[0]] = {'value':0, 'place':{}};
+            Object.keys(p[1]).forEach(function(tm){
+
+                if(!(place in persons[p[0]].place))persons[p[0]].place[place] = {};
+                //if(!(t in persons[p[0]].dates))persons[p[0]][t] = 0;
+                persons[p[0]].place[place][tm] = 1;
+				persons[p[0]].value += 1;
+            })
+        });
+	}
+
+    if(province in dtu){
+        if(city=="" && "persons" in dtu[province]){
+            viewPersons(dtu[province]["persons"], province);
+		}
+        if(city!="" && city in dtu[province]['children']){
+			if("persons" in dtu[province]['children'][city]){
+                viewPersons(dtu[province]["children"][city]["persons"], city);
+			}
+			for(var d in dtu[province]["children"][city]["children"]){
+                if("persons" in dtu[province]['children'][city]["children"][d]){
+                    viewPersons(dtu[province]["children"][city]["children"][d]["persons"], d);
+                }
+			}
+		}
+	}
+	return persons;
+}
+
+
 });
 
 

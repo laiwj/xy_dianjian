@@ -228,7 +228,7 @@ $(document).ready(function() {
 	function formatDataTable(person, _u){
 		var dt = [];
 		for(var pid in person){
-			dt.push({"id":pid, "name":person[pid]['name'], "unit": _u, "workTime":person[pid].workTime.percent + "%",
+			dt.push({"id":pid, "name":person[pid]['name'], "unit": _u, "workTime":person[pid].workTime.percent, // + "%",
 				"counts":person[pid]['sum'], "types":person[pid]['types'].join("、") });
 		}
 		return dt;
@@ -239,7 +239,7 @@ $(document).ready(function() {
 			{"name":"id", "title":"ID", "visible":true},
 			{"name":"name","title":"姓名","breakpoints":"xs sm"},//,"style":{"width":80,"maxWidth":80}},
 			{"name":"unit", "title":"部门", "breakpoints":"xs sm"},
-			{"name":"workTime","title":"有效工作时间比", "visible":true },
+			{"name":"workTime","title":"有效工作时间比(%)", "visible":true },
 			{"name":"counts", "title":"访问频次", "type":"number"},
 			{"name":"types", "title":"访问内容分类"}
 		];
