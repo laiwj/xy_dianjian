@@ -569,6 +569,7 @@ function loadTableByPlace(province, city, unit){
 }
 
 function getPlaceDataUnit(province, city, dtu, persons){
+    var _cityp = {'北京市':1, '上海市':1, '天津市':1, '重庆市':1};
 	function viewPersons(dtp, place){
         items(dtp).forEach(function(p){
             if(!(p[0] in persons))persons[p[0]] = {'value':0, 'place':{}};
@@ -583,7 +584,7 @@ function getPlaceDataUnit(province, city, dtu, persons){
 	}
 
     if(province in dtu){
-        if(city=="" && "persons" in dtu[province]){
+        if((city=="" && "persons" in dtu[province]) || (city in _cityp)){
             viewPersons(dtu[province]["persons"], province);
 		}
         if(city!="" && city in dtu[province]['children']){

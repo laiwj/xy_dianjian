@@ -11,7 +11,7 @@
 	<style type="text/css">
 		.bd{ border: 1px solid #ccc}
 		#view1rtn{border: 1px solid #ccc; padding: 2px 18px;position:absolute;z-index:100; top:25px; cursor: pointer}
-		table tr td:nth-child(4),table tr th:nth-child(4){ text-align: center; }
+		table tr td:nth-child(5),table tr th:nth-child(4){ text-align: center; }
 		table tr th{ border:1px solid #ccc;background-color: #f0f0f2;border:1px solid #ccc }
 
 	</style>
@@ -67,23 +67,6 @@
 		function addPublicTimeSel(){
 			$(public_time_select).html("");
 			addYearMonthList("public_time_select", loadClockData, 'unitsel1');
-			/*
-			$(public_time_select).html("");
-			var dateList = [], id = "phead";
-			var div = '<div style="float:right; margin-right:15px;margin-top: 2px;">', sel1 = '<select id="'+ id + 'sel1">', opt1='',
-					sel2 = '<select id="'+ id + 'sel2">', opt2='';
-			["2015", "2016"].forEach(function(y){
-				range(1,13).forEach(function(m){ dateList.push([y, m]); });
-			});
-			dateList.forEach(function(d){ opt1 += '<option value ="'+ (d[0]+'-'+d[1]+'-1') + '">'+ d[0] + '年' + d[1] + '月' +'</option>'; });
-			opt2 = opt1;
-			//$(public_time_select).append(div + sel2 + opt2 + '</select>' + '</div>');
-			$(public_time_select).append(div + sel1 + opt1 + '</select>' + '</div>');
-			$("#phead" + 'sel1').val(getMonthFirstDay(init_date_month));
-			//$("#phead" + 'sel2').val(getMonthFirstDay(init_date_end));
-			$("#phead" + 'sel1').change(function(d){ if(clickFunc)clickFunc($(this).val()); });
-			//$("#phead" + 'sel2').change(function(d){ if(clickFunc)clickFunc($(this).val()); });
-			*/
 		}
 
 		//---------------------------------------Document Ready----------------------------------------------------
@@ -93,7 +76,8 @@
 				addPublicTimeSel();
 				__select_create = true;
 			}
-			loadClockData(init_unit_clock);
+			var selDate = getLastMonth();
+			loadClockData(init_unit_clock, selDate);
 			//loadIntervalData("view2");
 
 		});
@@ -101,7 +85,7 @@
 		//***********************************************函数区域*****************************************************************
 		function loadClockData(_u, selDate){
 			_u = _u || $("#unitsel1sel1").val();
-			selDate = selDate || getLastMonth();
+			selDate = selDate || $("#datetimepicker").val();
 			var datesel = getDateByMonth(selDate), dateStart = datesel.dateStart, dateEnd = datesel.dateEnd;
 
 			//var datesel = getDateByMonth($("#pheadsel1").val()), //dateEnd = $("#pheadsel2").val();
@@ -114,15 +98,18 @@
 				cout(data);
 				__errText = data.error.text;
 				__dataClock = data;
-				loadClock(__dataClock, _u);
+				loadClock(__dataClock, _u, selDate);
 
 				__myChart1.hideLoading();
 
 			});
 		}
 		//*******版本更新，将异常改为一般异常，正常数据替换成特殊异常
-		function loadClock(data, _unit){
-			var dt1 = [], dt2 = [], dt3 = [], month = 0;
+		function loadClock(data, _unit, _tm){
+			var dt1 = [], dt2 = [], dt3 = [], _tmsp = _tm.split("-");
+			var	month = parseInt(_tmsp[1]);
+			var dayCount =  new Date(parseInt(_tmsp[0]), month, 0).getDate();
+
 			data.error.data.forEach(function(err, i){
 				err.forEach(function(d){
 					var _d = DateSTD(d[1]), _day = _d.getDate(), _m = DateSTM(d[1]);//月份-天， 时间距0点分钟数
@@ -133,7 +120,6 @@
 			data.normal.forEach(function(d){
 				var _d = DateSTD(d[1]), _day = _d.getDate(), _m = DateSTM(d[1]);//月份-天， 时间距0点分钟数
 				dt1.push([_m, _day, d[0], d[3], d[4]]);
-				if(month == 0)month = _d.getMonth();
 			});
 			_unit = _unit || '所有部门';
 			var option = {
@@ -151,8 +137,8 @@
 					axisLabel : { formatter: function(params){ return TimeMTS(params);} },
 				}],
 				yAxis : [{
-					type : 'value', scale : false, min:0, axisLine:{show:true,onZero:false},
-					axisLabel : { formatter: function(params){ return month + "月" + (params + 1) + "日";} } }
+					type : 'value', scale : false, min:0, max:dayCount, axisLine:{show:true,onZero:false},
+					axisLabel : { formatter: function(params){ return params==(dayCount) ? "" :month + "月" + (params + 1) + "日";} } }
 				],
 				series : [
 					{ name:'正常', type:'scatter', symbolSize:4, data: dt1, itemStyle:{normal:{color:"#286090"}} },
@@ -199,7 +185,7 @@
 			dt.forEach(function(d){
 				var v = parseInt((d.value / maxV) * 10), c = getBadgeClass(v);
 				d.value = '<span class="badge '+ c +'">' +  v + '</span>';
-				d.text = Object.keys(d.text).reduce(function(a, b){ a+=b + ":" + d.text[b] + "次  "; return a;  }, "");
+				d.text = Object.keys(d.text).reduce(function(a, b){ a+=b + "(" + d.text[b] + ")  "; return a;  }, "");
 				});
 			return dt;
 		}
@@ -209,8 +195,8 @@
 				{"name":"id", "title":"ID", "visible":false},
 				{"name":"name","title":"姓名","breakpoints":"xs sm"},//,"style":{"width":80,"maxWidth":80}},
 				{"name":"unit", "title":"部门", "breakpoints":"xs sm"},
-				{"name":"value","title":"异常指数"}, //, "type":"number"
-				{"name":"text", "title":"异常情况", "breakpoints":"xs sm", "visible":false},
+				{"name":"text", "title":"异常情况", "breakpoints":"xs sm", "visible":true},
+                {"name":"value","title":"异常指数"}, //, "type":"number"
 			];
 			var ft = $('#'+tbId).footable({
 				"columns": columns, "rows": formatDataTable1(data), "paging": { "size": 7 },

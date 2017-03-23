@@ -74,7 +74,8 @@ $(document).ready(function() {
 		}).on('changeDate', function(e){
 			var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();
 			$("#flowsel1").val();
-			getFlowData('view1', startDate, endDate);
+			var _u = getUnitCurrent();
+			if(_u=='所有部门') getFlowData('view1', startDate, endDate); else  selUnit1(_u);
 		});
 		$('.form_date:eq(0)').datetimepicker('setDate', DateDSTD(init_flow_date_start));
 		$('.form_date:eq(1)').datetimepicker('setDate', DateDSTD(init_flow_date_end));
@@ -106,14 +107,24 @@ $(document).ready(function() {
 				sel2 = '<select id="'+ id + 'tsel2">', sp = ' - ', opt='';
 		for(var i=0;i<25;i++)opt += '<option value ="'+ i +'">'+ i +':00</option>';
 		$("#" + id).append(div + sel1 + opt + '</select>' + sp + sel2 + opt + '</select>' + '</div>');
-		$("#" + id + 'tsel1').val(8);
-		$("#" + id + 'tsel2').val(9);
+		$("#" + id + 'tsel1').val(9);
+		$("#" + id + 'tsel2').val(17);
 		$("#" + id + 'tsel1').change(timeSelClick);
 		$("#" + id + 'tsel2').change(timeSelClick);
 	}
+    function getUnitCurrent(){
+        return $("#flowsel1").val() || "所有部门";
+    }
 	function timeSelClick(){
 		loadFlowDefault();
 	}
+    function getDateSel(dateStart, dateEnd) {
+        var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();
+        dateStart = dateStart || startDate;
+        dateEnd = dateEnd || endDate;
+        return {'dateStart':dateStart, 'dateEnd':dateEnd};
+    }
+
 	//图1获取数据主要代码
 	function getFlowData(id, dateStart, dateEnd, index, _unit){
 		$("#"+id).html("");
@@ -123,13 +134,10 @@ $(document).ready(function() {
 		__view1 = __datazoom_view1.did;
 		__myChart1 = echarts.init(document.getElementById(__view1)).showLoading();
 
-		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
-		dateStart = dateStart || startDate;
-		dateEnd = dateEnd || endDate;
-
-		var adt = {'dateStart':dateStart, 'dateEnd':dateEnd};
+		var sel = getDateSel(dateStart, dateEnd);
+        var adt = {'dateStart':sel.dateStart, 'dateEnd':sel.dateEnd, 'unit':_unit};
 		var key = index ? "get_flow_unit" : "get_flow";
-		if(index)adt['unit'] = _unit;
+		//if(index)adt['unit'] = _unit;
 		ajaxData(key, adt, function(data)
 		{
 			__flow_data = data['data'];
