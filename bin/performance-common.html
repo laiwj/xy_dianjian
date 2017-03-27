@@ -23,9 +23,8 @@
         .key-del{color:red}
         .key-edit{color:#31b0d5}
         tr>td>div.newParent>span.badge{color:#5cb85c; cursor: pointer}
-        div.treeview>ul>li>span.badge:nth-last-child(1){color:#5cb85c }
-        div.treeview>ul>li>span.badge:nth-last-child(2){color:red }
-        div.treeview>ul>li>span.badge:nth-last-child(3){color:#31b0d5 }
+
+        div.treeview>ul>li>span.badge{color:#5cb85c }
 
         th{ text-align: center; height: 30px}
         tr td{ min-width: 40px;  }
@@ -104,7 +103,7 @@
                     </tr>
                     <tr>
                         <td></td><td>名称：</td><td><input type="text" id="edit_name0" class="form-control inputH"></td><td> </td><td>权重：</td>
-                        <td><select id="edit_value0"><option>10%</option><option>20%</option></select></td>
+                        <td><select id="edit_value0"></select></td>
                     </tr>
                     <tr height="18px"><td colspan="6"></td></tr>
 
@@ -121,7 +120,7 @@
                             </select></td><td> </td><td>权重：
                         </td>
                         <td>
-                            <select id="edit_value1"><option>10%</option><option>20%</option></select>
+                            <select id="edit_value1"></select>
                         </td>
                     </tr>
                 </table>
@@ -136,6 +135,24 @@
             <input type="text" id="nodeIdValue" style="display: none" value="<%= nodeId %>" />
         </div>
     </script>
+
+    <script id="tm_edit2" type="text/template">
+    <div style="margin: 20px; width: 400px">
+        <div style="border: 1px solid #ccc; padding:25px 10px; margin-right: 2px">
+            <label class="form-inline">
+                名称：<input type="text" id="edit_name2" class="form-control inputH">
+                <label style="margin-left:30px;">权重：<select id="edit_value2" style="min-width: 80px; height: 25px"></select></label>
+            </label>
+        </div>
+
+        <div style="margin-bottom: 40px; width: 100%; min-height: 30px; clear: both; padding-top: 14px; padding-right: 7px">
+            <div class="floatR">
+                <button type="button" class="btn btn-primary" id="btnAddSubmit2"> 提交 </button>
+            </div>
+        </div>
+        <input type="text" id="nodeIdValue2" style="display: none" value="<%= nodeId %>" />
+    </div>
+</script>
 
     <script language="javascript">
         "use strict";
@@ -180,8 +197,8 @@
         $(document).ready(function() {
 
             //$("#table1>tr>td>div").on('click', 'ul>li>span.badge', clickNodeForOperate);
-
-
+            var t = $("div.treeview ul li span.badge");
+            cout(t.length);
 
         });
 
