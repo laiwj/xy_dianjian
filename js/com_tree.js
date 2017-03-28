@@ -367,17 +367,19 @@ var ViewTree = function (){
         else if(lb=='✕') removeNode(treeId, nodeId, data);
         else if(lb=='✎') editNode(treeId, nodeId, data);
     }
-
-    //表现层：事件，效果等
-    var loadTableStyle = function (){
+    function loadBadgeStyle(){
         //__icons = ['✎', '✕', '✛']
         var titles = ["修改该分类名称或其对应值", "删除该分类及其所有子分类", "在该分类下添加子分类"];
         var colors = ["#31b0d5", "red", "#5cb85c"], indexs = {'✎':0, '✕':1, '✛':2};
         __icons.forEach(function(d, i){
             var $obj = $("#table1").find("span.badge").filter(function(){ return $(this).text() === d});
-            ///$obj.attr("title", titles[indexs[d]]);
-            //$obj.css("color", colors[indexs[d]]);
+            $obj.attr("title", titles[indexs[d]]);
+            $obj.css("color", colors[indexs[d]]);
         });
+    }
+    //表现层：事件，效果等
+    var loadTableStyle = function (){
+        loadBadgeStyle();
 
         $("tr>td>div.newParent>span.badge").attr("title", "增加新的分类");
         $("tr>td>div.newParent>span.badge").unbind('click').on('click', function(e){
@@ -389,6 +391,7 @@ var ViewTree = function (){
         $("#table1>tr>td>div").on('click', 'ul>li>span.badge', clickNodeForOperate);
     };
 
+    /* ------------------------------------------------------------------------------------------------------------- */
     //加载弹出框（添加因素）
     var loadNewFrame = function (treeId, nodeId, isRoot){
         var temp = getFrameData(treeId, nodeId, isRoot), weight = temp.weight, names = temp.names;
@@ -439,11 +442,13 @@ var ViewTree = function (){
             }
         });
     }
+
     //加载弹出框（添加因素）
     var editNode = function (treeId, nodeId, data){
         var tree = ViewTree.__treeview_data[treeId], node = ViewTree.getNodeById(tree, nodeId);
         var nodeValue = node.value || 0, pid = ViewTree.getParentIdByNode(tree, nodeId);
         var temp = getFrameData(treeId, pid, false), weight = temp.weight - nodeValue, names = temp.names;
+        var nature = node.nature || 0;      //是否系统因素
 
         loadColorBox('tm_edit2', '绩效配置修改', treeId, nodeId);
         $("#edit_value2").html("");
@@ -451,8 +456,10 @@ var ViewTree = function (){
             $("#edit_value2").append("<option value='"+ i*10 +"'>"+ i*10 +"%</option><option value='"+ (i*10-5) +"'>"+ (i*10-5) +"%</option>");
         }
         $("#edit_name2").val(node.name);
+        $("#nameOld2").val(node.name);
+        if(nature==1) $("#edit_name2").attr("disabled", true);
 
-        $("#btnAddSubmit").unbind('click').on('click', submitAddNewParentClass);
+        $("#btnAddSubmit2").unbind('click').on('click', submitChangeNode);
 
     };
 
@@ -496,32 +503,19 @@ var ViewTree = function (){
             pid = $("#nodeIdValue").val(),
             level = parseInt(pid)==0 ? 1 : 99;
         var rootId = treeId.substr(treeId.lastIndexOf("p")+1);
-        //cout("--------------------------------------");
-        //cout(__treeview_data);
-        //cout(__treeview_data[treeId]);
 
-        if(eName==""){
-            alert("名称不能为空");
-            return;
-        }
+        if(!checkNodeName(treeId, eName)) return;
 
-        if(IsExistNodeByName(ViewTree.__treeview_data[treeId], eName)){
-            alert("该因素名称已存在，请重新输入");
-            return;
-        }
         if(style==0){
 
-
         }else{
-
 
         }
         var dt = {'userId':10001, 'unitId':unitId, 'style':1, 'nature':parseInt(style), 'parentId': pid,
             'name':eName, 'value':eValue, 'common':ViewTree.__common_style, 'level':level };
 
-        //cout(dt);
         ajaxData('change_performance_setting', dt, function(data){
-            if(data.error==false){
+            if(data.error==false || 1){
                 //根据具体情况选择合适的加载函数
                 ViewTree._after_change(unitId, rootId);
                 //loadLocalTreeData(unitId, rootId);
@@ -529,7 +523,44 @@ var ViewTree = function (){
         });
 
     };
+    var checkNodeName = function(treeId, eName, nameOld){
+        if((nameOld!=undefined) && (nameOld==eName))return true;
+        if(eName==""){
+            alert("名称不能为空");
+            return false;
+        }
+        if(IsExistNodeByName(ViewTree.__treeview_data[treeId], eName)){
+            alert("该因素名称已存在，请重新输入");
+            return false;
+        }
+        return true;
+    };
 
+    /* 可优化，当无改动时不提交 */
+    var submitChangeNode = function (){
+        var eName = $("#edit_name2").val().trim(),
+            eValue = parseInt($("#edit_value2").val().replace("%", "")),
+            nodeId = $("#nodeIdValue2").val(),
+            treeId = $("#treeIdValue2").val(),
+            nameOld = $("#nameOld2").val(),
+            unitId = treeId.match(/tree(\S*)p/)[1];
+        var rootId = treeId.substr(treeId.lastIndexOf("p")+1);
+
+        if(!checkNodeName(treeId, eName, nameOld)) return;
+
+        var dt = {'userId':'admin', 'unitId':unitId, 'name':eName, 'value':eValue, 'nodeId':nodeId };
+
+        cout(dt);
+        ajaxData('update_performance_setting', dt, function(data){
+            if(data.error==false || 1){
+                //根据具体情况选择合适的加载函数
+                ViewTree._after_change(unitId, rootId);
+                //loadLocalTreeData(unitId, rootId);
+            }
+
+        },null, function(){ loadBadgeStyle(); });
+
+    };
     //删除元素
     function removeNodeServer(nodeId, common, unitId, callback){
         showLoading();
@@ -541,8 +572,9 @@ var ViewTree = function (){
             }
             hideLoading();
         }, function(){
+
             //hideLoading();
-        });
+        }, function(){ loadBadgeStyle(); });
     }
 
     //局部刷新

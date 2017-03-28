@@ -81,6 +81,7 @@
 	function ajaxData(key, data, _callbackS, _callbackE, _callbackC){
 		var cbkf = (parseInt(Math.random() * 1000) + 1000).toString();
 		data["session"] = getCookie('session');
+		data['userId'] = getCookie('username')
 		$.ajax({
 			type:'GET', url:serverUrl + '/' + key + '/',
 			//type:'GET', url:'http://118.123.173.86:8000/' + key + '/',
@@ -89,6 +90,10 @@
 			success:function(data)
 			{
 				if(_callbackS)_callbackS(data);
+				if(data.error!=undefined){
+					hideLoading();
+					if(data.error && data.errNum==1)alert("当前用户权限不够，请联系管理员！");
+				};
 			},
 			error:function(data)
 			{
@@ -182,6 +187,7 @@ function ajaxToInput(key, data, viewId){
 	var url = serverUrl + '/' + key + '/';
 	var div = $("<div style='display: none'></div>");
 	var form = $('<form action="' + url + '" method="post"></form>');
+	data['userId'] = getCookie('username');
 	for(var k in data){
 		var ipt = $("<input type='text' name='"+ k +"' value="+ "'' />");
 		form.append(ipt);
