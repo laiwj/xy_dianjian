@@ -91,6 +91,7 @@ var __view_map2 = null;
 var __trip_data_map = {};
 var __trip_data_map_sum = {};
 var __persons = {};
+var __cityP = {'北京市':1, '上海市':1, '天津市':1, '重庆市':1}
 
 $(document).ready(function() {
 
@@ -140,7 +141,7 @@ $(document).ready(function() {
 		__current_view = 1;
 		__current_unit = _u;
 		loadTripImageUnit(__view2, __trip_data, __current_month, _u);
-        loadMapImages(_u)
+        loadMapImages(_u);
 		loadTable2(__trip_data_all, "table-data2", _u)
 	}
     function getUnitCurrent(){
@@ -153,6 +154,8 @@ $(document).ready(function() {
 			$("#unitsel2sel1").val(init_unit_flow);
 		});
 	}
+
+
 	//-------------------------------------------------------------------------------------
 
 	function _loadMap(id){
@@ -208,9 +211,6 @@ $(document).ready(function() {
 			if(_u=='所有部门')__trip_data_all = data['data'];
 			loadTable2(__trip_data_all, "table-data2", "所有部门")
 
-
-
-			cout(__trip_data_all);
             cachePersons(__trip_data_all);
 		});
 	}
@@ -368,6 +368,7 @@ $(document).ready(function() {
 		InitMapViews('view3');
 		var _udt = __trip_data_map.hasOwnProperty(_u) ? __trip_data_map[_u] : {};
 		if(_u=='所有部门')_udt = __trip_data_map_sum = sumUnitData(__trip_data_map);
+
 		var top10 = getTop10(_udt);
 		loadMapMove(__view_map1, top10);
 		if(top10.length==0)top10 = [[['北京市', '北京市'], 0]];
@@ -405,7 +406,7 @@ $(document).ready(function() {
 				data.push([[tp[i].name, ps.name], ps.value]);
 			}
 			//直辖市无市级划分
-            if (tp[i].name in {'北京市':1, '上海市':1, '天津市':1, '重庆市':1}) data[data.length-1][1] = tp[i].value;
+            if (tp[i].name in __cityP) data[data.length-1][1] = tp[i].value;
 		}
 		return data;
 	}
@@ -419,23 +420,41 @@ $(document).ready(function() {
 		/* 数据中直辖市以市的形式出现 */
         var _udt = __trip_data_map.hasOwnProperty(_u) ? __trip_data_map[_u] : {};
         if(_u=='所有部门')_udt = __trip_data_map_sum;
+		cout("----------------------------------------------");
+		cout(_udt);
+		cout(key);
 
         //整理地图所需数据
         if (_udt.hasOwnProperty(key)) {
 			temp = _udt[key];
+			cout(p);
+			cout(p in _cityp);
+			if((p in _cityp || p in __cityP) && !(key in temp.children)){
+				cout("no children");
+				temp.children[key] = {'name':key, value:0};
+			}
+			cout(temp);
+			cout(items(temp.children));
 			dData = items(temp.children).map(function (d) {
 				var c = d[0].replace("市", "");
-				if(maxV<d[1].value)maxV = d[1].value;
 				var _rst = {name: c, value: getProvince(temp.name)['citys'][d[0]][d[0]].concat(d[1].value)};
-				if(p in _cityp){
+				cout("in");
+				cout(p);
+				if((p in _cityp) || (c in _cityp)){
 				    _rst['value'][2] = temp.value;
-                    if(maxV<temp.value)maxV = temp.value;
+					cout('p city');
+                    //if(maxV<temp.value)maxV = temp.value;
                 }
+				if(maxV < _rst['value'][2])maxV = _rst['value'][2];
 				_pcd[c] = _rst['value'][2];
 				return _rst;
 			});
+			if(p in _cityp){
+				//cout(dData);
+			}
 		}
 		if(dData.length==0)dData.push({name:city[0], value:[city[1], city[2], 1]});
+		cout(dData);
 
 		var scaleS = function(v){ return Math.ceil(13 * v / maxV); }
 		// myChart.showLoading();

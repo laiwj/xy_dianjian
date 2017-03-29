@@ -84,15 +84,16 @@
 		data['userId'] = getCookie('username')
 		$.ajax({
 			type:'GET', url:serverUrl + '/' + key + '/',
-			//type:'GET', url:'http://118.123.173.86:8000/' + key + '/',
 			data:data, dataType:'jsonp', jsonpCallback: 'call1back' + cbkf + 'a',
 			crossDomain: true,
 			success:function(data)
 			{
 				if(_callbackS)_callbackS(data);
 				if(data.error!=undefined){
-					hideLoading();
-					if(data.error && data.errNum==1)alert("当前用户权限不够，请联系管理员！");
+					if(data.error && data.errNum==1){
+						hideLoading();
+						alert("当前用户权限不够，请联系管理员！");
+					}
 				};
 			},
 			error:function(data)

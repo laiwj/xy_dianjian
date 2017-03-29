@@ -157,25 +157,26 @@
             showLoading();
             ajaxData('change_performance_system', {'user':10001, 'data':JSON.stringify(data)}, function(dt)
             {
-                var eCount = 0;
-                dt.data.forEach(function(d){
-                    var id = "line"+ d.id;
-                    if(d.error==1){ //错误
-                        HighLightLine(id);
-                        eCount++;
-                    } else{
-                        removeHighLightLine(id);
-                        var sId = d.id;
-                        if(d.id.indexOf("temp")!=-1 && d.lastId>0){ //新插入
-                            cout("-------temp--------");
-                            sId = d.lastId;
-                            changeViewLineId(d.id, sId);
-                            _temp[d.id].id = sId;
+                if(dt.error==false) {
+                    var eCount = 0;
+                    dt.data.forEach(function (d) {
+                        var id = "line" + d.id;
+                        if (d.error == 1) { //错误
+                            HighLightLine(id);
+                            eCount++;
+                        } else {
+                            removeHighLightLine(id);
+                            var sId = d.id;
+                            if (d.id.indexOf("temp") != -1 && d.lastId > 0) { //新插入
+                                sId = d.lastId;
+                                changeViewLineId(d.id, sId);
+                                _temp[d.id].id = sId;
+                            }
+                            __data[sId] = _temp[d.id];
                         }
-                        __data[sId] = _temp[d.id];
-                    }
-                });
-                if(eCount>0)alert("部分数据（高亮标识的行）输入有误，请检查后重新提交!");
+                    });
+                    if (eCount > 0)alert("部分数据（高亮标识的行）输入有误，请检查后重新提交!");
+                }
             }, null, function(){
                 hideLoading();
             });

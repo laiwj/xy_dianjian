@@ -78,20 +78,22 @@ var CellData = function(){
         showLoading();
         ajaxData(CellData.__change_key, {'user':10001, 'dataTime':selDate, 'data':JSON.stringify(data)}, function(dt)
         {
-            var eCount = 0;
-            dt.data.forEach(function(d){
-                var id="value"+ d.pid + "p" + d.eid;
-                if(d.error==1){ //错误
-                    HighLightCell(id);
-                    eCount++;
-                } else{
-                    removeHighLightCell(id);
-                    if($("#"+id).length!=1)return;
-                    CellData.__data[d.pid][d.eid] = {'value':$("#"+id).val(), 'src':0};
-                }
-            });
+            if(dt.error==false) {
+                var eCount = 0;
+                dt.data.forEach(function (d) {
+                    var id = "value" + d.pid + "p" + d.eid;
+                    if (d.error == 1) { //错误
+                        HighLightCell(id);
+                        eCount++;
+                    } else {
+                        removeHighLightCell(id);
+                        if ($("#" + id).length != 1)return;
+                        CellData.__data[d.pid][d.eid] = {'value': $("#" + id).val(), 'src': 0};
+                    }
+                });
 
-            if(eCount>0)alert("部分数据（高亮标识的单元格）输入有误，请检查后重新提交!");
+                if (eCount > 0)alert("部分数据（高亮标识的单元格）输入有误，请检查后重新提交!");
+            }
         }, null, function(){
             hideLoading();
         });
