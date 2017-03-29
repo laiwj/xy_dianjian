@@ -56,13 +56,13 @@ var __myChart1 = null;
 var __current = 0;
 var __flow_data = null;
 var __table_create = false;
-var __current_month = 0;
 var __select_create = false;
 var __datazoom_view1 = null;
 var __view_level = 0;
 
 $(document).ready(function() {
 	var days = [ "一", "二", "三", "四", "五", "六", "日" ].map(function(d){ return "星期" + d; });
+	days.push("全部");
 	addTimeSel("flow");
 	Init();
 	getFlowData('view1');
@@ -141,18 +141,42 @@ $(document).ready(function() {
 		ajaxData(key, adt, function(data)
 		{
 			__flow_data = data['data'];
+			__flow_data[7] = getZoomFlowSumData(__flow_data);
+			cout(__flow_data);
+
 			loadFlowDefault();
 			if(!__table_create){
 				createTable("view3");
 				setTableHead("view3", []);
 				__table_create = true;
 			}
+
+			/* DataZoom趋势阴影数据 */
 			var wkValue = getWeekdayValueSum(__flow_data);
+			wkValue[wkValue.length-1] = getSecondMax(wkValue);
 			__datazoom_view1.setData(wkValue);
 			setTableData("view3", []);
 			if(__myChart1)__myChart1.hideLoading();
 		});
 	}
+
+	/* 获取全部数据 */
+	function getZoomFlowSumData(dts){
+		var data = {};
+		for(var w=0; w<7; w++) {
+			for (var i = 0; i < 24; i++) {
+				if(!(w in dts))continue;
+				if(!(i in dts[w]))continue;
+				if(!(i in data))data[i] = {};
+				for (var u in dts[w][i]) {
+					if (!(u in data[i]))data[i][u] = { "温江":0, "成都":0};
+					for (var src in dts[w][i][u])data[i][u][src] += dts[w][i][u][src];
+				}
+			}
+		}
+		return data;
+	}
+
 	//统计一周各天流量
 	function getWeekdayValueSum(data){
 		return Object.keys(data).map(function(m){
@@ -178,11 +202,11 @@ $(document).ready(function() {
 				for (var src in __flow_data[weekday][i][u])_dt[u][src] += __flow_data[weekday][i][u][src];
 			}
 		}
-		//cout(_dt);
 		var units = Object.keys( _dt );
 		var udata = cls.map(function(d, i){
 			return units.map(function(u){ return _dt[u][lsSrc[i]]; } )
 		});
+
 		var ses = units.map(function(d, i){ return {
 			barWidth:60, name:d, type:'bar', stack: '总量', data:[udata[0][i], udata[1][i]],
 			itemStyle : { normal: {label : {show: true, position: 'insideRight'}}},
@@ -214,8 +238,8 @@ $(document).ready(function() {
 	//---------------------------------------------------------------------------------------------
 	function listenZoom(pos, time){
 		//var lsp = getProjectByTime(time[0][0], time[1][0]);
-		var _tp = ['一', '二', '三', '四', '五', '六', '日'].reduce(function(a, b, i){ a[b]=i; return a;}, {})
-		var d = time[0][0].substr(2);
+		var _tp = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日', '全部'].reduce(function(a, b, i){ a[b]=i; return a;}, {})
+		var d = time[0][0];
 		d = d in _tp ? _tp[d] : 0;
 		__current = d;
 		loadFlowDefault();;

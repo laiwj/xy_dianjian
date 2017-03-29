@@ -299,3 +299,17 @@ function HideLoading(id) {
 	echarts.init(obj).clear();
 	obj.innerHTML = "<h3 style='margin: 30px'>暂无数据</h3>";
 }
+
+
+
+/* 获取数组中第二大的元素 */
+function getSecondMax(ary){
+	var a = ary[0]<ary[ary.length-1] ? ary[0] : [ary.length-1], b=a;
+	for(var i=0; i<ary.length; i++){
+		if(a<ary[i]){
+			b = a;
+			a = ary[i];
+		}
+	}
+	return b;
+}

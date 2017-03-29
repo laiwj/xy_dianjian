@@ -140,6 +140,7 @@ $(document).ready(function() {
 	function selUnit2(_u){
 		__current_view = 1;
 		__current_unit = _u;
+		$("#unitsel2sel1").val(_u);
 		loadTripImageUnit(__view2, __trip_data, __current_month, _u);
         loadMapImages(_u);
 		loadTable2(__trip_data_all, "table-data2", _u)
@@ -164,6 +165,7 @@ $(document).ready(function() {
 		$("#"+ id).css("background-color", "transparent");
 		__datazoom_view2 = new Zoom(id);
 		var lsm = range(0, 12).map(function(d){ return (d+1) + '月'; });
+		lsm.push("全部");
 		var lsd = lsm.map(function(d){ return [d, 0]; });
 		__datazoom_view2.loadZoom(lsd, _listenZoomMap1);
 		__view2 = __datazoom_view2.did;
@@ -174,7 +176,10 @@ $(document).ready(function() {
 	function _listenZoomMap1(pos, val){
 		if(__metux_view2)return; //防止重复触发事件
 		__myChart2 = echarts.init(document.getElementById(__view2)).showLoading();
-		__current_month = parseInt(val[0][0].toString().replace("月", ""))-1;
+		var key = val[0][0].toString().replace("月", "");
+		if(key=='全部')key = "13";
+		__current_month = parseInt(key)-1;
+
 		if(__current_view==0 || __current_unit=="")loadTripImageAll(__view2, __trip_data, __current_month);
 		else loadTripImageUnit(__view2, __trip_data, __current_month, __current_unit);
 		if(__myChart2)__myChart2.hideLoading();
@@ -192,12 +197,32 @@ $(document).ready(function() {
 		ajaxData('get_trip', adt, function(data)
 		{
 			__trip_data = data['trip'];
+			__trip_data[12] = getTripZoomSumData(__trip_data);
+			cout(__trip_data);
+
 			loadTripDefault();
 
 			__metux_view2 = false;
 			if(__myChart2)__myChart2.hideLoading();
 		});
 	}
+
+	/* 获取全部数据 */
+	function getTripZoomSumData(dts){
+		var data = {};
+		for(var m=0; m<12; m++) {
+			if(!(m in dts))continue;
+			for (var u in dts[m]) {
+				if(!(u in data))data[u] = {};
+				for (var p in dts[m][u]) {
+					if (!(p in data[u]))data[u][p] = 0;
+					data[u][p] += dts[m][u][p];
+				}
+			}
+		}
+		return data;
+	}
+
 	//表格数据
 	function getTripDataEx(dateStart, dateEnd, _u){
 		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
@@ -231,6 +256,8 @@ $(document).ready(function() {
 			mall.push(Object.keys(d).length);
 			if(Object.keys(d).length>0)months.push(i);
 		} );
+		cout(months[0]);
+
 		__datazoom_view2.setData(mall);
 		loadTripImageAll(__view2, __trip_data, months[0]);
 		if(__myChart2)__myChart2.hideLoading();
@@ -391,6 +418,7 @@ $(document).ready(function() {
 		}
 		return sumD;
 	}
+
 	function getTop10(_dt){
 		var data = [];
 		var tp = values(_dt).sort(function(a, b){ return b.value- a.value; });
@@ -399,7 +427,7 @@ $(document).ready(function() {
 			if(tp[i].name=="四川省" || tp[i].name=="国外" )continue;
 			if(Object.keys(tp[i].children).length==0){
 				var p = getCapital(tp[i].name);
-				data.push([[p, p], tp[i].value]);
+				data.push([[tp[i].name, p], tp[i].value]);
 			}
 			else{
 				var ps = values(tp[i].children).sort(function(a, b){ return b.value- a.value; })[0];
@@ -420,41 +448,26 @@ $(document).ready(function() {
 		/* 数据中直辖市以市的形式出现 */
         var _udt = __trip_data_map.hasOwnProperty(_u) ? __trip_data_map[_u] : {};
         if(_u=='所有部门')_udt = __trip_data_map_sum;
-		cout("----------------------------------------------");
-		cout(_udt);
-		cout(key);
 
         //整理地图所需数据
         if (_udt.hasOwnProperty(key)) {
 			temp = _udt[key];
-			cout(p);
-			cout(p in _cityp);
 			if((p in _cityp || p in __cityP) && !(key in temp.children)){
-				cout("no children");
 				temp.children[key] = {'name':key, value:0};
 			}
-			cout(temp);
-			cout(items(temp.children));
 			dData = items(temp.children).map(function (d) {
 				var c = d[0].replace("市", "");
 				var _rst = {name: c, value: getProvince(temp.name)['citys'][d[0]][d[0]].concat(d[1].value)};
-				cout("in");
-				cout(p);
 				if((p in _cityp) || (c in _cityp)){
 				    _rst['value'][2] = temp.value;
-					cout('p city');
-                    //if(maxV<temp.value)maxV = temp.value;
+					//if(maxV<temp.value)maxV = temp.value;
                 }
 				if(maxV < _rst['value'][2])maxV = _rst['value'][2];
 				_pcd[c] = _rst['value'][2];
 				return _rst;
 			});
-			if(p in _cityp){
-				//cout(dData);
-			}
 		}
 		if(dData.length==0)dData.push({name:city[0], value:[city[1], city[2], 1]});
-		cout(dData);
 
 		var scaleS = function(v){ return Math.ceil(13 * v / maxV); }
 		// myChart.showLoading();
@@ -504,6 +517,7 @@ function loadMapMove(id, _dt) {
 	var pData = _dt.map(function(d){
 		return {fromName:'成都', toName:d[0][1], coords:[[104.07, 30.67], getProvince(d[0][0])['citys'][d[0][1]][d[0][1]]]};
 	});
+
 	var dData = _dt.map(function(d){
 		var c = d[0][1].replace("市", "");
 		_pcd[c] = d[1];
@@ -576,14 +590,15 @@ function loadTableByPlace(province, city, unit){
 		if(!(p in __persons))continue;
 		var targets = [];
 		for(var plc in persons[p].place){
-            targets.push(plc+"("+ Object.keys(persons[p].place[plc])[0] +")");
+			var keys = [], dates = Object.keys(persons[p].place[plc]), len = dates.length > 3 ? 3 : dates.length;
+			for(var i=0; i<len; i++) keys.push(dates[i]);
+			targets.push(plc+"("+ keys.join(" | ") +")");
+			/* 默认最多显示三个日期 */
+            //targets.push(plc+"("+ Object.keys(persons[p].place[plc])[0] +")");
 		}
-		//var tp = Object.keys(persons[p].place);
 	    data.push({'id':p, 'name':__persons[p].name, 'unit':__persons[p].unit, 'targets':targets.join(","), 'counts':persons[p].value });
 	}
 	_loadTable(data, "table-data2", unit);
-	cout(persons);
-
 
 }
 
