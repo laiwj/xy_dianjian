@@ -221,13 +221,20 @@ $(document).ready(function() {
 		var nodes = _nodes.map(function(d, i){
 			return { id: d[0], name:d[3], symbolSize:10, category:d[2], value:10,
 				label:{ normal: { show: d[4] < fltValue }}, itemStyle: null
-			}	;
+			};
 		});
-		var debug_c = getQueryString('c');
-		if(debug_c && ['red', 'blue', 'green', 'yellow', 'black', 'gray', 'Pink'].indexOf(debug_c)==-1)debug_c = '#'+debug_c
+		var debug_c = getQueryString('c'), debug_w = getQueryString('w');
+		if(debug_c && ['red', 'blue', 'green', 'yellow', 'black', 'gray', 'Pink'].indexOf(debug_c)==-1)debug_c = '#'+debug_c;
+		var maxW = 50;
+		if(_links.length<250)maxW = _links.reduce(function(a, b){ return a>b[2] ? a : b[2]}, 0);	/* 最大连边 */
+		var cache_linkw = {};
 		var links = _links.map(function(d){
 			var lk = { source:d[0], target:d[1]};
-			if(debug_c)lk['lineStyle'] = {normal:{color:debug_c}};
+			var w = parseInt(d[2]/maxW*3)+1;
+			cache_linkw[lk.source + "|" + lk.target] = d[2];
+			cache_linkw[lk.target + "|" + lk.source] = d[2];
+			if(debug_w!=undefined)w=parseInt(debug_w);
+			if(debug_c)lk['lineStyle'] = {normal:{color:debug_c, width:w<5 ? w : 5}};
 			return lk;
 		});
 		var c = __printColor;
@@ -235,6 +242,7 @@ $(document).ready(function() {
 		var option = {
 			title: { text: '员工关系网络图', subtext: '电建集团', top: 'bottom', left: 'right' },
 			tooltip: { formatter:function(pm){ if(!pm.data)return;
+				if('source' in pm.data) return "边权重:" + cache_linkw[pm.data.source + "|" + pm.data.target];
 				if(undefined==pm.data.name)return;
 				return ($.isEmptyObject(_lsU) || !(pm.data)) ? pm.data.name : (_lsU[pm.data.category] + '<br />' + pm.data.name); }
 			},
