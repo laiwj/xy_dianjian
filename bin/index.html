@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="../css/public.css" type="text/css" />
 
 </head>
+
 <body>
 <div class="app app-header-fixed" id="app">
   <!-- navbar -->
@@ -159,7 +160,7 @@
         <!-- aside footer -->
         <div class="wrapper m-t">
           <div class="text-center-folded">
-            <span class="pull-right pull-none-folded">60%</span>
+            <span class="pull-right pull-none-folded">95%</span>
             <span class="hidden-folded font-12" translate="aside.MILESTONE">数据完整度</span>
           </div>
           <div class="progress progress-xxs m-t-sm dk">
@@ -167,7 +168,7 @@
             </div>
           </div>
           <div class="text-center-folded">
-            <span class="pull-right pull-none-folded">35%</span>
+            <span class="pull-right pull-none-folded">90%</span>
             <span class="hidden-folded" translate="aside.RELEASE">Release</span>
           </div>
           <div class="progress progress-xxs m-t-sm dk">
@@ -183,7 +184,7 @@
 
   <!-- content -->
 
-  <div id="frame1" class="app-content m-a" style="padding-right: 10px">
+  <div id="frame1" class="app-content m-a" style="padding-right: 10px; ">
     <!-- head end here -->
 
 
@@ -195,6 +196,7 @@
   <!-- / aside right -->
 
   <!-- footer -->
+
   <div class="app-footer wrapper b-t bg-light">
     <span class="pull-right">1.0.0 <a href="#app" class="m-l-sm text-muted"><i class="fa fa-long-arrow-up"></i></a></span>
     &copy; 2014 Copyright. More Products <a href="http://www.shulianxunying.com/" target="_blank" title="官方网站">Hire Big Data</a> - Collect from <a href="#/" title="网页模板" target="_blank"> 数联寻英.</a>
@@ -236,6 +238,9 @@
     $("<div></div>").load(target + ".html", function(){
       $("#frame1").html("");
       $("#frame1").html(this.innerHTML.match(/<xmp>([\s\S]*?)<\/xmp>/)[1]);
+      //$("#frame1").append("<div class='app-footer wrapper bg-light' style='margin-bottom: 80px'>Hello ..</div>");
+      $("#frame1").append("<div class='app-footer wrapper' style='margin-bottom: 33px; padding: 10px 3px 0px 10px; '>" +
+              "<div class=' alert alert-info' style='padding-left: 5px'>【使用说明】：</div></div>");
     });
   }
 
