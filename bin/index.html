@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>数联寻英人力资源分析平台</title>
+  <title>人力资源大数据精细化管理平台 - 中国电建成都勘测设计研究院</title>
   <meta name="description" content="app, web app, responsive, responsive layout, admin, admin panel, admin dashboard, flat, flat ui, ui kit, AngularJS, ui route, charts, widgets, components" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -199,7 +199,7 @@
 
   <div class="app-footer wrapper b-t bg-light">
     <span class="pull-right">1.0.0 <a href="#app" class="m-l-sm text-muted"><i class="fa fa-long-arrow-up"></i></a></span>
-    &copy; 2014 Copyright. More Products <a href="http://www.shulianxunying.com/" target="_blank" title="官方网站">Hire Big Data</a> - Collect from <a href="#/" title="网页模板" target="_blank"> 数联寻英.</a>
+    &copy; 2017 Copyright. More Products <a href="http://www.shulianxunying.me/" target="_blank" title="官方网站">Hire Big Data</a> - Collect from <a href="#/" title="网页模板" target="_blank"> 数联寻英.</a>
   </div>
   <!-- / footer -->
 
@@ -209,6 +209,7 @@
 <script src="../js/jquery.min.js"></script>
 <script src="../js/ejs.js"></script>
 <script src="../js/public.js"></script>
+<script src="../js/config-help.js"></script>
 <script src="../js/networky.js"></script>
 <script type="text/javascript" src="../js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
 <script type="text/javascript" src="../js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
@@ -238,9 +239,13 @@
     $("<div></div>").load(target + ".html", function(){
       $("#frame1").html("");
       $("#frame1").html(this.innerHTML.match(/<xmp>([\s\S]*?)<\/xmp>/)[1]);
-      //$("#frame1").append("<div class='app-footer wrapper bg-light' style='margin-bottom: 80px'>Hello ..</div>");
+
+      var helpTxt = getHelp();
+      var help = "【使用说明】：" + helpTxt[target];
       $("#frame1").append("<div class='app-footer wrapper' style='margin-bottom: 33px; padding: 10px 3px 0px 10px; '>" +
-              "<div class=' alert alert-info' style='padding-left: 5px'>【使用说明】：</div></div>");
+              "<div class=' alert alert-info' style='font-family: 楷体;color:blue;font-size: 14px;padding-left: 5px;'>"+ help +"</div></div>");
+
+
     });
   }
 
@@ -249,8 +254,8 @@
     var url= window.location.href;
     url = url.substring(0, url.lastIndexOf('.html') + 5);
     if(!checkPower() && (target in __limit)){
-      alert('提示：当前登录账户没有权限访问该页面，请联系管理员！');
-      return;
+      //alert('提示：当前登录账户没有权限访问该页面，请联系管理员！');
+      //return;
     }
     window.location.href = url + "?key=" + target;
   }
@@ -283,7 +288,7 @@
       ];
       var datas = [{name:"系统设置", icon:'wrench text-success', id:'p_data', chlidren:[
         {name:'网络访问自定义', url:'setting-time'},
-        {name:'一般设置', url:'setting-time'}
+        //{name:'一般设置', url:'setting-time'}
       ]}];
 
       var tm_menu = $("#tm_menu1").html();

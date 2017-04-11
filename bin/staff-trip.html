@@ -91,7 +91,8 @@ var __view_map2 = null;
 var __trip_data_map = {};
 var __trip_data_map_sum = {};
 var __persons = {};
-var __cityP = {'北京市':1, '上海市':1, '天津市':1, '重庆市':1}
+var __cityP = {'北京市':1, '上海市':1, '天津市':1, '重庆市':1};
+var __cityP2 = {'北京':1, '上海':1, '天津':1, '重庆':1};
 
 $(document).ready(function() {
 
@@ -558,7 +559,7 @@ function loadMapMove(id, _dt) {
 	//cout(option1);
 	__myChart3P = Init3(option1, id);
 	__myChart3P.on('click', function(p){
-		if(p.componentType!='geo')return;
+		if(p.componentType!='geo' && !(p.name in __cityP2))return;
 		var unit = getUnitCurrent();
 		showProvince(__view_map2, p.name, unit);
 
