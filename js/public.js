@@ -24,8 +24,8 @@
 
 	//var serverIp = "http://10.101.1.177";
 	//var serverIp = "http://118.123.173.86";
-	//var serverIp = "http://10.101.1.119";
-	var serverIp = "http://192.168.102.198";
+	var serverIp = "http://10.101.1.119";
+	//var serverIp = "http://192.168.102.198";
 
 	var serverPort = 8000;
 	var serverUrl = serverIp + ":" + serverPort;

@@ -1,0 +1,100 @@
+<xmp>
+
+    <link href="../css/bootstrap-theme.min.css" rel="stylesheet">
+    <!-- Prism -->
+    <link href="../css/prism.css" rel="stylesheet">
+    <link href="../css/ladda-themeless.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+    <script src="../js/html5shiv.min.js"></script>
+    <script src="../js/respond.min.js"></script>
+    <![endif]-->
+    <style type="text/css">
+
+    </style>
+
+
+    <div class="m-sm bg-main">
+        <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto">
+            <div class="col col-sm-12" style="margin-bottom: 45px">
+                <div class="w-full">
+                    <div class="title" id="unitsel2">网络访问分类设置</div>
+                    <div id="view1" style="width: 100%;">
+
+
+
+
+                    </div>
+                </div>
+                <div class="panel panel-default" style="margin-bottom: 50px">
+                    <div class="panel-body">
+                        <button type="button" class="btn btn-warning floatR" style="margin-left: 30px" id="tbSubmit">保存设置</button>
+                        <button type="button" class="btn btn-default floatR">取消更改</button>
+                    </div>
+                    <div class="panel-footer">*所有改动保存后才能生效</div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <script id="tm_word1" type="text/html">
+        <div id="tbMaintd<%= id %>" class="alert-info" style="min-width: 50px; width: auto;display:inline-block; margin-right: 5px; margin-bottom: 5px">
+            <button type="button" class="close delWord" title="删除该关键词" data-dismiss="alert" aria-hidden="true">&times;</button><%= name %>
+        </div>
+    </script>
+
+    <script src="../js/echarts.min.js"></script>
+    <script src="../js/bootstrap-3.1.1.min.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/prism.js"></script>
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <script type="text/javascript" src="../js/jquery.colorbox-min.js" ></script>
+
+    <script language="javascript">
+        "use strict";
+
+        var __tempc = null;
+
+        $(document).ready(function() {
+
+            $("#tbSubmit").on('click', loadSubmit);
+
+            Init();
+
+            function Init() {
+                $('.form_date').remove();
+
+                loadshots();
+
+                //$("#modalSelOk").on('click', selOK);
+
+            }
+
+            function loadshots(){
+                showLoading();
+                ajaxData('get_network_config', {'userId':10001}, function(data)
+                {
+                    cout(data);
+
+
+
+
+                }, null, function(){ hideLoading(); });
+            }
+
+        });
+
+
+
+
+
+
+
+
+
+    </script>
+</xmp>
