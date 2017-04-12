@@ -53,6 +53,7 @@
 		var __errText = [];
 		var __interval_data = [];
 		var __dataClock = {};
+		var __cardDetail = {};
 
 		//----------------------加载部门信息
 		function loadUnitList(){
@@ -103,6 +104,10 @@
 				__myChart1.hideLoading();
 
 			});
+			ajaxData('get_clock_detail', adt, function(data){
+				__cardDetail = data;
+			});
+
 		}
 		//*******版本更新，将异常改为一般异常，正常数据替换成特殊异常
 		function loadClock(data, _unit, _tm){
@@ -122,12 +127,27 @@
 				dt1.push([_m, _day, d[0], d[3], d[4]]);
 			});
 			_unit = _unit || '所有部门';
+
+			/* 获取详细行为轨迹 */
+			function getTooltip(p){
+				var _month = $("#datetimepicker").val(), m = _month.split("-");
+				var day = m[0] + "-" + parseInt(m[1]) + "-" + p.data[1], person = p.data[2];
+				var card = {'door_in':'进门', 'door_out':'出门', 'door_attend':'考勤'};
+				if((person in __cardDetail) && (day in __cardDetail[person])){
+					var history = __cardDetail[person][day].map(function(d){
+						return TimeFormat(d[0].split(" ")[1]) + " : " + card[d[1]];
+					});
+					return "<br />日期："+ day +"<br /><br />行为轨迹：<br />" + history.join("<br />");
+				}
+				return "";
+			}
 			var option = {
 				title : { text: '打卡时间分布', subtext: _unit, x:30 },
 				tooltip : { trigger: 'item', formatter:function(p) {
 					if (p.data.length == 5)
 						return p.data[4] + "<br />" + "正常" + "<br />" + (p.data[3] == 0 ? "上" : "下") + "班时间：" + TimeMTS(p.data[0]);
-					return p.data[4] + "<br />" + "异常：" + __errText[p.data[5]] + "<br />时间：" + TimeMTS(p.data[0]);
+					var html = getTooltip(p);
+					return p.data[4] + "<br />" + "异常：" + __errText[p.data[5]] + "<br />时间：" + TimeMTS(p.data[0]) + html;
 				}},
 				legend: { data:['正常','异常','特定异常'] },
 				grid:{x:55, x2:15},

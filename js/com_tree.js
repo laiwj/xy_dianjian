@@ -439,7 +439,8 @@ var ViewTree = function (){
                 $("#cboxWrapper").css("border", "5px solid #bbb");
                 $("#cboxWrapper").css("background-color", "#bbb");
                 $("#cboxClose").css("margin", "-5px 10px 10px 0px");
-            }
+            },
+            onCleanup:function(){ loadBadgeStyle(); }
         });
     }
 

@@ -24,7 +24,9 @@
 
 	//var serverIp = "http://10.101.1.177";
 	//var serverIp = "http://118.123.173.86";
-	var serverIp = "http://10.101.1.119";
+	//var serverIp = "http://10.101.1.119";
+	var serverIp = "http://192.168.102.198";
+
 	var serverPort = 8000;
 	var serverUrl = serverIp + ":" + serverPort;
 
@@ -72,11 +74,13 @@
 	function DateSTDS(str){ return str.split(" ")[0]; }
 	function TimeT(str){ var sp = str.split(":"); return new Date(0, 0, 0, parseInt(sp[0]), parseInt(sp[1]), 0); }
 	function TimeF(date){ return date.getHours() + ":" + date.getMinutes(); }
+	function TimeFormat(str){ var sp = str.split(":"); return format0(sp[0]) + ":" + format0(sp[1]) + ":" + format0(sp[2]);  }
 	function TimeSTM(str){ var sp = str.split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); }
 	function TimeMTS(m){
 		var h = parseInt(m/60), m = parseInt(m % 60), tm = h + ":" + (m>9 ? m : ("0" + m));
 		return m<0 || h>24 ? "" : tm;
 	}
+	function format0(m){ return (parseInt(m)>9 ? m : ("0" + m));	}
 
 	function ajaxData(key, data, _callbackS, _callbackE, _callbackC){
 		var cbkf = (parseInt(Math.random() * 1000) + 1000).toString();
@@ -123,6 +127,8 @@
 	function hideLoading(){
 		$.colorbox.close();
 	}
+
+/*
 	function getNames(count){
 		var all = [], names = {};
 		var temp1 = ['赵','钱','孙','李','周','吴','郑','王','冯','陈','楚','卫','刘','何'];
@@ -140,7 +146,7 @@
 		}
 		return all;
 	}
-
+*/
 
 //---------------------------------一般通用函数--------------------------------------------------
 function addUnitSel(id, _unit, clickFunc){
