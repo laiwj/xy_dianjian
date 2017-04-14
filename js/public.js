@@ -8,9 +8,6 @@
 	var init_network_date_end = "2017-02-28";
 	var init_people_date_start = "2016-04-13";
 	var init_people_date_end = "2016-11-20";
-	var init_date_start = "2015-10-02";
-	var init_date_end = "2015-12-13";
-	var init_date_month = "2016-5-1";
 	var init_unit_clock = "数字工程与信息技术中心";
 	var init_unit_common = "-1";
 	var init_unit_online = "数字工程与信息技术中心";
@@ -22,9 +19,9 @@
 	var init_unit_performance = "10425";
 	var Units = { 10421:"征地移民处", 10426:"水工处", 10406:"机电处" };
 
-	//var serverIp = "http://10.101.1.177";
+	var serverIp = "http://10.101.1.177";
 	//var serverIp = "http://118.123.173.86";
-	var serverIp = "http://10.101.1.119";
+	//var serverIp = "http://10.101.1.119";
 	//var serverIp = "http://192.168.102.198";
 
 	var serverPort = 8000;
@@ -85,7 +82,7 @@
 	function ajaxData(key, data, _callbackS, _callbackE, _callbackC){
 		var cbkf = (parseInt(Math.random() * 1000) + 1000).toString();
 		data["session"] = getCookie('session');
-		data['userId'] = getCookie('username')
+		data['userId'] = getCookie('username');
 		$.ajax({
 			type:'GET', url:serverUrl + '/' + key + '/',
 			data:data, dataType:'jsonp', jsonpCallback: 'call1back' + cbkf + 'a',
@@ -126,6 +123,9 @@
 	}
 	function hideLoading(){
 		$.colorbox.close();
+	}
+	function refresh(){
+		window.location.reload();
 	}
 
 /*
