@@ -19,27 +19,156 @@
 	var init_unit_performance = "10425";
 	var Units = { 10421:"征地移民处", 10426:"水工处", 10406:"机电处" };
 
-	var serverIp = "http://10.101.1.177";
+	//var serverIp = "http://10.101.1.177";
 	//var serverIp = "http://118.123.173.86";
 	//var serverIp = "http://10.101.1.119";
-	//var serverIp = "http://192.168.102.198";
+	var serverIp = "http://192.168.102.198";
 
 	var serverPort = 8000;
 	var serverUrl = serverIp + ":" + serverPort;
 
+	var P = new PublicModel();
+	InitPublic();
 
+	function InitPublic(){
+		var d = P.getLastMonthDate();
+		init_flow_date_start = d.dateStart;
+        init_flow_date_end = d.dateEnd;
+        init_trip_date_start = d.dateStart;
+        init_trip_date_end = d.dateEnd;
+        init_network_date_start = d.dateStart;
+        init_network_date_end = d.dateEnd;
+		//cout(d);
 
-	function getQueryString(name) { 
-		var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
-		var r = window.location.search.substr(1).match(reg); 
-		if (r != null) return unescape(r[2]); return null; 
 	}
-	function range(_min, _max){ var rt=[]; for(var i=_min;i<_max;i++)rt.push(i); return rt; }
+	/* 通用函数封装，兼容老版本 */
+	function PublicModel(){
+		var $this = this;
+		this.getLastMonth = function(){
+            var _date = new Date(), y = _date.getFullYear(), m = _date.getMonth() + 1;
+            if(m==1){ y = y - 1; m = 13; }
+            m--;
+            return y + "-" + (m>9 ? m : ("0"+m));
+		};
+        this.getDateByMonth = function(date){ var sp = date.split("-");
+            return {'dateStart': sp[0] + '-' + sp[1] + '-1',
+                'dateEnd': sp[0] + '-' + sp[1] + '-' + (new Date(parseInt(sp[0]), parseInt(sp[1]),0)).getDate()}
+        };
+		this.getLastMonthDate = function(){
+			return $this.getDateByMonth($this.getLastMonth());
+		};
+
+		this.getQueryString = function(name){
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return unescape(r[2]); return null;
+        };
+
+        this.range = function(_min, _max){ var rt=[]; for(var i=_min;i<_max;i++)rt.push(i); return rt; };
+        this.values = function(obj){ return Object.keys(obj).map(function(k){ return obj[k]; })};
+        this.items = function(obj){ return Object.keys(obj).map(function(k){ return [k, obj[k]]; })};
+
+        this.GetMonthNow = function(){ return  new Date().format("yyyy-MM"); };
+        this.DateDTS = function(date) { return date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds(); };
+        this.DateDTM = function(date) { return date.getHours() * 60 + date.getMinutes(); };
+        this.DateSTM = function(str){ var sp = str.split(" ")[1].split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); };
+        this.DateSTD = function(str){ var sp = str.split(/-| |:/); return new Date(parseInt(sp[0]), parseInt(sp[1]), parseInt(sp[2]),
+            parseInt(sp[3]), parseInt(sp[4]), parseInt(sp[5])); };
+        this.DateDSTD = function(str){ var sp = str.split(/-| |:/); return new Date(parseInt(sp[0]), parseInt(sp[1])-1, parseInt(sp[2])); };
+        this.DateSTDS = function(str){ return str.split(" ")[0]; };
+        this.TimeT = function(str){ var sp = str.split(":"); return new Date(0, 0, 0, parseInt(sp[0]), parseInt(sp[1]), 0); };
+        this.TimeF = function(date){ return date.getHours() + ":" + date.getMinutes(); };
+        this.TimeFormat = function(str){ var sp = str.split(":"); return format0(sp[0]) + ":" + format0(sp[1]) + ":" + format0(sp[2]);  };
+        this.TimeSTM = function(str){ var sp = str.split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); };
+        this.TimeMTS = function(m){
+            var h = parseInt(m/60), m = parseInt(m % 60), tm = h + ":" + (m>9 ? m : ("0" + m));
+            return m<0 || h>24 ? "" : tm;
+        };
+        this.format0 = function(m){ return (parseInt(m)>9 ? m : ("0" + m));	};
+
+
+		//-------------------------------------------cookie相关-----------------------------------------------
+        this.setCookie = function(name,value, hour)
+        {
+            hour = hour || 2;
+            var exp = new Date();
+            exp.setTime(exp.getTime() + hour * 60*60*1000);
+            document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+        };
+        this.getCookie = function(name)
+        {
+            var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+            if(arr=document.cookie.match(reg))
+                return unescape(arr[2]);
+            else
+                return null;
+        };
+        this.GetCookie = function(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        };
+        this.delCookie = function(name)
+        {
+            var exp = new Date();
+            exp.setTime(exp.getTime() - 1);
+            var cval=getCookie(name);
+            if(cval!=null)
+                document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+        };
+
+        //限制文本框数字
+        this.LimitInput = function(obj){
+            if(obj.value.length==1){obj.value=obj.value.replace(/[^0-9]/g,'')}else{
+                obj.value=obj.value.replace(/\D/g,'');
+                if(obj.value!="")$(obj).val(parseInt(obj.value));
+            }
+        };
+		/* 获取数组中第二大的元素 */
+        this.getSecondMax = function(ary){
+            var a = ary[0]<ary[ary.length-1] ? ary[0] : [ary.length-1], b=a;
+            for(var i=0; i<ary.length; i++){
+                if(a<ary[i]){
+                    b = a;
+                    a = ary[i];
+                }
+            }
+            return b;
+        };
+
+
+        function format0(m){ return (parseInt(m)>9 ? m : ("0" + m));	}
+
+    };
+
+
+
+	// function getQueryString(name) {
+	// 	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+	// 	var r = window.location.search.substr(1).match(reg);
+	// 	if (r != null) return unescape(r[2]); return null;
+	// }
+	function cout(d){ console.log(d); }
+
+function getQueryString(name){ return P.getQueryString(name); }
+
+function range(_min, _max){ return P.range(_min, _max); }
+function values(obj){ return P.values(obj); }
+function items(obj){ return P.items(obj); }
+	// function range(_min, _max){ var rt=[]; for(var i=_min;i<_max;i++)rt.push(i); return rt; }
 	function set(){this.data={};this.keys=[];this.add=function(e){if(!this.data.hasOwnProperty(e))this.keys.push(e);this.data[e]=1;};}
 	function sets(e){this.data=e?{e:1}:{};this.keys=e?[e]:[];this.add=function(e){if(!this.data.hasOwnProperty(e))this.keys.push(e);this.data[e]=1;};}
-	function cout(d){ console.log(d); }
-	function values(obj){ return Object.keys(obj).map(function(k){ return obj[k]; })}
-	function items(obj){ return Object.keys(obj).map(function(k){ return [k, obj[k]]; })}
+	// function values(obj){ return Object.keys(obj).map(function(k){ return obj[k]; })}
+	// function items(obj){ return Object.keys(obj).map(function(k){ return [k, obj[k]]; })}
 
 	function Init(option, id, eventName, callback, otherLibs){
 		id=id || "main";
@@ -54,30 +183,47 @@
             }
         )	 		
 	}
-	function _$(id){ return document.getElementById(id); }
-	
+
 	function Init3(option, id){
 		var myChart = echarts.init(document.getElementById(id));
 		myChart.setOption(option);
 		return myChart;
 	}
-	function GetMonthNow(){ return  new Date().format("yyyy-MM"); }
-	function DateDTS(date) { return date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds(); }
-	function DateDTM(date) { return date.getHours() * 60 + date.getMinutes(); }
-	function DateSTM(str){ var sp = str.split(" ")[1].split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); }
-	function DateSTD(str){ var sp = str.split(/-| |:/); return new Date(parseInt(sp[0]), parseInt(sp[1]), parseInt(sp[2]),
-		parseInt(sp[3]), parseInt(sp[4]), parseInt(sp[5])); }
-	function DateDSTD(str){ var sp = str.split(/-| |:/); return new Date(parseInt(sp[0]), parseInt(sp[1])-1, parseInt(sp[2])); }
-	function DateSTDS(str){ return str.split(" ")[0]; }
-	function TimeT(str){ var sp = str.split(":"); return new Date(0, 0, 0, parseInt(sp[0]), parseInt(sp[1]), 0); }
-	function TimeF(date){ return date.getHours() + ":" + date.getMinutes(); }
-	function TimeFormat(str){ var sp = str.split(":"); return format0(sp[0]) + ":" + format0(sp[1]) + ":" + format0(sp[2]);  }
-	function TimeSTM(str){ var sp = str.split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); }
-	function TimeMTS(m){
-		var h = parseInt(m/60), m = parseInt(m % 60), tm = h + ":" + (m>9 ? m : ("0" + m));
-		return m<0 || h>24 ? "" : tm;
-	}
-	function format0(m){ return (parseInt(m)>9 ? m : ("0" + m));	}
+
+	function _$(id){ return document.getElementById(id); }
+
+function GetMonthNow(){ return P.GetMonthNow(); }
+function DateDTS(date){ return P.DateDTS(date); }
+function DateDTM(date){ return P.DateDTM(date); }
+function DateSTM(str){ return P.DateSTM(str); }
+function DateSTD(str){ return P.DateSTD(str); }
+function DateDSTD(str){ return P.DateDSTD(str); }
+function DateSTDS(str){ return P.DateSTDS(str); }
+function TimeT(str){ return P.TimeT(str); }
+function TimeF(date){ return P.TimeF(date); }
+function TimeFormat(str){ return P.TimeFormat(str); }
+function TimeSTM(str){ return P.TimeSTM(str); }
+function TimeMTS(m){ return P.TimeMTS(m); }
+function format0(m){ return P.format0(m);	}
+
+	// function GetMonthNow(){ return  new Date().format("yyyy-MM"); }
+	// function DateDTS(date) { return date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds(); }
+	// function DateDTM(date) { return date.getHours() * 60 + date.getMinutes(); }
+	// function DateSTM(str){ var sp = str.split(" ")[1].split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); }
+	// function DateSTD(str){ var sp = str.split(/-| |:/); return new Date(parseInt(sp[0]), parseInt(sp[1]), parseInt(sp[2]),
+	// 	parseInt(sp[3]), parseInt(sp[4]), parseInt(sp[5])); }
+	// function DateDSTD(str){ var sp = str.split(/-| |:/); return new Date(parseInt(sp[0]), parseInt(sp[1])-1, parseInt(sp[2])); }
+	// function DateSTDS(str){ return str.split(" ")[0]; }
+	// function TimeT(str){ var sp = str.split(":"); return new Date(0, 0, 0, parseInt(sp[0]), parseInt(sp[1]), 0); }
+	// function TimeF(date){ return date.getHours() + ":" + date.getMinutes(); }
+	// function TimeFormat(str){ var sp = str.split(":"); return format0(sp[0]) + ":" + format0(sp[1]) + ":" + format0(sp[2]);  }
+	// function TimeSTM(str){ var sp = str.split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); }
+	// function TimeMTS(m){
+	// 	var h = parseInt(m/60), m = parseInt(m % 60), tm = h + ":" + (m>9 ? m : ("0" + m));
+	// 	return m<0 || h>24 ? "" : tm;
+	// }
+	// function format0(m){ return (parseInt(m)>9 ? m : ("0" + m));	}
+
 
 	function ajaxData(key, data, _callbackS, _callbackE, _callbackC){
 		var cbkf = (parseInt(Math.random() * 1000) + 1000).toString();
@@ -230,52 +376,61 @@ function quit(){
 	delCookie('username');
 	window.location.href="login.html";
 }
-function setCookie(name,value, hour)
-{
-	hour = hour || 2;
-	var exp = new Date();
-	exp.setTime(exp.getTime() + hour * 60*60*1000);
-	document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
-}
-function getCookie(name)
-{
-	var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
-	if(arr=document.cookie.match(reg))
-		return unescape(arr[2]);
-	else
-		return null;
-}
-function GetCookie(name) {
-	var cookieValue = null;
-	if (document.cookie && document.cookie != '') {
-		var cookies = document.cookie.split(';');
-		for (var i = 0; i < cookies.length; i++) {
-			var cookie = jQuery.trim(cookies[i]);
-			if (cookie.substring(0, name.length + 1) == (name + '=')) {
-				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-				break;
-			}
-		}
-	}
-	return cookieValue;
-}
 
-function delCookie(name)
-{
-	var exp = new Date();
-	exp.setTime(exp.getTime() - 1);
-	var cval=getCookie(name);
-	if(cval!=null)
-		document.cookie= name + "="+cval+";expires="+exp.toGMTString();
-}
-
+function setCookie(name,value, hour){ return P.setCookie(name,value, hour); }
+function getCookie(name){ return P.getCookie(name); }
+function GetCookie(name){ return P.GetCookie(name); }
+function delCookie(name){ return P.delCookie(name); }
 //限制文本框数字
-function LimitInput(obj){
-	if(obj.value.length==1){obj.value=obj.value.replace(/[^0-9]/g,'')}else{
-		obj.value=obj.value.replace(/\D/g,'');
-		if(obj.value!="")$(obj).val(parseInt(obj.value));
-	}
-}
+function LimitInput(obj){ return P.LimitInput(obj); }
+
+// function setCookie(name,value, hour)
+// {
+// 	hour = hour || 2;
+// 	var exp = new Date();
+// 	exp.setTime(exp.getTime() + hour * 60*60*1000);
+// 	document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+// }
+// function getCookie(name)
+// {
+// 	var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+// 	if(arr=document.cookie.match(reg))
+// 		return unescape(arr[2]);
+// 	else
+// 		return null;
+// }
+// function GetCookie(name) {
+// 	var cookieValue = null;
+// 	if (document.cookie && document.cookie != '') {
+// 		var cookies = document.cookie.split(';');
+// 		for (var i = 0; i < cookies.length; i++) {
+// 			var cookie = jQuery.trim(cookies[i]);
+// 			if (cookie.substring(0, name.length + 1) == (name + '=')) {
+// 				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+// 				break;
+// 			}
+// 		}
+// 	}
+// 	return cookieValue;
+// }
+//
+// function delCookie(name)
+// {
+// 	var exp = new Date();
+// 	exp.setTime(exp.getTime() - 1);
+// 	var cval=getCookie(name);
+// 	if(cval!=null)
+// 		document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+// }
+//
+// //限制文本框数字
+// function LimitInput(obj){
+// 	if(obj.value.length==1){obj.value=obj.value.replace(/[^0-9]/g,'')}else{
+// 		obj.value=obj.value.replace(/\D/g,'');
+// 		if(obj.value!="")$(obj).val(parseInt(obj.value));
+// 	}
+// }
+
 Date.prototype.format = function(fmt) {
 	var o = {
 		"M+" : this.getMonth()+1,                 //月份
@@ -306,16 +461,17 @@ function HideLoading(id) {
 	obj.innerHTML = "<h3 style='margin: 30px'>暂无数据</h3>";
 }
 
-
-
 /* 获取数组中第二大的元素 */
-function getSecondMax(ary){
-	var a = ary[0]<ary[ary.length-1] ? ary[0] : [ary.length-1], b=a;
-	for(var i=0; i<ary.length; i++){
-		if(a<ary[i]){
-			b = a;
-			a = ary[i];
-		}
-	}
-	return b;
-}
+function getSecondMax(ary){ return P.getSecondMax(ary); }
+
+// /* 获取数组中第二大的元素 */
+// function getSecondMax(ary){
+// 	var a = ary[0]<ary[ary.length-1] ? ary[0] : [ary.length-1], b=a;
+// 	for(var i=0; i<ary.length; i++){
+// 		if(a<ary[i]){
+// 			b = a;
+// 			a = ary[i];
+// 		}
+// 	}
+// 	return b;
+// }
