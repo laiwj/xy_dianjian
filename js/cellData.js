@@ -43,7 +43,7 @@ var CellData = function(){
                 if(srcs[k]!=objs[k].value){   //值有改动
                     if(!(p in lines[u]))lines[u][p]=[];
                     var style = (objs[k].src==0) ? 1 : 0;   //0-人工，1-系统
-                    lines[u][p].push([k, srcs[k], style, 0]);  //更新
+                    lines[u][p].push([k, srcs[k], 1, 0]);  //更新
                 }
             }else{          //新值
                 if(!(p in lines[u]))lines[u][p]=[];
@@ -65,18 +65,21 @@ var CellData = function(){
 
     /*  向服务器提交 */
     this.submitSystem = function (){
-        var _temp = getSubmitdata(), data = checkSystemData(_temp), _index=0;
-        for(var u in data){
-            _index += Object.keys(data[u]).length;
+        var _temp = getSubmitdata(), _data = checkSystemData(_temp), _index= 0, data = {};
+        for(var u in _data){
+            var len = Object.keys(_data[u]).length;
+            if(len>0)data[u] = _data[u];
+            _index += len;
         }
         if(_index==0)return;
-        var selDate = $("#datetimepicker").val();
+        var selDate = $("#datetimepicker").val(), unitId = $("#unitsel1sel1").val();
         if(selDate==undefined){
             alert("绩效时间错误！");
             return;
         }
         showLoading();
-        ajaxData(CellData.__change_key, {'user':10001, 'dataTime':selDate, 'data':JSON.stringify(data)}, function(dt)
+        //cout(data); return;
+        ajaxData(CellData.__change_key, {'unitId':unitId, 'dataTime':selDate, 'data':JSON.stringify(data)}, function(dt)
         {
             if(dt.error==false) {
                 var eCount = 0;

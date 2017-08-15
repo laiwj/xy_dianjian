@@ -80,6 +80,17 @@ var ViewTree = function (){
         });
     };
 
+    ViewTree.CopyTree = function(tree, dt){
+        if(!('nodes' in tree))return;
+        dt['nodes'] = [];
+        tree['nodes'].forEach(function(d){
+            var node = {'name': d.name, 'value': d.value};
+            dt['nodes'].push(node);
+            ViewTree.CopyTree(d, node);
+        });
+    };
+
+
     /** 计算叶子结点权值 **/
     ViewTree.getLeafWeight = function (node){
         if(node.id=="root")node['value'] = 100;
@@ -177,6 +188,21 @@ var ViewTree = function (){
         //(getTreeHeightEx(tree));
         return height[0] + 1;
     };
+
+    this.viewTreeByLayer = function (data, callbackView){
+        var st = [data];
+        while(1){
+            var node = st.pop();
+            if(node==undefined) break;
+            callbackView(node);
+            if("nodes" in node){
+                node.nodes.forEach(function(n){
+                    st.unshift(n);
+                });
+            }
+        }
+    };
+
     //*********暂时已弃用*********
     var _getNodeList = function (node, list){
         if('id' in node)list.push([node['id'], ('name' in node) ? node['name'] : "", node['value']]);
@@ -395,19 +421,23 @@ var ViewTree = function (){
     //加载弹出框（添加因素）
     var loadNewFrame = function (treeId, nodeId, isRoot){
         var temp = getFrameData(treeId, nodeId, isRoot), weight = temp.weight, names = temp.names;
-        if(weight>=100){
+        if(weight>100){
+            alert("重要提示：由于全局权重配置被调整，该分支下权重超过100%， 请及时调整！");
+            return;
+        }else if(weight==100){
             alert("该分支下所配权重已达到100%， 请调整后再添加！");
             return;
-        };
+        }
         loadColorBox('tm_edit1', '绩效配置', treeId, nodeId);
 
         $("#edit_value0").html("");
         $("#edit_value1").html("");
 
-        for(var i=10-weight/10; i>0; i--){
-            $("#edit_value0").append("<option value='"+ i*10 +"'>"+ i*10 +"%</option><option value='"+ (i*10-5) +"'>"+ (i*10-5) +"%</option>");
-            $("#edit_value1").append("<option value='"+ i*10 +"'>"+ i*10 +"%</option><option value='"+ (i*10-5) +"'>"+ (i*10-5) +"%</option>");
+        for(var i=100-weight; i>=0; i-=5){
+            $("#edit_value0").append("<option value='"+ i +"'>"+ i +"%</option>");
+            $("#edit_value1").append("<option value='"+ i +"'>"+ i +"%</option>");
         }
+
         ViewTree.__common_system.forEach(function(d){
             if(d.name in names) return;
             $("#edit_name1").append("<option value='"+ d.name +"'>"+ d.name +"</option>");
@@ -453,9 +483,10 @@ var ViewTree = function (){
 
         loadColorBox('tm_edit2', '绩效配置修改', treeId, nodeId);
         $("#edit_value2").html("");
-        for(var i=10-weight/10; i>0; i--){
-            $("#edit_value2").append("<option value='"+ i*10 +"'>"+ i*10 +"%</option><option value='"+ (i*10-5) +"'>"+ (i*10-5) +"%</option>");
+        for(var i=100-weight; i>=0; i-=5){
+            $("#edit_value2").append("<option value='"+ i +"'>"+ i +"%</option>");
         }
+
         $("#edit_name2").val(node.name);
         $("#nameOld2").val(node.name);
         if(nature==1) $("#edit_name2").attr("disabled", true);

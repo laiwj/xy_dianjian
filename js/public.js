@@ -12,32 +12,40 @@
 	var init_unit_common = "-1";
 	var init_unit_online = "数字工程与信息技术中心";
 	var init_unit_social = "数字工程与信息技术中心";
+	var init_unit_manage = "数字工程与信息技术中心";
 	var init_style_social = "邮箱";	 //腾讯通
 	var init_unit_interval = "所有部门";
 	var init_unit_flow = "所有部门";
 	var public_all_unit = "所有部门";
 	var init_unit_performance = "10425";
+    var init_color_people = "#222";
 	var Units = { 10421:"征地移民处", 10426:"水工处", 10406:"机电处" };
 
 	//var serverIp = "http://10.101.1.177";
 	//var serverIp = "http://118.123.173.86";
+var serverIp = "http://10.101.1.23";
 	//var serverIp = "http://10.101.1.119";
-	var serverIp = "http://192.168.102.198";
+	//var serverIp = "http://192.168.102.198";
+	//var serverIp = "http://127.0.0.1";
 
-	var serverPort = 8000;
+	var serverPort = 8001;
 	var serverUrl = serverIp + ":" + serverPort;
 
 	var P = new PublicModel();
 	InitPublic();
+    
 
 	function InitPublic(){
-		var d = P.getLastMonthDate();
+		var d = P.getRecentMonthDate(1), m3 = P.getRecentMonthDate(3), m6 = P.getRecentMonthDate(5);  //getLastMonthDate
+        
 		init_flow_date_start = d.dateStart;
         init_flow_date_end = d.dateEnd;
-        init_trip_date_start = d.dateStart;
-        init_trip_date_end = d.dateEnd;
+        init_trip_date_start = m3.dateStart;
+        init_trip_date_end = m3.dateEnd;
         init_network_date_start = d.dateStart;
         init_network_date_end = d.dateEnd;
+        init_people_date_start = m6.dateStart;
+        init_people_date_end = m6.dateEnd;
 		//cout(d);
 
 	}
@@ -50,10 +58,21 @@
             m--;
             return y + "-" + (m>9 ? m : ("0"+m));
 		};
-        this.getDateByMonth = function(date){ var sp = date.split("-");
-            return {'dateStart': sp[0] + '-' + sp[1] + '-1',
-                'dateEnd': sp[0] + '-' + sp[1] + '-' + (new Date(parseInt(sp[0]), parseInt(sp[1]),0)).getDate()}
-        };
+    this.getRecentMonth = function(month){
+        var _date = new Date(), y = _date.getFullYear(), m = _date.getMonth() + 1 - month;
+        if(m<1){ y = y - 1; m += 12; }
+        return y + "-" + (m>9 ? m : ("0"+m));
+		}; 
+    /* 获取最近几月日期区间 - 截止今天 */
+    this.getRecentMonthDate = function(month){ 
+        var mDate = $this.getRecentMonth(month), sp = mDate.split("-");
+        return {'dateStart': sp[0] + '-' + sp[1] + '-1',
+            'dateEnd':$this.DateF(new Date()) }
+    };   
+    this.getDateByMonth = function(date){ var sp = date.split("-");
+        return {'dateStart': sp[0] + '-' + sp[1] + '-1',
+            'dateEnd': sp[0] + '-' + sp[1] + '-' + (new Date(parseInt(sp[0]), parseInt(sp[1]),0)).getDate()}
+    };
 		this.getLastMonthDate = function(){
 			return $this.getDateByMonth($this.getLastMonth());
 		};
@@ -63,12 +82,14 @@
             var r = window.location.search.substr(1).match(reg);
             if (r != null) return unescape(r[2]); return null;
         };
-
+        
         this.range = function(_min, _max){ var rt=[]; for(var i=_min;i<_max;i++)rt.push(i); return rt; };
         this.values = function(obj){ return Object.keys(obj).map(function(k){ return obj[k]; })};
         this.items = function(obj){ return Object.keys(obj).map(function(k){ return [k, obj[k]]; })};
 
         this.GetMonthNow = function(){ return  new Date().format("yyyy-MM"); };
+        
+        this.DateF = function(date, _sp) { var sp = "-" || _sp; return [date.getFullYear(), date.getMonth()+1, date.getDate()].join(sp); };
         this.DateDTS = function(date) { return date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds(); };
         this.DateDTM = function(date) { return date.getHours() * 60 + date.getMinutes(); };
         this.DateSTM = function(str){ var sp = str.split(" ")[1].split(":"); return parseInt(sp[0]) * 60 + parseInt(sp[1]); };
@@ -274,25 +295,6 @@ function format0(m){ return P.format0(m);	}
 		window.location.reload();
 	}
 
-/*
-	function getNames(count){
-		var all = [], names = {};
-		var temp1 = ['赵','钱','孙','李','周','吴','郑','王','冯','陈','楚','卫','刘','何'];
-		var temp2 = ["曼","婷","玥","婷","优","璇","雨","嘉","娅","楠","明","美","惠","茜","漫","妮","媛","馨","梦","涵","碧",
-						"萱","慧","妍","璟","雯","梦","婷","雪","怡","彦","歆","芮","涵","笑","薇","婧","涵","鑫","蕾","淑","颖",
-						"钰","彤","天","瑜","梦","洁","凌","薇","雅","静","雅","芙","思","颖","欣","然","滢","心","雪","馨","凌",
-						"菲","钰","琪","婧","宸","靖","瑶","熙","雯","琪","涵","伶","韵","思","睿"];
-		for(var i=0; i<count; i++){
-			var nm = "";
-			while(nm == "" || names[nm] == 1){
-				nm = temp1[parseInt(Math.random() * temp1.length)] + temp2[parseInt(Math.random() * temp2.length)];
-				if(Math.random()>0.5)nm += temp2[parseInt(Math.random() * temp2.length)];
-			}
-			names[nm] = 1; all.push(nm);
-		}
-		return all;
-	}
-*/
 
 //---------------------------------一般通用函数--------------------------------------------------
 function addUnitSel(id, _unit, clickFunc){
@@ -302,6 +304,7 @@ function addUnitSel(id, _unit, clickFunc){
 	$("#" + id + 'sel1').val(init_unit_clock);
 	$("#" + id + 'sel1').change(function(){ if(clickFunc!=undefined)clickFunc($(this).val()); });
 }
+
 function addUnitSelEx(id, _unit, clickFunc){
 	var div = '<div style="float:right; margin-right:15px;">', sel1 = '<select style="height:25px" id="'+ id + 'sel1">', opt='';
 	_unit.forEach(function(d){
@@ -317,23 +320,59 @@ function addUnitSelEx(id, _unit, clickFunc){
 }
 
 function _tableClick(tbId, _callback){
-
 	//$("#" + tbId +" tbody tr").click(function(e){
 	$("#" + tbId).on("click", "tbody>tr", function(e){
-		$("#" + tbId +" tbody tr").css("background-color", '');
-		$("#" + tbId +" tbody tr").css("color", '');
-		$(this).css("background-color", "#FFF8D7");
-		$(this).css("color", "green");
+		tableSelRow(tbId, $(this));
 		var v1 = $(this).find("td").first().html(), v2 = $(this).find("td:eq(1)").html()
 			, v3 = $(this).find("td:eq(2)").html();
 		if(_callback)_callback($(this),[v1, v2, v3]);
 	});
 }
+
+//查找表格行
+function tableFindRow(tbId, value, colIndex){
+	var tds = $("#" + tbId).find("td"), colIndex = colIndex || -1;
+	for(var i=0; i<tds.length; i++){
+		if(colIndex!=-1 && colIndex!=i)continue;
+		if(tds[i].innerHTML==value)return $(tds[i]).parent();
+	}
+	return null;
+}
+
+function tableSelRowByValue(tbId, value, colIndex, _callback){
+	var row = tableFindRow(tbId, value, colIndex);
+	if(row==null)return;
+	tableSelRow(tbId, row, _callback);
+	$(row)[0].cells[1].scrollIntoView(false);
+}
+
+function tableSelRow(tbId, row, _callback){
+	$("#" + tbId +" tbody tr td").css("background-color", '');
+	$("#" + tbId +" tbody tr").css("background-color", '');
+	$("#" + tbId +" tbody tr").css("color", '');
+	$(row).css("background-color", "#2C9949");
+	$(row).find("td").css("background-color", "#2C9949");
+	$(row).css("color", "#fff");
+	if(_callback)_callback();
+}
+
 function tableClick(ft, tbId, _callback){
 	_tableClick(tbId, _callback);
 	ft.on('after.ft.paging', function(e){
 		_tableClick(tbId, _callback);
 	});
+}
+
+function tableClickEx(ftInit, tbId, _callback){
+	_tableClick(tbId, _callback);
+	ftInit.$el.on('after.ft.paging', function(e){
+		_tableClick(tbId, _callback);
+	});
+}
+
+function ShowLoadingUI(){
+	$("<div class=\"datagrid-mask\"></div>").css({display:"block",width:"100%",height:$(window).height()}).appendTo("body");
+	$("<div class=\"datagrid-mask-msg\"></div>").html("正在处理，请稍候。。。").appendTo("body").css({display:"block",left:($(document.body).outerWidth(true) - 190) / 2,top:($(window).height() - 45) / 2});
 }
 
 function ajaxToInput(key, data, viewId){
@@ -360,15 +399,17 @@ function getBadgeClass(v){
 }
 function checkLogin(){
 	var session = getCookie('session'), userName = getCookie('username'),
-		nickName = getCookie('nickname'), level = getCookie('level');
+		nickName = getCookie('nickname'), level = getCookie('level'), unitName = getCookie('unitname') || '';
 	if(level!=null)level = parseInt(level);
 	if(!session || !userName || !nickName || !level){
 		window.location.href="login.html";
 	}else{
 		$('#u_username').html(userName);
 		$('#u_nickname').html(nickName);
+		$('#u_unitname').html(unitName);
 		$('#u_level').html('lv '+ level);
-		$('#u_lvname').html(level>1 ? '普通用户' : (level==0?'超级管理员':'管理员'));
+		$('#u_lvname').html((level<2 && '普通用户') || (level<3 && '高级用户') || (level<4 && '管理员')
+			|| (level<4 && '系统管理员') || ("超级管理员"));
 	}
 }
 function quit(){

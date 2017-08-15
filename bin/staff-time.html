@@ -164,6 +164,9 @@ $(document).ready(function() {
 		return {x:x, data:fmt, maxValue:maxY };
 	}
 	function loadTimes(data, opt, scale, maxC) {
+    
+    //cout("----------------------------------");cout(data);cout(opt);cout(scale);cout(maxC);
+        
 		var fmt = formatDataTimes(scale, data), maxY = parseInt(maxC);;
 		var dt = fmt.data, x = fmt.x;
 		var lstp = Object.keys(dt);

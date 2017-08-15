@@ -1,0 +1,484 @@
+<xmp>
+<html>
+    <meta charset=utf-8>
+
+    <link rel="stylesheet" href="../css/bootstrap-treeview.min.css" type="text/css" />
+    <link href="../css/bootstrap-theme.min.css" rel="stylesheet">
+    <!-- Prism -->
+    <link href="../css/prism.css" rel="stylesheet">
+    <link href="../css/footable.bootstrap.min.css" rel="stylesheet">
+    <link href="../css/colorbox.css" rel="stylesheet" />
+
+    <link href="../css/easyui.css" rel="stylesheet">
+    <link href="../css/icon.css" rel="stylesheet">
+
+
+    <!--[if lt IE 9]>
+    <script src="../js/html5shiv.min.js"></script>
+    <script src="../js/respond.min.js"></script>
+
+    <![endif]-->
+
+    <style type="text/css">
+        .pointer{ cursor: pointer}
+        .pointer:hover{ color:#0e90d2 }
+        form .glyphicon{ top:0}
+        a:hover .icoBtn{ border:1px solid #eee; background-color: #EAF2FF}
+        .optIcon1, .optIcon2{ font-size: 16px; margin-left: 8px; cursor: pointer }
+    </style>
+
+    <div class="bg-main m-sm ">
+
+        <div class="hbox hbox-auto-xs hbox-auto-xs bg-white" style="">
+            <div id="view1" class="easyui-layout" style="width:100%; margin-bottom: 20px ">
+                <div id="panel1" data-options="region:'center',split:true,title:'部门管理',iconCls:'icon-unit'" style="height:100%; ">
+                     <table id="table-unit" class="table" data-paging="false" data-filtering="true" data-sorting="true"></table>
+                </div>
+
+                <div id="panel2" data-options="region:'east',split:true,title:'<label id=\'personTitle\'>人员列表</label>',iconCls:'icon-more'" style="width:50%;">
+                    <table id="table-person" class="table" data-paging="false" data-filtering="true" data-sorting="true"></table>
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!--部门组织弹出框-->
+    <div id="dlgOrg" class="easyui-dialog" closed="true" title=" 添加自定义组织" style="width:400px;height:240px;padding:10px; display: none"
+         data-options=" modal: 'true',iconCls: 'icon-add',buttons: '#dlgBtnOrg'
+			">
+        <div style="padding: 10px 10px; font-size: 14px">
+            请输入自定义组织的名称：<br>
+            <div class="form-group" id="orgFromGroup">
+                <div class="input-group" style="margin-top: 14px">
+                    <span class="input-group-addon">名称</span>
+                    <input type="text" id="orgName" class="form-control" placeholder="请输入名称">
+                </div>
+                <label id="orgNameErr" class="control-label" for="orgName" style="font-size: 12px; margin-top: 5px"></label>
+            </div>
+        </div>
+    </div>
+    <div id="dlgBtnOrg" style="display: none">
+        <a href="javascript:void(0)" class="btn btn-info" onclick="javascript:;">确定</a>
+        <a href="javascript:void(0)" class="btn btn-default" onclick="javascript:$('#dlg').dialog('close')">取消</a>
+    </div>
+
+
+    <!--人员操作弹出框-->
+    <div id="dlgPerson" class="easyui-dialog" closed="true" title=" 添加自定义组织" style="width:400px;height:220px;padding:10px; display: none"
+         data-options=" modal: 'true',buttons: '#dlgBtnPerson'
+			">
+        <div style="padding: 10px 10px; font-size: 14px; font-family: '宋体'; color:#3c3c3c">
+            请选择自定义组织：<br>
+            <div class="input-group" style="margin:10px 0px">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button">组织</button>
+                </span>
+                <select id="dlgSelOrg" class="form-control"><option>组织1</option></select>
+            </div>
+            <input style="display: none;" id="dlgPersonId" type="text" value="">
+        </div>
+    </div>
+    <div id="dlgBtnPerson" style="display: none">
+        <label style="font-size: 12px;float: left; padding-top: 5px">*可使用增加组织功能添加自定义组织</label>
+        <a href="javascript:void(0)" class="btn btn-info" onclick="javascript:;">确定</a>
+        <a href="javascript:void(0)" class="btn btn-default" onclick="javascript:$('#dlgPerson').dialog('close')">取消</a>
+    </div>
+
+
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    <!--模板部分·不可见区域-->
+    <div style="display: none">
+
+        <div id="tmAddBtnOpt">
+            <div style='font-size: 16px'>
+                <span class='optIcon1 glyphicon glyphicon glyphicon-cog' style='color:#00BFFF' title='增加到自定义组织'> </span>
+                <span class='optIcon2 glyphicon glyphicon-remove-circle' style='color:#c9302c' title='删除自定义组织'> </span>
+            </div>
+        </div>
+
+        <!--增加搜索框-->
+        <div id="tmAddSearch">
+            <form>
+                <div class="input-group input-group-sm floatL" style="width:200px;">
+                <input type="text" class="tableSearch form-control" style="color:#ccc; " placeholder="search">
+                <span class="input-group-addon glyphicon glyphicon-search pointer"></span>
+                </div>
+            </form>
+        </div>
+
+        <!--增加组织按钮-->
+        <div id="tmAddBtnNew">
+            <div class="icoBtn" style="padding:4px 4px 0px 4px">
+                <div style="padding-top:2px; float: left">
+                <span class="glyphicon glyphicon-plus pointer" style="color:green;" > </span>
+                </div>
+                <label style="font-size: 12px; margin-left: 4px;"> 增加组织</label>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+
+    <script src="../js/public.js?v=1.5"></script>
+    <script src="../js/ejs.js"></script>
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>    
+    <script src="../js/jquery.colorbox-min.js" ></script>
+    <script src="../js/footable.min.js"></script>
+    <script src="../js/jquery.easyui.min.js?v=1.52"></script>
+    
+
+
+<script language="javascript">
+    "use strict";
+
+    var __units = [];
+    var __ftUnit = null;
+    var __ftPerson = null;
+    var __orgList = {};
+    var __unitNames = {};
+    var __orgNames = {};
+
+
+
+
+    function Init(){
+        showLoading();
+        loadUnitPersonList();
+        loadUnitList();
+
+
+        // 弹出框相关控件事件绑定
+        $("#dlgBtnOrg>a:first-child").on("click", addOrg);
+        $("#dlgBtnPerson a:first").on("click", addPersonOrg);
+        $("#orgName").on("input", function(){
+            $("#orgFromGroup").removeClass("has-error");
+            $("#orgNameErr").text("");
+        });
+    }
+
+
+    //---------------------- 加载部门信息
+    function loadUnitList(){
+        ajaxData('get_performance_unit', {}, function(dt){
+            var unit = dt.data.unit, org = dt.data.org;
+            unit = unit.map(function(d){
+                __unitNames[d.unit] = d.id;
+                d['style'] = "部门";
+                return d;
+            });
+            org = org.map(function(d){
+                __orgNames[d.unit] = d.id;
+                d['style'] = "自定义";
+                d['outCount'] = d['count'];
+                return d;
+            });
+
+            var ascM = init_unit_manage.charCodeAt();
+            //默认部门排前边
+            var units = unit.sort(function(a, b){ return b.unit.charCodeAt() - ascM; }).concat(org);
+            __ftUnit = loadTableUnit(units, "table-unit");
+            tableSelRowByValue("table-unit", init_unit_manage);
+        }, null, function(){
+            hideLoading();
+        });
+    }
+
+    //----------------------加载人员信息
+    function loadUnitPersonList(unit, style){
+        unit = unit || init_unit_manage;
+        if(style==undefined) style = 0;
+        ajaxData('get_performance_person', {"org":unit, "style":style}, function(dt){
+            var persons = dt.data.persons;
+            __orgList = dt.data.orgs;
+            __ftPerson = loadTablePerson(persons, "table-person");
+            var name = style===0 ? unit : __orgList[unit];
+            $("#personTitle").text("人员列表『" + name + "』");
+        }, null, function(){
+            //hideLoading();
+        });
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------
+    //*功能：增加搜索框   keys -   ["unit"]
+    function AddSearch(id, keys, colCount){
+        colCount = colCount || 4;
+        var tbody = $('#' + id + ">thead");
+        var html = '<tr><th colspan="'+ colCount +'">' + $("#tmAddSearch").html() + '</th></tr>';
+        tbody.prepend(html);
+        tbody.find(".tableSearch").on("input", function(){
+            var value = $(this).val(), filtering = FooTable.get('#'+id).use(FooTable.Filtering); // get the filtering component for the table
+            if (value === 'none'){  // if the value is "none" remove the filter
+                filtering.removeFilter('status');
+            } else { // otherwise add/update the filter.
+                filtering.addFilter('status', value, keys);
+            }
+            filtering.filter();
+        });
+    }
+
+    // 增加新增按钮 - 仅执行一次
+    function addBtnNew(id){
+        var tbody = $('#' + id + ">thead form"), btnId = id +'BtnNew', html="";
+        //html = '<div class="floatR"><a href="javascript:void(0)" class="easyui-linkbutton" data-options="'
+        //        + 'iconCls:\'icon-add\',plain:true" style="font-family: \'宋体\'" id="'+ btnId +'">增加组织</a></div>';
+        html = '<div class="floatR"><a id="'+ btnId + '">' + $("#tmAddBtnNew").html() + '</a></div>';
+        tbody.append(html);
+        $("#"+ btnId).on("click", showDlgAddOrg);
+
+    }
+
+    // 操作弹出框
+    function showDlgAddOrg(){
+        $("#orgName").val("");
+        $('#dlgOrg').dialog('open');
+        $('#orgName').focus();
+    }
+    function showDlgAddPerson(){
+        var td = $(this).parents("tr").children(":first");
+        if(td.length!=1){   alert("系统错误！"); return; }
+
+        $("#dlgSelOrg").html("");
+        for(var id in __orgList){
+            $("#dlgSelOrg").append("<option value='" + id + "'>"+ __orgList[id] +"</option>");
+        }
+
+        var pId = td.html();
+
+        $("#dlgPersonId").val(pId);
+        $('#dlgPerson').dialog('open');
+
+    }
+
+    // 增加组织响应函数
+    function addOrg (){
+        var name = $("#orgName").val();
+        function checkName(name){
+            if(name==="")return "名称不能为空，请重新正确的名称";
+            if(name in __unitNames || name in __orgNames)return "该名称已存在，请重新输入";
+            return "";
+        }
+        var errName = checkName(name);
+        if(errName !==""){
+            $("#orgNameErr").text(errName);
+            $("#orgFromGroup").addClass("has-error");
+            $('#orgName').focus();
+            return;
+        }
+
+        //上传服务器
+        ajaxData('add_performance_org', {'orgName':name}, function(dt)
+        {
+            var rst = dt.data.result;
+            if(parseInt(rst)===0)
+                alert("操作失败：可能存在多人同时操作该功能，请刷新页面");
+            else{
+                var id = "org" + rst;
+                __ftUnit.rows.add({"id":id, "unit":name, 'style':"自定义", 'count':0, 'outCount':0});
+                __orgList[id] = name;
+                __orgNames[name] = id;
+                tableSelRowByValue("table-unit", name, 0);
+                __ftPerson = loadTablePerson([], "table-person");
+            }
+
+            $('#dlgOrg').dialog('close')
+        }, null, function(){
+            //hideLoading();
+        });
+
+    }
+
+    // 增加人员组织信息响应函数
+    function addPersonOrg(){
+        var orgId = $("#dlgSelOrg").val(), orgName = __orgList[orgId];
+        var pId = $("#dlgPersonId").val();
+        var personRow = findFootableRow(__ftPerson, 'id', pId);
+        var rowData = personRow.val(), oldOrg = rowData['org'], unitName = rowData['unit'];
+        if(oldOrg===orgName){
+            $('#dlgPerson').dialog('close');
+            return;
+        }
+
+        //上传服务器
+        ajaxData('set_person_org', {'orgId':orgId, 'personId':pId}, function(dt)
+        {
+            var id = dt.data.result;
+            if(parseInt(id)!=0)
+                alert("操作失败：可能存在多人同时操作该功能，请刷新页面");
+            else{
+                // 同步修改记录信息
+                rowData['org'] = orgName;
+                personRow.val(rowData);
+                // 需删除行
+                var name = $("#personTitle").text().match(/『(\S*)』/)[1];
+                if(name in __orgNames) personRow.delete();
+                updateOrgCountAdd(orgName, 1);
+                if(oldOrg===unitName)updateOrgCountAdd(oldOrg, 0); else updateOrgCountDel(oldOrg, 1);
+            }
+            $('#dlgPerson').dialog('close');
+        }, null, function(){
+            //hideLoading();
+        });
+
+    }
+
+    function findFootableRow(_ft, key, value){
+        var rows = _ft.rows.all;
+        for(var i=0; i<rows.length; i++){
+            var obj = rows[i].val();
+            if(!(key in obj))continue;
+            if(obj[key]===value)return rows[i];
+        }
+        return null;
+    }
+
+    // 删除人员的自定义组织信息
+    function delPersonOrg() {
+        var td = $(this).parents("tr").children(":first");
+        if(td.length!=1){   alert("系统错误！"); return; }
+        var pId = td.html(), unitName = td.nextAll(":nth-child(3)").html(),
+                orgName = td.nextAll(":nth-child(4)").html();
+        if(orgName===unitName)return;
+
+        //上传服务器
+        ajaxData('set_person_org', {'orgId':null, 'personId':pId}, function(dt)
+        {
+            var name = $("#personTitle").text().match(/『(\S*)』/)[1];
+            var personRow = findFootableRow(__ftPerson, 'id', pId);
+            if(name in __orgNames){ //组织
+                personRow.delete();
+            }else{
+                var obj = personRow.val();
+                obj['org'] = obj['unit'];
+                personRow.val(obj);
+            }
+            updateOrgCountDel(unitName, 0);
+            updateOrgCountDel(orgName, 1);
+
+            //tableSelRowByValue("table-unit", orgName, 0);
+        }, null, function(){
+            //hideLoading();
+        });
+
+    }
+
+    //style : 0-unit, 1-org
+    function updateOrgCountAdd(orgName, style){ updateOrgTable(orgName, style, 1); }
+    function updateOrgCountDel(orgName, style){ updateOrgTable(orgName, style, 0); }
+    function updateOrgTable(orgName, style, plus){
+        var orgRow = findFootableRow(__ftUnit, 'unit', orgName);
+        if(orgRow===null) return;
+        var obj = orgRow.val(), oc = parseInt(obj["outCount"]);
+        obj['outCount'] = oc + (plus ? 1 : -1) * 1;
+        if(style!=0)obj['count'] = obj['outCount'];
+        orgRow.val(obj);
+    }
+
+    //------------------------------------------------------------------------------------------------------------
+    // 人员列表,	第二表
+    function formatTablePerson(units){
+        //异步出了一个莫名其妙的错误
+        return units.map(function(d){
+            var org = d.orgId===null ? d.unit : __orgList[d.orgId];
+            return { 'id': d.pId, 'unit': d.unit, 'name': d.name    , 'org': org,
+                'operate':"<div>" + $("#tmAddBtnOpt").html() + "</div>"
+            };
+        }).sort(function(a, b){ return b.org.charCodeAt() - a.org.charCodeAt(); });
+    }
+
+    // 加载表格1
+    function loadTableUnit(_dt, tbId){
+        var columns = [
+            {"name":"id", "title":"ID", "visible":false},
+            {"name":"unit", "title":"部门", "breakpoints":"xs sm"},
+            {"name":"style", "title":"类型", "breakpoints":"xs sm"},
+            {"name":"count","title":"总人数", "type":"number"},
+            {"name":"outCount","title":"已划分人数", "type":"number"}
+        ];
+        var data = _dt;
+        $('#'+tbId).html("");
+        var ftInit = FooTable.init('#'+tbId, {
+            "filtering":{"enabled":false},
+            "columns": columns, "rows": data,
+            "paging": { "enabled":false },  //"size": 12,
+            "toggleSelector": ".footable-toggle"
+        });
+        tableClickEx(ftInit, tbId, function(tr, d){
+            if(d[2]=="部门")loadUnitPersonList(d[1], 0); else loadUnitPersonList(d[0], 1);
+        });
+        $("#" + tbId + ">thead>.footable-filtering").remove();
+        AddSearch(tbId, ["unit"]);
+        addBtnNew(tbId);
+        return ftInit;
+    }
+    // 加载表格2
+    function loadTablePerson(_dt, tbId){
+        var columns = [
+            {"name":"id", "title":"工号", "visible":true},
+            {"name":"name", "title":"姓名", "visible":true},
+            {"name":"unit", "title":"原部门", "visible":false, "breakpoints":"xs sm"},
+            {"name":"org", "title":"组织", "breakpoints":"xs sm"},
+            {"name":"operate","title":"操作" },
+        ];
+
+        var data = formatTablePerson(_dt);
+        $('#'+tbId).html("");
+        var ftInit = FooTable.init('#'+tbId, {
+            "filtering":{"enabled":false},
+            "columns": columns, "rows": data,
+            "paging": { "enabled":false },  //"size": 12,
+            "toggleSelector": ".footable-toggle"
+        });
+        //tableClickEx(ftInit, tbId);
+        $("#" + tbId + ">thead>.footable-filtering").remove();
+        AddSearch(tbId, ["id", "name"]);
+
+        //若重复绑定请先off
+        $("#" + tbId).off('click', 'span.optIcon1', showDlgAddPerson);
+        $("#" + tbId).on('click', 'span.optIcon1', showDlgAddPerson);
+        $("#" + tbId).off('click', 'span.optIcon2', delPersonOrg);
+        $("#" + tbId).on('click', 'span.optIcon2', delPersonOrg);
+        $("#" + tbId + " tr").mouseover(function(){
+            var oldUnit = $(this).children(":nth-child(3)").text();
+            $(this).attr("title", "部门：" + oldUnit);
+        });
+        return ftInit;
+    }
+
+
+    function setHeight(){
+        var c = $('#view1');
+        var p = c.layout('panel', 'center');	// get the center panel
+        var oldHeight = p.panel('panel').outerHeight();
+        p.panel('resize', {height:'auto'});
+        var newHeight = p.panel('panel').outerHeight();
+        c.layout('resize',{
+            height: (c.height() + newHeight - oldHeight)
+        });
+    }
+
+
+    $(document).ready(function() {
+        $('#view1').height(document.body.clientHeight - $("#view1").offset().top-52-3-53-25);
+        setHeight();
+        Init();
+
+
+    });
+
+
+
+
+    </script>
+
+
+
+</html>
+</xmp>

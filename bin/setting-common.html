@@ -4,32 +4,60 @@
     <!-- Prism -->
     <link href="../css/prism.css" rel="stylesheet">
     <link href="../css/ladda-themeless.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/colorbox.css" />
 
     <!--[if lt IE 9]>
     <script src="../js/html5shiv.min.js"></script>
     <script src="../js/respond.min.js"></script>
     <![endif]-->
     <style type="text/css">
-
+        .grey{ color:#ff6666; font-size: small; font-family: 黑体; }
     </style>
 
 
     <div class="m-sm bg-main">
         <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto">
-            <div class="col col-sm-12" style="margin-bottom: 45px">
+            <div class="col col-sm-12" ng-app="myApp" ng-controller="myCtrl" style="margin-bottom: 45px">
                 <div class="w-full">
-                    <div class="title" id="unitsel2">网络访问分类设置</div>
-                    <div id="view1" style="width: 100%;">
+                    <div class="title" id="unitsel2">系统设置</div>
+                    <div id="view1" style="width: 100%; min-height: 400px; padding: 20px 2% 10px 2%">
 
+                        <div class="row">
+                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                <div class="row">
+                                <form class="form-horizontal" role="form" name="FormTime">
+                                    <div class="form-group" ng-repeat="e in times">
+                                        <label class="col-md-4 control-label">{{e.name}}</label>
+                                        <div class="col-md-4">
+                                            <select class="form-control" ng-model="e.value" ng-options="p.name as p.name group by p.group for p in list"></select>
+                                        </div>
+                                        <label class="col-md-4 control-label text-left grey alert ">* {{e.title}}</label>
+                                    </div>
+                                </form>
+                                </div>
+                            </div>
 
-
+                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                <div class="row">
+                                    <form class="form-horizontal" role="form" name="fm1">
+                                    <div class="form-group">
+                                        <label class="col-md-4 control-label">{{maxSecond.name}}</label>
+                                        <div class="col-md-4">
+                                            <select class="form-control" ng-model="maxSecond.value" ng-options="p for p in seconds"></select>
+                                        </div>
+                                        <label class="col-md-4 control-label text-left grey alert ">* {{maxSecond.title}}</label>
+                                    </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
 
                     </div>
                 </div>
                 <div class="panel panel-default" style="margin-bottom: 50px">
                     <div class="panel-body">
-                        <button type="button" class="btn btn-warning floatR" style="margin-left: 30px" id="tbSubmit">保存设置</button>
-                        <button type="button" class="btn btn-default floatR">取消更改</button>
+                        <button type="button" class="btn btn-warning floatR" style="margin-left: 30px" id="tbSubmit" ng-click="submit()">保存设置</button>
+                        <button type="button" class="btn btn-default floatR" onclick="refresh()">取消更改</button>
                     </div>
                     <div class="panel-footer">*所有改动保存后才能生效</div>
                 </div>
@@ -37,7 +65,6 @@
 
 
         </div>
-
     </div>
 
 
@@ -47,22 +74,94 @@
         </div>
     </script>
 
-    <script src="../js/echarts.min.js"></script>
+    <script src="../js/angular.min.js"></script>
     <script src="../js/bootstrap-3.1.1.min.js"></script>
-    <script src="../js/public.js"></script>
     <script src="../js/prism.js"></script>
     <script src="../js/ie10-viewport-bug-workaround.js"></script>
     <script type="text/javascript" src="../js/jquery.colorbox-min.js" ></script>
 
     <script language="javascript">
         "use strict";
-
         var __tempc = null;
+
+        var app = angular.module('myApp', []);
+        app.controller('myCtrl', function($scope) {
+            var _keys = ['timeAm0', 'timePm1', 'timeAm1', 'timePm0', 'timeLack', 'timeNt0', 'timeNt1'];
+            var _workTime = [], _dt = {};
+            $scope.times= [{'name':'上班时间（上午）', 'value':"9:00", 'title':'请慎重操作'},
+                {'name':'下班时间（下午）', 'value':"17:00"},
+                {'name':'休息时间（中午）', 'value':"12:00", 'title':"休息时间数据不纳入考评"},
+                {'name':'休息结束（中午）', 'value':"13:00", 'title':'下午正式上班时间'},
+                {'name':'最晚迟到时间（旷工）', 'value':"11:00", 'title':'超过该时间的迟到视为旷工'},
+                {'name':'加班时间界定（晚上）', 'value':"17:00", 'title':'正常工作日情况'},
+                {'name':'加班结束时间（晚上）', 'value':"", 'title':'默认最晚离开时间'},
+
+            ];
+            $scope.list = getOption();
+            $scope.maxSecond = {'name':'最大时间间隔（单位：秒）', 'value':13, 'title':"用于刷卡时间序列分析"};
+            $scope.seconds = range(1, 17);
+
+            //数据请求
+            showLoading();
+            ajaxData('get_common_config', {}, function(dt){
+                _dt = dt;
+                _workTime = [dt.workTime.am[0], dt.workTime.pm[1], dt.workTime.am[1], dt.workTime.pm[0],
+                            dt.workTime.lackTime, dt.overTime.onTime, dt.overTime.offTime];
+                $scope.$apply(function(){
+                    _workTime.forEach(function(d, i){ $scope.times[i].value = _workTime[i] = d; });
+                    $scope.maxSecond.value = dt.cardIntervalMax;
+                });
+
+
+                cout(_workTime);
+            },null,function(){ hideLoading(); });
+
+            /* 时间选择列表 */
+            function getOption(){
+                var option = [];
+                for(var h=0; h<24;h++){
+                    var group = (h<12 && "上午") || (h<14 && "中午") || (h<18 && "下午") || ("晚上");
+                    for(var m=0; m<60; m+=10) option.push({ 'name':format0(h)+':'+(m||"00"), 'group':group });
+                }
+                return option;
+            }
+
+            function checkChange(o, n, data, key){ if(o!=n)data[key] = n; }
+
+            //获取需提交的数据
+            function getChangeData(){
+                var data = {};
+                _workTime.forEach(function(d, i){
+                    checkChange(d, $scope.times[i].value, data, _keys[i]);
+                });
+                checkChange(_dt.cardIntervalMax, $scope.maxSecond.value, data, 'cardIntervalMax');
+                return data;
+            }
+            //修改完成后提交
+            $scope.submit=function () {
+                showLoading();
+                var data = getChangeData();
+                if(Object.keys(data).length==0)alert(0);
+                ajaxData('set_common_config', data, function(dt){
+
+                }, null, function(){ hideLoading(); });
+            };
+
+
+        });
+
+
+
+
+
+
+
+
 
         $(document).ready(function() {
 
-            $("#tbSubmit").on('click', loadSubmit);
-
+            //$("#tbSubmit").on('click', loadSubmit);
+            return;
             Init();
 
             function Init() {
@@ -76,6 +175,7 @@
 
             function loadshots(){
                 showLoading();
+
                 ajaxData('get_network_config', {'userId':10001}, function(data)
                 {
                     cout(data);

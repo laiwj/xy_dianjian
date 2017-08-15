@@ -88,16 +88,18 @@
 </div>
 
 
+data-editing-add-text="New row"
 
 
 <div id="tree1" style="width: 90%; height: 400px; border: 1px solid #ccc; margin: 5%">
-    <table id="table1" style="width: 100%">
 
 
-    </table>
 
 </div>
 
+<table class="table">
+
+</table>
 
 
 <script src="../js/jquery-3.0.0.min.js"></script>
@@ -112,43 +114,7 @@
 <script src="../js/spin.js"></script>
 <script src="../js/ladda.js"></script>
 <script src="../js/ejs.js"></script>
-
-<script id="tm_menu1" type="text/html">
-    <tr>
-        <th>部门</th>
-        <th colspan="<%= common.length*2 %>">绩效因素设定</th>
-    </tr>
-    <tr>
-        <th>名称</th>
-        <% common.forEach(function(d, i){ %>
-            <th id="pth<%= d.id %>"><%= d.name %></th><th><%= d.value %></th>
-        <% }); %>
-    </tr>
-
-    <% data.forEach(function(d, i){ %>
-        <tr>
-            <td id="unit<%= d.uid %>"><%= d.unit %></td>
-            <% common.forEach(function(cd, ci){ %>
-                <td id="key<%= d.uid %>p<%= cd.id %>" valign="top">
-                    <div id="tree<%= d.uid %>p<%= cd.id %>"></div>
-                    <div id="new<%= d.uid %>p<%= cd.id %>" class="newParent">
-                        <span class="badge">✛</span>
-                    </div>
-                </td>
-                <td id="value<%= d.uid %>p<%= cd.id %>" valign="top">
-                    <div>
-                        <% if(!(cd.id in d.treeList))return; %>
-                        <% var len = d.treeList[cd.id].length %>
-                        <% for(var i=0; i<len; i++){ %>
-                            <div id="ys<%= d.treeList[cd.id][i][0] %>" class="td_value">10%</div>
-                        <% } %>
-                    </div>
-                </td>
-            <% }); %>
-        </tr>
-    <% }); %>
-
-</script>
+<script src="../js/com_tree.js?v=1.3"></script>
 
 
 </body>
@@ -157,405 +123,128 @@
 <script language="javascript">
     "use strict";
 
-
-    var units = [];
-    var __lsOther = {};
-    var $pl;
-    var __tempc = null;
-    var __common = [];
-    var __common_index = {};
-    var __treeview_data = {};       //save all data here.
-    var __icons = ['✎', '✕', '✛'];
-
-    function loadTableStyle(){
-        $("#table1>tr>td>div.treeview>ul>li").each(function(i, d){
-            $(this).find("span.badge").eq(-1).attr("title", "在该分类下添加子分类");
-            $(this).find("span.badge").eq(-2).attr("title", "删除该分类及其所有子分类");
-            $(this).find("span.badge").eq(-3).attr("title", "修改该分类名称或其对应值");
-        });
-        $("tr>td>div.newParent>span.badge").attr("title", "增加新的分类");
-        $("tr>td>div.newParent>span.badge").on('click', function(e){
-            var treeId = $(this).parent().attr('id').replace("new", "tree");
-
-            //cout(__treeview_data[treeId]);
-        });
-        $("#table1>tr>td>div").off('click', 'ul>li>span.badge', clickNodeForOperate);
-        $("#table1>tr>td>div").on('click', 'ul>li>span.badge', clickNodeForOperate);
-    }
-    /*
-     ********************************************************************************************
-     * 操作相关处理函数聚集
-     ********************************************************************************************
-    */
-    function clickNodeForOperate(e){
-        var treeId = $(this).parents("div.treeview").attr('id');
-        var nodeId = $(this).parent().find("a").attr("href").replace("#node-", "");
-        var lb = $(this).html();        //['✎', '✕', '✛'];
-        var data = __treeview_data[treeId];
-
-
-        if(lb=='✛') addChildClass(treeId, nodeId, data);
-        else if(lb=='✕') removeNode(treeId, nodeId, data);
-        else if(lb=='✎') editNode(treeId, nodeId, data);
-
-    }
-    function _removeTreeView(treeId){
-        var p = $("#" + treeId).parent();
-        if($("#" + treeId).hasClass("treeview")){
-            $('#'+treeId).data('treeview').remove();
-            $("#" + treeId).treeview("remove");
-            $("#" + treeId).removeClass("treeview");
-            $("#" + treeId).empty();
-        }
-        $("#" + treeId).remove();
-        p.prepend('<div id="'+ treeId +'"></div>');
-    }
-    function reloadTree(treeId, data){
-        _removeTreeView(treeId);
-        if(!('nodes' in data))return;
-        var option = getTreeOption();
-        option['data'] = data.nodes;         // data is not optional
-        option['levels'] = getTreeHeight(data);
-        $("#" + treeId).treeview(option);
-        loadTableStyle();
-
-    }
-    function editNode(treeId, nodeId, data){
-        //cout(data);
-
-    }
-    //删除节点
-    function removeNode(treeId, nodeId, data){
-        var list = getChildrenListById(data, nodeId);
-        list.forEach(function(d){
-            $("#ys"+d).remove();
-        });
-        //********************************************
-        //*后台删除数据
-        //*
-
-        removeNodeById(data, nodeId);       //*删除数据
-        reloadTree(treeId, data);           //*重新加载
-        __treeview_data[treeId] = data;     //*保存数据
-    }
-    function addChildClass(treeId, nodeId, data){
-        var newData = [];
-
-
-    }
-    function addNewParentClass(obj){
-
-    }
-
-    /*
-     ********************************************************************************************
-     * 树折叠相关
-     */
-    //树折叠事件
-    function nodeCollapsed(event, data){
-        var list = getNodeList(data);
-        for(var i=1; i<list.length; i++){
-            var obj = $("#ys"+list[i][0]);
-            if(!obj.hasClass("hide"))obj.addClass("hide");
-        }
-    }
-    //树展开事件
-    function nodeExpanded(event, data){
-        var list = getNodeExpanded(data);
-        for(var i=0; i<list.length; i++){
-            var obj = $("#ys"+list[i]);
-            if(obj.hasClass("hide"))obj.removeClass("hide");
-        }
-    }
-    //获取树展开节点
-    function getNodeExpanded(tree){
-        var list = [];
-        tree['nodes'].forEach(function(d){
-            list.push(d['id']);
-        });
-        return list;
-    }
-    //*********************************************************************************************
-    function getTreeOption(){
-        return {
-            collapseIcon:"glyphicon glyphicon-triangle-bottom",
-            expandIcon:"glyphicon glyphicon-triangle-right",
-            color:'#643',
-            backColor: 'white',
-            showTags:true,
-            highlightSelected:false,
-            enableLinks: true,
-            //nodeIcon:'glyphicon glyphicon-map-marker',
-            onNodeCollapsed: nodeCollapsed,
-            onNodeExpanded: nodeExpanded,
-        };
-    }
-
-    function loadTable(){
-        loadParent('table1');
-        var lines = loadTree('table1');
-        var tm_menu = $("#tm_menu1").html();
-        $("#table1").html(ejs.render(tm_menu, { data:lines, common:__common }));
-        lines.forEach(function(d){
-            for(var p in d.tree){
-                var treeId = 'tree' + d.uid + "p" + p;
-                __treeview_data[treeId] = d.tree[p];
-                reloadTree(treeId, d.tree[p]);
-
-            }
-        });
-        //loadTableStyle();
-
-        //$("ul>li>span.badge").eq(-2).addClass("key-add");
-        //cout($("ul>li>span.badge"));
-    }
-    function loadParent(id){
-        var dt = [{'id':1, 'name':'主要因素一', 'value':30},
-            {'id':2, 'name':'主要因素二', 'value':50},
-            {'id':3, 'name':'主要因素三', 'value':20}];
-        var html = "<tr><th>部门</th>", pSize = (100/(dt.length*2 + 1)).toString() + "%";
-        dt.forEach(function(d, i){
-            __common_index[d.id] = i;
-        });
-        __common = dt;
-    }
-    /*
-     list to tree
-     input:    'children':[{'id':101, 'pid':1, 'name':'电影'}, {'id':102, 'pid':1, 'name':'购物'}, {'id':1011, 'pid':101, 'name':'日韩'}]
-     output:    {"nodes":[{"id":101,"pid":1,"name":"电影","nodes":[{"id":1011,"pid":101,"name":"日韩"}]},{"id":102,"pid":1,"name":"购物"}]}
-     */
-    function formatTree(children){
-        var lsC = {},       //节点-孩子节点列表 索引
-                lsR = {},   //节点-检测是否根节点 索引
-                src = {};   //节点-源数据 索引
-        children.forEach(function(d){
-            src[d.id] = d;
-            lsR[d.id] = 1;
-        });
-        children.forEach(function(d){
-            if(d.pid in src){
-                lsR[d.id] = 0;
-                if(!(d.pid in lsC))lsC[d.pid] = [];
-                lsC[d.pid].push(d.id);
-            }
-        });
-        var tree = {'nodes':[]};
-        for(var c in lsR){
-            if(lsR[c]==0)continue;
-            var node = src[c];
-            node['text'] = node['name'];
-            node['tags'] = __icons;
-            node['href'] = "#node-" + node['id'];   //日后方便找到
-            tree['nodes'].push(node);
-            createTree(node, lsC, src);
-        }
-        return tree;
-    }
-    //建树过程 - 递归
-    function createTree(parent, lsc, src){
-        if(!(parent.id in lsc))return;
-        lsc[parent.id].forEach(function(d){
-            if(!('nodes' in parent))parent['nodes'] = [];
-            var _node = src[d];
-            _node['text'] = _node['name'];
-            _node['tags'] = __icons;
-            _node['href'] = "#node-" + _node['id'];   //日后方便找到
-            parent['nodes'].push(_node);
-            createTree(_node, lsc, src);
-        });
-    }
-    //获取树深度
-    function _getTreeHeight(node, height){
-        if(!('nodes' in node))return;
-        height[0]++;
-        node['nodes'].forEach(function(d){
-            _getTreeHeight(d, height);
-        });
-    }
-    function getTreeHeight(tree){
-        var height = [0];
-        _getTreeHeight(tree, height);
-        return height[0];
-    }
-    function _getNodeList(node, list){
-        if('id' in node)list.push([node['id'], node['name']]);
-        if(!('nodes' in node))return;
-        node['nodes'].forEach(function(d){
-            _getNodeList(d, list);
-        });
-    }
-    function getNodeList(tree){
-        var list = [];
-        _getNodeList(tree, list);
-        return list;
-    }
-    //获取子孙节点
-    //*注：此算法未经深入验证
-    function _getChildrenListById(node, id, list, flag){
-        if(flag==true)list.push(node['id']);
-        if(!('nodes' in node))return;
-        node['nodes'].forEach(function(d){
-            if(d['id']==id)
-                _getChildrenListById(d, id, list, true);
-            else
-                _getChildrenListById(d, id, list, flag);
-        });
-    }
-    function getChildrenListById(tree, id){
-        var list = [];
-        _getChildrenListById(tree, id, list, false);
-        return list;
-    }
-    //删除节点·含子树
-    function removeNodeById(node, id){
-        if(!('nodes' in node))return;
-        for(var i=0; i<node['nodes'].length; i++){
-            if(node['nodes'][i]['id']==id){
-                node['nodes'].splice(i, 1);
-                if(node['nodes'].length==0)delete node['nodes'];
-                return;
-            }
-            removeNodeById(node['nodes'][i], id);
-        }
-    }
-    /*
-    function removeNodeById(tree, id){
-        for(var i=0; i<tree['nodes'].length; i++){
-            if(tree['nodes'][i]['id']==id){
-                tree['nodes'].splice(i, 1);
-                if(tree['nodes'].length==0)delete tree['nodes'];
-                return;
-            }
-            _removeNodeById(tree['nodes'][i], id);
-        }
-    }
-    function _removeNodeById(node, id){
-        if(!('nodes' in node))return;
-        for(var i=0; i<node['nodes'].length; i++){
-            if(node['nodes'][i]['id']==id){
-                node['nodes'].splice(i, 1);
-                if(node['nodes'].length==0)delete node['nodes'];
-                return;
-            }
-            _removeNodeById(node['nodes'][i], id);
-        }
-    }
-
-*/
-    function loadTree(id){
-        var dt = [{'uid':100, 'unit':'科技部', 'children':[{'id':101, 'pid':1, 'name':'电影'},
-            {'id':102, 'pid':1, 'name':'购物'}, {'id':1011, 'pid':101, 'name':'日韩'},
-            {'id':201, 'pid':2, 'name':'自然'}, {'id':202, 'pid':2, 'name':'人文'}
-        ]},
-            {'uid':101, 'unit':'信息部', 'children':[{'id':111, 'pid':1, 'name':'美食'}, {'id':1110, 'pid':111, 'name':'海鲜'}, {'id':1111, 'pid':111, 'name':'火锅'}]},
-            {'uid':102, 'unit':'质量部', 'children':[{'id':114, 'pid':1, 'name':'旅行'}, {'id':1140, 'pid':114, 'name':'广西'}, {'id':11401, 'pid':1140, 'name':'罗成'}
-                , {'id':11402, 'pid':1140, 'name':'柳城'}
-            ]},
-        ];
-        var data = [];
-        dt.forEach(function(d){
-            var line = {};
-            line['unit'] = d.unit;
-            line['uid'] = d.uid;
-            var _tree = formatTree(d.children);
-            var trees = {}, treeList = {}, maxL = 0;
-            //各分树信息
-            _tree.nodes.forEach(function(cd){
-                if(!(cd.pid in trees))trees[cd.pid] = {'nodes':[]};
-                trees[cd.pid]['nodes'].push(cd);
-            });
-            //各分树->列表
-            __common.forEach(function(cd){
-                if(cd.id in trees){
-                    treeList[cd.id] = getNodeList(trees[cd.id]);
-                    if(treeList[cd.id].length>maxL) maxL = treeList[cd.id].length;
-                }
-            });
-            line['tree'] = trees;
-            line['treeList'] = treeList;
-            line['maxL'] = maxL;
-            data.push(line);
-        });
-        return data;
-    }
-
-
-
-
-    loadTable();
-
     $(document).ready(function() {
 
-        //$("#table1>tr>td>div").on('click', 'ul>li>span.badge', clickNodeForOperate);
-
-
-
-
-        $(".test1").click(function(){
-            cout($("tr>td span.badge"));
-        });
-        /*
-
-        var tree = [
-            {
-                text: "工作时间",
-                nodes: [
-                    {
-                        text: "考勤相关",
-                        //icon: "glyphicon glyphicon-edit",
-                        //selectedIcon: "glyphicon glyphicon-edit",
-                        //color: "#000000",
-                        backColor: "white",
-                        href: "#node-1",
-                        selectable: true,
-                        state: {
-                            checked: true,
-                            expanded: true,
-                            selected: true
-                        },
-                        tags: ['available'],
-                        nodes: [
-                            {
-                                text: "迟到"
-                            },
-                            {
-                                text: "请假"
-                            }
-                        ]
+        FooTable.init(".table", {
+            "columns": [
+                { "name": "id", "title": "ID", "breakpoints": "xs" },
+                { "name": "firstName", "title": "First Name" },
+                { "name": "lastName", "title": "Last Name" },
+                { "name": "jobTitle", "title": "Job Title", "breakpoints": "xs" },
+                { "name": "started", "title": "Started On", "breakpoints": "xs sm" },
+                { "name": "dob", "title": "DOB", "breakpoints": "xs sm md" }
+            ],
+            "rows": [
+                {
+                    "options": {
+                        "expanded": true
                     },
-                    {
-                        text: "加班情况"
-                    }
-                ]
-            },
-            {
-                text: "学习能力",
-                nodes:[{
-                    text: "主动性"
-                }]
-            },
-            {
-                text: "员工关系"
-            },
-            {
-                text: "创新"
-            },
-            {
-                text: "Parent 5"
-            }
-        ];
-
-        $('#tree123').treeview({
-            data: tree,         // data is not optional
-            levels: 5,
-            collapseIcon:"glyphicon glyphicon-triangle-bottom",
-            expandIcon:"glyphicon glyphicon-triangle-right",
-            color:'#643',
-            backColor: 'white',
-            //nodeIcon:'glyphicon glyphicon-map-marker',
+                    "value": { "id": 1, "firstName": "Dennise", "lastName": "Fuhrman", "jobTitle": "High School History Teacher", "started": "November 8th 2011", "dob": "July 25th 1960" }
+                },
+                { "id": 2, "firstName": "Elodia", "lastName": "Weisz", "jobTitle": "Wallpaperer Helper", "started": "October 15th 2010", "dob": "March 30th 1982" },
+                { "id": 3, "firstName": "Raeann", "lastName": "Haner", "jobTitle": "Internal Medicine Nurse Practitioner", "started": "November 28th 2013", "dob": "February 26th 1966" },
+                { "id": 4, "firstName": "Junie", "lastName": "Landa", "jobTitle": "Offbearer", "started": "October 31st 2010", "dob": "March 29th 1966" },
+                { "id": 5, "firstName": "Solomon", "lastName": "Bittinger", "jobTitle": "Roller Skater", "started": "December 29th 2011", "dob": "September 22nd 1964" },
+                { "id": 6, "firstName": "Bar", "lastName": "Lewis", "jobTitle": "Clown", "started": "November 12th 2012", "dob": "August 4th 1991" },
+                { "id": 7, "firstName": "Usha", "lastName": "Leak", "jobTitle": "Ships Electronic Warfare Officer", "started": "August 14th 2012", "dob": "November 20th 1979" },
+                { "id": 8, "firstName": "Lorriane", "lastName": "Cooke", "jobTitle": "Technical Services Librarian", "started": "September 21st 2010", "dob": "April 7th 1969" }
+            ]
         });
 
-        */
+        DrawPieTree();
+
+
+        function DrawPieTree(dt){
+            var data = dt || {name:"绩效", nodes:[{name:"直达", value:20, nodes:[{name:"直达1", value:30}, {name:"直达2", value:70}]},
+                {name:"营销广告", value:10},
+                {name:"搜索引擎", value:60, nodes:[{name:"邮件", value:35, nodes:[{name:"企业邮件", value:15}]}, {name:"联盟", value:65}]}] };
+
+            var colorCfg = ["#87CEFA", "#58C1C0", "#23BAD7", "#F7A35C", "#8085E9", "#10B4E8", "#07C25B",
+                "#89F588", "#12AA9E", "#9C99FF", "#4F81BE", "#279F3E", "#FD5F60", "#F7DDDC",
+                "#4272C6", "#FF850A", "#8DAE00", "#67C454", "#F25C82", "#DC70D6"];
+            var colorNull = "#ddd";
+
+            // 获取一个相似颜色， 十六进制，layer表示哪个颜色做改动
+            function getColorNear(clr, layer){
+                if(layer==undefined) layer = 0;
+                layer = layer % 3;
+                var r = clr.substr(1, 2), g = clr.substr(3, 2), b = clr.substr(5, 2);
+                var c = [r, g, b], number = parseInt(c[layer], 16), f = [-1, 1][parseInt(Math.random() * 2)],
+                        offset = parseInt(Math.random() * 32) * f;
+                var S = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+                number = (number + offset) % 256;
+                c[layer] = S[parseInt(number / 16)] + S[parseInt(number % 16)];
+                return "#" + c[0] + c[1] + c[2];
+            }
+
+            var T = new ViewTree(), height = ViewTree.getTreeHeight(data), rCenter = 0;
+            var series = [], R = 85 / (height - 1);
+            for(var i = 1; i< height; i++) series.push({
+                data:[],
+                type:"pie",
+                radius: [(R * (i - 1) + rCenter) + "%", (R * i + rCenter) + '%'],
+                label: {
+                    normal: {
+                        position: 'inner'
+                    }
+                },
+                labelLine: {
+                    normal: {
+                        show: false
+                    }
+                }
+            });
+
+            T.viewTreeByLayer(data, function(n){
+                if("nodes" in n){   // 检查是否配满
+                    var sumC = n["nodes"].reduce(function(a, b){ a += b.value; return a; }, 0);
+                    if(sumC<100)n["nodes"].push({name:"empty", value:100 - sumC, height:n.height + 1 });
+                }else{
+                    if(n.height > 0 && n.height < (height-1)){  // 空子孙占位
+                        n["nodes"] = [{name: n.name, value: 100, flag:'full', height:n.height + 1 }];
+                    }
+                }
+            });
+
+            // 一级节点配色
+            data['nodes'].forEach(function(d, i){
+                d['color'] = (d.name==="empty") ? colorNull : colorCfg[i % 20];
+            });
+
+            // 节点配色
+            T.viewTreeByLayer(data, function(n){
+                if(n.height==0 || !("nodes" in n))return;
+                n.nodes.forEach(function(c){
+                    if(c.name=='empty') c['color'] = "#ddd";             //空白色
+                    else if(c.flag=='full') c['color'] = n.color;       //子级占位同色
+                    else c['color'] = getColorNear(n.color, n.height);  //子孙近似色
+                });
+            });
+
+
+            data['id'] = "root";
+            ViewTree.getLeafWeight(data);       // 获取各级最终比例
+
+            T.viewTreeByLayer(data, function(node){
+                if(node.height != 0) series[node.height - 1].data.push({
+                        name: node.name==="empty" ? "空" : node.name,
+                        value: (node.value * 100).toFixed(2),
+                        itemStyle: {normal:{color:node.color }
+                        }});
+            });
+
+            var option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(p){ return p.name + "<br>所占比例：" + p.value; }
+                },
+                series: series
+            };
+
+            Init3(option, "tree1");
+        }
+        // End Function
+
     });
 
 

@@ -10,7 +10,8 @@
 	<![endif]-->
 	<style type="text/css">
 		.bd{ border: 1px solid #ccc}
-		#view1rtn{border: 1px solid #ccc; padding: 2px 18px;position:absolute;z-index:100; top:25px; cursor: pointer}
+		#view1rtn{border: 1px solid #ccc; padding: 2px 18px;position:absolute;z-index:100; top:15px; cursor: pointer;
+			z-index:999;;width:70px; display: none; }
 		table tr td:nth-child(5),table tr th:nth-child(4){ text-align: center; }
 		table tr th{ border:1px solid #ccc;background-color: #f0f0f2;border:1px solid #ccc }
 
@@ -54,6 +55,8 @@
 		var __interval_data = [];
 		var __dataClock = {};
 		var __cardDetail = {};
+		var __option = {};
+		var __dts = [];
 
 		//----------------------加载部门信息
 		function loadUnitList(){
@@ -79,6 +82,8 @@
 			}
 			var selDate = getLastMonth();
 			loadClockData(init_unit_clock, selDate);
+
+
 			//loadIntervalData("view2");
 
 		});
@@ -109,9 +114,22 @@
 			});
 
 		}
+
+		//第二层容器
+		function addLevelTwo(){
+			var left = $("#view1").width() - 120;
+			$("#view1").append('<div id="view1rtn" style="display: none;left:'+ left +'px" >返回</div>');
+			$("#view1rtn").click(function(){
+				$("#view1rtn").hide();
+				var _u = $("#unitsel1sel1").val() ;
+				loadClockAll(_u);
+			});
+		}
+
 		//*******版本更新，将异常改为一般异常，正常数据替换成特殊异常
 		function loadClock(data, _unit, _tm){
-			var dt1 = [], dt2 = [], dt3 = [], _tmsp = _tm.split("-");
+        	//cout(data);cout(_tm);
+			var dt1 = [], dt2 = [], dt3 = [], dt4 = [], _tmsp = _tm.split("-");
 			var	month = parseInt(_tmsp[1]);
 			var dayCount =  new Date(parseInt(_tmsp[0]), month, 0).getDate();
 
@@ -119,9 +137,13 @@
 				err.forEach(function(d){
 					var _d = DateSTD(d[1]), _day = _d.getDate(), _m = DateSTM(d[1]);//月份-天， 时间距0点分钟数
 					if(i<4)dt2.push([_m, _day, d[0], d[3], d[4], i]);
-					else dt3.push([_m, _day, d[0], d[3], d[4], i]);
+					else if(i==4) dt3.push([_m, _day, d[0], d[3], d[4], i, d[2]]);
+					else if(i==5) dt4.push([_m, _day, d[0], d[3], d[4], i, d[6]]);
 				});
 			});
+			//----dt4测试数据
+
+			cout(dt4);
 			data.normal.forEach(function(d){
 				var _d = DateSTD(d[1]), _day = _d.getDate(), _m = DateSTM(d[1]);//月份-天， 时间距0点分钟数
 				dt1.push([_m, _day, d[0], d[3], d[4]]);
@@ -137,24 +159,28 @@
 					var history = __cardDetail[person][day].map(function(d){
 						return TimeFormat(d[0].split(" ")[1]) + " : " + card[d[1]];
 					});
-					return "<br />日期："+ day +"<br /><br />行为轨迹：<br />" + history.join("<br />");
+					return "<br />外出时长："+ p.data[6] +"分钟<br /><br />行为轨迹：<br />" + history.join("<br />");
 				}
 				return "";
 			}
+			/* 获取鼠标提示 */
+			function getToolText(p){
+				if (p.data.length == 5)
+					return p.data[4] + "<br />" + "正常" + "<br />" + (p.data[3] == 0 ? "上" : "下") + "班时间：" + TimeMTS(p.data[0]);
+				var text = p.data[4] + "<br />" + "异常：" + __errText[p.data[5]], html = getTooltip(p), day = month + "-" + p.data[1] + " ";
+				if (p.data[5]==5) text += "<br />备注：" + p.data[6];
+				return text + "<br />时间：" + day + TimeMTS(p.data[0]) + html;
+			}
+			//cout(__errText);
 			var option = {
 				title : { text: '打卡时间分布', subtext: _unit, x:30 },
-				tooltip : { trigger: 'item', formatter:function(p) {
-					if (p.data.length == 5)
-						return p.data[4] + "<br />" + "正常" + "<br />" + (p.data[3] == 0 ? "上" : "下") + "班时间：" + TimeMTS(p.data[0]);
-					var html = getTooltip(p);
-					return p.data[4] + "<br />" + "异常：" + __errText[p.data[5]] + "<br />时间：" + TimeMTS(p.data[0]) + html;
-				}},
-				legend: { data:['正常','异常','特定异常'] },
+				tooltip : { trigger: 'item',position : function(p) {return [p[0] + 10, p[1] - 10];}, formatter:function(p) { return getToolText(p); }},
+				legend: { data:['正常','异常','特定异常', '出差异常'] },
 				grid:{x:55, x2:15},
 				calculable : true,
 				xAxis : [{
 					type : 'value', name:"- 时间轴 -", nameGap:35 , nameLocation:'middle', scale : true, min:-30, interval:120, axisLine:{show:false,onZero:false},
-					axisLabel : { formatter: function(params){ return TimeMTS(params);} },
+					axisLabel : { formatter: function(params){ return TimeMTS(params);} }
 				}],
 				yAxis : [{
 					type : 'value', scale : false, min:0, max:dayCount, axisLine:{show:true,onZero:false},
@@ -163,32 +189,48 @@
 				series : [
 					{ name:'正常', type:'scatter', symbolSize:4, data: dt1, itemStyle:{normal:{color:"#286090"}} },
 					{ name:'异常', type:'scatter', symbolSize:4, data: dt2, itemStyle:{normal:{color:"#ec971f"}}  },
-					{ name:'特定异常', type:'scatter', symbolSize:4, data: dt3, itemStyle:{normal:{color:"#c9302c"}} }
+					{ name:'特定异常', type:'scatter', symbolSize:4, data: dt3, itemStyle:{normal:{color:"#c9302c"}} },
+					{ name:'出差异常', type:'scatter', symbolSize:4, data: dt4, itemStyle:{normal:{color:"#00FF7F"}} },  //00FFFF
 				]
 			};
+
 			loadTable1(data.error.data, "table-data1");
 			$("#view1").html("");
+
+			__option = option;
+			__dts = [dt1, dt2, dt3, dt4];
 			__myChart1 = Init3(option, "view1");
 			__myChart1.on('click', function(p){
-				//********************************************暂不开放查看详情将问题复杂化********************************************
-				return;
-				loadPerson();
-				var left = $("#view1").width() - 135;
-				$("#view1").append('<div id="view1rtn" style="cursor: pointer;top:5px;z-index:999;position: absolute;width:60px;left:'+ left +'px" >返回</div>');
-				$("#view1rtn").click(function(){
-					$("#view1rtn").remove();
-					var _u = $("#unitsel1sel1").val() ;
-					loadClock(__dataClock, _u);
-				});
-			})
+				var pId = p.data[2], pname = p.data[4];
+				loadClockPerson(pId, pname);
+				//********************************************已开放二级·`暂不开放查看详情将问题复杂化********************************************
+
+			});
+			addLevelTwo();
 		}
 
+		function loadClockAll(unit){
+			__option.series.forEach(function(d, i){d.data = __dts[i] });
+			__option.title.subtext = unit;
+			__myChart1.setOption(__option);
+		}
+		function loadClockPerson(pId, pname){
+			$("#view1rtn").show();
+			var dts = [[], [], [], []];
+			__option.series.forEach(function(d, i){
+				dts[i] = __dts[i].filter(function(d){ return d[2]==pId; });
+				d.data = dts[i];
+			});
+			__option.title.subtext = pname;
+			__myChart1.setOption(__option);
+
+		}
 		//-------------------------------------------------表格1-------------------------------------
 		function formatDataTable1(_dt){
-			var sum = {};
+			var sum = {}, tripDay = {};
 			_dt.forEach(function(line, i){
 				line.forEach(function(d){
-					var key = __errText[i];
+					var key = __errText[i], day = d[1].split(" ")[0], pd = d[0]+ "_" + day;
 					if(!sum.hasOwnProperty(d[0])){
 						sum[d[0]] = {"id": d[0], "name":d[4], "unit": d[5], "value":1, "text":{} };
 						sum[d[0]].text[key] = 1;
@@ -196,7 +238,14 @@
 					else{
 						sum[d[0]].value++;
 						if(!sum[d[0]].text.hasOwnProperty(key))sum[d[0]].text[key]=0;
-						sum[d[0]].text[key]++;
+						if(d[3]===5){
+							if(!(tripDay.hasOwnProperty(pd))){	//一天只记录一次
+								sum[d[0]].text[key]++;
+								tripDay[pd] = 1;
+							}
+						}else{
+							sum[d[0]].text[key]++;
+						}
 						//sum[d[0]].text.add(__errText[i]);
 					}
 				});
@@ -209,6 +258,7 @@
 				});
 			return dt;
 		}
+
 		function loadTable1(data, tbId){
 			$('#'+tbId).html("");
 			var columns = [
@@ -219,15 +269,16 @@
                 {"name":"value","title":"异常指数"}, //, "type":"number"
 			];
 			var ft = $('#'+tbId).footable({
-				"columns": columns, "rows": formatDataTable1(data), "paging": { "size": 7 },
+				"columns": columns, "rows": formatDataTable1(data), "paging": { "size": 7 }
 			});
 			tableClick(ft, tbId, function(obj){
-				obj.attr("title", obj.find("td:eq(4)").html());
-
+				obj.attr("title", "点击可查看员工个人详情");
+				var pId = obj.find("td:eq(0)").html(), pname = obj.find("td:eq(1)").html();
+				loadClockPerson(pId, pname);
 			});
 		}
 
-		//-----------------------------------------------------------------------------------------------------
+		//-------------------------------------------已弃用----------------------------------------------------------
 
 		function loadPerson(){
 			var dt=[];
@@ -250,7 +301,7 @@
 				tooltip : { trigger: 'axis' },
 				legend: { data:['上班时间','下班时间'], y :30 },
 				calculable : true,
-				xAxis : [ {type : 'category', data:x, boundaryGap : false, axisLabel: { rotate: 60, interval:0 }, }],
+				xAxis : [ {type : 'category', data:x, boundaryGap : false, axisLabel: { rotate: 60, interval:0 } }],
 				yAxis : [ { type : 'value', axisLabel : { formatter: function(params){ return DateF(params);} } } ],
 				series : [
 					{
@@ -260,9 +311,9 @@
 							data : [
 								[{
 									symbol: 'circle', coord:[0, 270], name: '上班时间',
-									label: { normal: { formatter: '9:00 上班点' }},	lineStyle:{ normal: { color:'red' } },
+									label: { normal: { formatter: '9:00 上班点' }},	lineStyle:{ normal: { color:'red' } }
 								},
-									{ symbol: 'arrow', coord:[x.length-1, 270],}
+									{ symbol: 'arrow', coord:[x.length-1, 270]}
 								]]}
 					},
 					{
@@ -274,9 +325,9 @@
 							data : [
 								[{
 									symbol: 'circle', coord:[0, 780], name: '下班时间',
-									label: { normal: { formatter: '18:00 下班点' }},	lineStyle:{ normal: { color:'red' } },
+									label: { normal: { formatter: '18:00 下班点' }},	lineStyle:{ normal: { color:'red' } }
 								},
-									{ symbol: 'arrow', coord:[x.length-1, 780],}
+									{ symbol: 'arrow', coord:[x.length-1, 780]}
 								]]
 						}}]
 			};

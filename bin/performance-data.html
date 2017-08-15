@@ -60,7 +60,7 @@
 							</div>
 							<div class="form-group floatR">
 								<button type="button" class="btn btn-warning floatR" style="margin-left: 30px" id="tbSubmit">保存设置</button>
-                        		<button type="button" class="btn btn-default floatR">取消更改</button>	
+                        		<button type="button" class="btn btn-default floatR" onclick="refresh()">取消更改</button>
                         	</div>
                         </form>
                         
@@ -72,12 +72,11 @@
     </div>
 
     <script src="../js/bootstrap.min.js"></script>
-    <script src="../js/bootstrap-3.3.7.min.js"></script>
     <script src="../js/public.js"></script>
     <script src="../js/prism.js"></script>
     <script src="../js/ie10-viewport-bug-workaround.js"></script>
     <script src="../js/moment.min.js"></script>
-    <script type="text/javascript" src="../js/jquery.colorbox-min.js" ></script>
+    <script src="../js/jquery.colorbox-min.js" ></script>
     <script src="../js/com_tree.js"></script>
     <script src="../js/unitMonth.js"></script>
     <script src="../js/cellData.js"></script>
@@ -146,10 +145,16 @@
         
         //----------------------加载部门信息
         function loadUnitList(){
-            ajaxData('get_units', {}, function(data)
+            ajaxData('get_performance_unit', {}, function(dt)
             {
-                data.forEach(function(d){ __units[d[1]] = d[0]; });
-                addUnitSelEx('unitsel1', data, _loadUnitSystemData);
+                var unit = dt.data.unit, org = dt.data.org;
+                unit = unit.map(function(d){ __units[d.id] = d.unit; return [d.unit, d.id]; });
+                org.forEach(function(d){ __units[d.id] = d.unit; unit.push([d.unit, d.id.toString()]); });
+
+                //dt.forEach(function(d){ __units[d[1]] = d[0]; });
+                //addUnitSelEx('unitsel1', dt, _loadUnitSystemData);
+
+                addUnitSelEx('unitsel1', unit, _loadUnitSystemData);
                 addYearMonthList("unitsel1", loadUnitSystemData);
 
             });
@@ -190,16 +195,17 @@
 
         //获取部门人员绩效数据
         function loadUnitSystemData(unitId, dataTime, userId){
-            cout([unitId, dataTime, userId]);
             showLoading();
             ajaxData('get_performance_value_system', {'userId':userId, 'dataTime':dataTime, 'unitId':unitId}, function(dt)
             {
-                cout(dt);
                 var data = dt.data;
-                for(var p in dt.data){
-                    dt.data[p]['unit'] = __units[dt.data[p].unitId];
+                if(Object.keys(data).length==0) {
+                    alert("该部门或组织无人员配置！");
+                    return;
                 }
-				
+
+                //for(var p in dt.data)dt.data[p]['unit'] = __units[dt.data[p].unit];
+
                 __CD.setTableData(values(data));
 
             }, null, function(){

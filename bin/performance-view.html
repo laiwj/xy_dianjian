@@ -60,7 +60,7 @@
 							</div>
 							<div class="form-group floatR">
                         		<button type="button" class="btn btn-warning floatR" style="margin-left: 30px" id="tbSubmit">保存设置</button>
-                        		<button type="button" class="btn btn-default floatR">取消更改</button>
+                        		<button type="button" class="btn btn-default floatR" onclick="refresh()">取消更改</button>
                         	</div>
                         </form>
                         
@@ -75,7 +75,6 @@
 
     <script src="../js/jquery.min.js"></script>
     <script src="../js/bootstrap.min.js"></script>
-    <script src="../js/bootstrap-3.3.7.min.js"></script>
     <script src="../js/bootstrap-treeview.min.js"></script>
     <script src="../js/public.js"></script>
     <script src="../js/ejs.js"></script>
@@ -92,6 +91,7 @@
 
     <script id="tm_view1" type="text/html">
         <tr>
+            <th rowspan="<%= common.height+1 %>">部门</th>
             <th rowspan="<%= common.height+1 %>">工号</th>
             <th rowspan="<%= common.height+1 %>">姓名</th>
         </tr>
@@ -111,6 +111,7 @@
     <script id="tm_tbody1" type="text/html">
         <% data.forEach(function(d, i){ %>
         <tr class="tableData" id="unit<%= d.unitId %>ps<%= d.personId %>">
+            <td style="padding: 2px 10px"><%= d.unit %></td>
             <td id="uid<%= d.personId %>"><%= d.personId %></td>
             <td id="name<%= d.uid %>" style="min-width: 70px; text-align: center"><%= d.name %></td>
             <% keys.forEach(function(e, j){ %>
@@ -154,10 +155,15 @@
 
         //----------------------加载部门信息
         function loadUnitList(){
-            ajaxData('get_units', {}, function(data)
+            ajaxData('get_performance_unit', {}, function(dt)
             {
-                data.forEach(function(d){ __units[d[1]] = d[0]; });
-                addUnitSelEx('unitsel1', data, loadUnitSetting);
+                var unit = dt.data.unit, org = dt.data.org;
+                unit = unit.map(function(d){ __units[d.id] = d.unit; return [d.unit, d.id]; });
+                org.forEach(function(d){ __units[d.id] = d.unit; unit.push([d.unit, d.id.toString()]); });
+
+                //data.forEach(function(d){ __units[d[1]] = d[0]; });
+                //addUnitSelEx('unitsel1', data, loadUnitSetting);
+                addUnitSelEx('unitsel1', unit, loadUnitSetting);
                 addYearMonthList("unitsel1", loadUnitPerformance);
             });
         }
@@ -225,6 +231,11 @@
             ajaxData('get_performance_value_unit', {'userId':userId, 'dataTime':dataTime, 'unitId':unitId}, function(dt)
             {
                 var data = dt.data, __lines = dt.data;
+                if(Object.keys(data).length==0) {
+                    alert("该部门或组织无人员配置！");
+                    return;
+                }
+
                 for(var p in dt.data){
                     dt.data[p]['unit'] = __units[dt.data[p].unitId];
                 }

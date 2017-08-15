@@ -225,16 +225,19 @@ $(document).ready(function() {
 		});
 		var debug_c = getQueryString('c'), debug_w = getQueryString('w');
 		if(debug_c && ['red', 'blue', 'green', 'yellow', 'black', 'gray', 'Pink'].indexOf(debug_c)==-1)debug_c = '#'+debug_c;
+        
 		var maxW = 50;
 		if(_links.length<250)maxW = _links.reduce(function(a, b){ return a>b[2] ? a : b[2]}, 0);	/* 最大连边 */
 		var cache_linkw = {};
 		var links = _links.map(function(d){
 			var lk = { source:d[0], target:d[1]};
-			var w = parseInt(d[2]/maxW*3)+1;
+			var w = parseInt(d[2]/maxW*3)+1, linkColor = init_color_people;
 			cache_linkw[lk.source + "|" + lk.target] = d[2];
 			cache_linkw[lk.target + "|" + lk.source] = d[2];
 			if(debug_w!=undefined)w=parseInt(debug_w);
-			if(debug_c)lk['lineStyle'] = {normal:{color:debug_c, width:w<5 ? w : 5}};
+        linkColor = debug_c || init_color_people;  //if(debug_c)
+            
+			lk['lineStyle'] = {normal:{color:linkColor, width:w<5 ? w : 5}};
 			return lk;
 		});
 		var c = __printColor;

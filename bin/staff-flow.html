@@ -30,7 +30,7 @@ table tr td{border:1px solid #ccc;}
 	<div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto" style="margin-top:5px; margin-bottom: 45px">
 		<div class="col col-sm-12">
 			<div class="title" style="height: 10px"></div>
-			<div id="view3" class="w-full" style="height:395px">
+			<div id="view3" class="w-full" style="height:875px">
 			</div>
 		</div>
 	</div>
@@ -52,12 +52,16 @@ table tr td{border:1px solid #ccc;}
 var pieSelectName = "nosel";
 var __myChart = null, __view1, __view2;
 var __myChart1 = null;
-var __current = 0;
+var __ChartDatazoom = null;
+var __current = 7;
 var __flow_data = null;
 var __table_create = false;
 var __select_create = false;
 var __datazoom_view1 = null;
 var __view_level = 0;
+var __init_datazoom = false;
+var __metux_view1 = false;
+
 
 $(document).ready(function() {
 	var days = [ "一", "二", "三", "四", "五", "六", "日" ].map(function(d){ return "星期" + d; });
@@ -86,7 +90,7 @@ $(document).ready(function() {
 
 	//-------------------------------------加载部门信息---------------------------------------------
 	function selUnit1(_u){
-		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();;
+		var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();
 		__view_level = _u=='所有部门' ? 0 : 1;
 		getFlowData('view1', startDate, endDate, 1, _u);
 		$("#flowsel1").val(_u);
@@ -106,8 +110,8 @@ $(document).ready(function() {
 				sel2 = '<select id="'+ id + 'tsel2">', sp = ' - ', opt='';
 		for(var i=0;i<25;i++)opt += '<option value ="'+ i +'">'+ i +':00</option>';
 		$("#" + id).append(div + sel1 + opt + '</select>' + sp + sel2 + opt + '</select>' + '</div>');
-		$("#" + id + 'tsel1').val(9);
-		$("#" + id + 'tsel2').val(17);
+		$("#" + id + 'tsel1').val(7);
+		$("#" + id + 'tsel2').val(18);
 		$("#" + id + 'tsel1').change(timeSelClick);
 		$("#" + id + 'tsel2').change(timeSelClick);
 	}
@@ -131,6 +135,7 @@ $(document).ready(function() {
 		var lsd = days.map(function(d){ return [d, 0]; });
 		__datazoom_view1.loadZoom(lsd, listenZoom);
 		__view1 = __datazoom_view1.did;
+        __ChartDatazoom = __datazoom_view1.myChart;
 		__myChart1 = echarts.init(document.getElementById(__view1)).showLoading();
 
 		var sel = getDateSel(dateStart, dateEnd);
@@ -143,7 +148,6 @@ $(document).ready(function() {
 			__flow_data[7] = getZoomFlowSumData(__flow_data);
 			cout(__flow_data);
 
-			loadFlowDefault();
 			if(!__table_create){
 				createTable("view3");
 				setTableHead("view3", []);
@@ -154,7 +158,10 @@ $(document).ready(function() {
 			var wkValue = getWeekdayValueSum(__flow_data);
 			wkValue[wkValue.length-1] = getSecondMax(wkValue);
 			__datazoom_view1.setData(wkValue);
-			setTableData("view3", []);
+
+            loadFlowDefault();
+            __metux_view1 = false;
+
 			if(__myChart1)__myChart1.hideLoading();
 		});
 	}
@@ -187,10 +194,14 @@ $(document).ready(function() {
 		});
 	}
 	function loadFlowDefault(){
-		var hb = parseInt($("#flowtsel1").val()), he =parseInt( $("#flowtsel2").val()), weekday = __current;;
-		loadFlowImage(__view1, weekday, hb, he);
+		var hb = parseInt($("#flowtsel1").val()), he =parseInt( $("#flowtsel2").val()), weekday = __current;
+        setTableData("view3", [], hb, he);
+        loadFlowImage(__view1, weekday, hb, he);
 	}
+    function getDayPostion(m){ return [m/8*100, (m+1)/8*100]; }
 	function loadFlowImage(id, weekday, hourBegin, hourEnd){
+        __metux_view1 = true;
+        __init_datazoom = false;
 		var cls = ['温江->成都', '成都->温江'], lsSrc = ['温江', '成都'];
 		var _dt = {};
 		for(var i=hourBegin; i<hourEnd; i++) {
@@ -227,15 +238,24 @@ $(document).ready(function() {
 			yAxis : [{ name:'流动方向', nameLocation:'end',axisLabel:{rotate:-90,textStyle:{fontWeight:'bold',fontSize:14}}, splitLine:{show: false}, type : 'category', data : cls}],
 			series : ses
 		};
-		//console.log(ses);
+
 		var _chart = Init3(option1, id);
 		_chart.on('click', function(p){
 			if(__view_level==0)selUnit1(p.seriesName);
 		});
+
+        if(!__init_datazoom || 1) {    //***此处放弃保留用户选择行为查询功能***//
+            __ChartDatazoom.dispatchAction({
+                type: 'dataZoom', dataZoomIndex: 0, start: getDayPostion(__current)[0], end: getDayPostion(__current)[1]
+            });
+            __init_datazoom = true;
+        }
+        __metux_view1 = false;
 	}
 
 	//---------------------------------------------------------------------------------------------
 	function listenZoom(pos, time){
+        if(__metux_view1)return; //防止重复触发事件
 		//var lsp = getProjectByTime(time[0][0], time[1][0]);
 		var _tp = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日', '全部'].reduce(function(a, b, i){ a[b]=i; return a;}, {})
 		var d = time[0][0];
@@ -246,58 +266,100 @@ $(document).ready(function() {
 
 
 	//********************************表格相关************************************************************************************
-	function getTableData(){
-		var data = [], lst = [7, 8, 9, 16, 17, 18, 7, 8, 9, 16, 17, 18], lsw = [0, 1, 2, 3, 4, 5, 6];
+	function getTableData(st,et){
+		var data = [], newdata=[], lst = [0,1,2, 3,4, 5,6, 7, 8, 9, 10,11, 12,13, 14,15, 16, 17, 18, 19,20, 21,22,23, 0,1,2, 3,4, 5,6, 7, 8, 9, 10,11, 12,13, 14,15, 16, 17, 18, 19,20, 21,22,23], lsw = [0, 1, 2, 3, 4, 5, 6];
 		//cout(__flow_data);
-		for(var i=0; i<lst.length; i++){
-			var line = [], src = i<6 ? '成都' : '温江';
-			for(var w in lsw){
-				var ste = __flow_data.hasOwnProperty(w) ? __flow_data[w].hasOwnProperty(lst[i]) : false;
-				line.push( !ste ? 0 : Object.keys(__flow_data[w][lst[i]]).reduce(function(a, b){
-					return a + __flow_data[w][lst[i]][b][src] || 0;
-				}, 0) );
-			}
-			data.push(line);
-		}
-		return data;
+        for(var i=0; i<lst.length; i++){
+            var line = [], src = i<24 ? '成都' : '温江';
+            for(var w in lsw){
+                var ste = __flow_data.hasOwnProperty(w) ? __flow_data[w].hasOwnProperty(lst[i]) : false;
+                line.push( !ste ? 0 : Object.keys(__flow_data[w][lst[i]]).reduce(function(a, b){
+                    return a + __flow_data[w][lst[i]][b][src] || 0;
+                }, 0) );
+            }
+            data.push(line);
+        }
+        //帅选数据
+        for(var i=0;i<=23;i++){
+            if(i<st||i>=et){
+                data[i]=[0,0,0,0,0,0,0]
+            }
+        }
+        for(var i=24;i<=47;i++){
+            if(i-24<st||i-24>=et){
+                data[i]=[0,0,0,0,0,0,0]
+            }
+        }
+        console.log(data);
+        //归总
+        function plus(a, b,c) {
+            var arr = a.map(function(e, i){
+                return e+b[i];
+            });
+            if(c){
+                return c.map(function(e2, i){
+                    return e2+arr[i];
+                });
+            }else {
+                return arr;
+            }
+        }
+        var arr1 = plus(data[0],data[1],data[2]),
+                arr2 = plus(data[3],data[4]),
+                arr3 = plus(data[5],data[6]),
+                arr4 = plus(data[10],data[11]),
+                arr5 = plus(data[12],data[13]),
+                arr6 = plus(data[14],data[15]),
+                arr7 = plus(data[19],data[20]),
+                arr8 = plus(data[21],data[22],data[23]),
+                arr9 = plus(data[24],data[25],data[26]),
+                arr10 = plus(data[27],data[28]),
+                arr11 = plus(data[29],data[30]),
+                arr12 = plus(data[34],data[35]),
+                arr13 = plus(data[36],data[37]),
+                arr14 = plus(data[38],data[39]),
+                arr15 = plus(data[43],data[43]),
+                arr16 = plus(data[45],data[46],data[47]);
+        newdata.push(arr1,arr2,arr3,data[7],data[8],data[9],arr4,arr5,arr6,data[16],data[17],data[18],arr7,arr8,arr9,arr10,arr11,data[31],data[32],data[33],arr12,arr13,arr14,data[40],data[41],data[42],arr15,arr16);
+        return newdata;
 	}
 	//加载数据
-	function setTableData(id, data){
-		var tp = getTableData();
+	function setTableData(id, data, st, et){
+		var tp = getTableData(st,et);
 		//cout(tp);
 		$("#" + id + ' table tr td').each(function(d){
 			var i = parseInt(d / 7), j = d % 7;
 			$(this).text(tp[i][j]);
 		});
 	}
-	//设置表头
-	function setTableHead(id){
-		var rth = ['07:00-08:00', '08:00-09:00', '09:00-10:00', '16:00-17:00', '17:00-18:00', '18:00-19:00']
-		$("#" + id + ' table tr:first th').each(function(i){ if(i>0)$(this).text(days[i-1]); });
-		$("#" + id + ' table tr:nth-child(2) th:first').text("成都->温江");
-		$("#" + id + ' table tr:nth-child(8) th:first').text("温江->成都");
-		for(var i=0; i<12; i++){
-			var th = i%6!=0 ? 'first' : 'nth-child(2)';
-			$("#" + id + ' table tr:nth-child('+ (i+2) +') th:' + th).text(rth[i%6]);
-			$("#" + id + ' table tr:nth-child('+ (i+2) +') th:' + th).css("min-width", "100");
-		}
-	}
-	//创建特殊表格
-	function createTable(id){
-		var view = $("#" + id), width = view.width()/9, height = (view.height()-20)/13,
-				sty = ' style="border: 1px solid #ccc;width:'+ width + 'px;height:'+ height +'px"';
-		var tb = '<table><tr style="border: 1px solid #ccc"><th colspan="2"></th>';
-		for(var i=0; i<7; i++)tb += '<th scope="col" '+ sty +'></th>';
-		for(var z=0; z<2; z++)for(var i=0; i<6; i++){
-			var tp = i==0 ? 'rowspan="6"></th><th>' : '>';
-			tb += '<tr style="border: 1px solid #ccc"><th '+ sty + tp + '</th>';
-			for(var j=0; j<7; j++)tb += '<td'+ sty +'></td>';
-			tb += '</tr>';
-		}
-		tb += '</table>';
-		view.html(tb);
-		return tb;
-	}
+    //设置表头
+    function setTableHead(id){
+        var rth = ['00:00-03:00','03:00-05:00','05:00-07:00','07:00-08:00', '08:00-09:00', '09:00-10:00','10:00-12:00','12:00-14:00','14:00-16:00', '16:00-17:00', '17:00-18:00', '18:00-19:00','19:00-21:00','21:00-24:00']
+        $("#" + id + ' table tr:first th').each(function(i){ if(i>0)$(this).text(days[i-1]); });
+        $("#" + id + ' table tr:nth-child(2) th:first').text("成都->温江");
+        $("#" + id + ' table tr:nth-child(16) th:first').text("温江->成都");
+        for(var i=0; i<28; i++){
+            var th = i%14!=0 ? 'first' : 'nth-child(2)';
+            $("#" + id + ' table tr:nth-child('+ (i+2) +') th:' + th).text(rth[i%14]);
+            $("#" + id + ' table tr:nth-child('+ (i+2) +') th:' + th).css("min-width", "100");
+        }
+    }
+    //创建特殊表格
+    function createTable(id){
+        var view = $("#" + id), width = view.width()/9, height = (view.height()-20)/29,
+                sty = ' style="border: 1px solid #ccc;width:'+ width + 'px;height:'+ height +'px"';
+        var tb = '<table><tr style="border: 1px solid #ccc"><th colspan="2"></th>';
+        for(var i=0; i<7; i++)tb += '<th scope="col" '+ sty +'></th>';
+        for(var z=0; z<2; z++)for(var i=0; i<14; i++){
+            var tp = i==0 ? 'rowspan="14"></th><th>' : '>';
+            tb += '<tr style="border: 1px solid #ccc"><th '+ sty + tp + '</th>';
+            for(var j=0; j<7; j++)tb += '<td'+ sty +'></td>';
+            tb += '</tr>';
+        }
+        tb += '</table>';
+        view.html(tb);
+        return tb;
+    }
 	//------------------------------------------------------------------------------------------------------------------
 
 

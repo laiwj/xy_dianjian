@@ -19,6 +19,7 @@ th{ text-align: center}
 table tr th{background-color: #f0f0f2;border:1px solid #ccc}
 table tr td{border:1px solid #ccc;}
 table tfoot td{border:0px;}
+
 </style>
 <div class="m-sm bg-main">  
 	<div class="hbox hbox-auto-xs hbox-auto-xs bg-white">
@@ -27,22 +28,15 @@ table tfoot td{border:0px;}
             <div id="view2p" class="w-full" style="height:380px; padding-top:0px">
 				<div style="height:42px; font-size: 12px;">
 					<ul id="myTab" class="nav nav-tabs">
-						<li class="active source"><a href="#出差统计" data-toggle="tab">出差统计</a></li>
-						<li class="source"><a href="#流动地图" data-toggle="tab">流动地图</a></li>
+						<li class="active source"><a href="#view2" data-toggle="tab">出差统计</a></li>
+						<li class="source"><a href="#view3" data-toggle="tab">流动地图</a></li>
 					</ul>
 
 				</div>
-				<!--
-				<div style="padding: 10px 0 0 20px; height: 40px">
-					<label class="lb activL" id="v2lb1" style="cursor: pointer">出差统计</label>
-					<label class="lb" id="v2lb2">流动地图</label>
-					<div style="float: right; padding-right: 20px" >
-
-					</div>
+				<div class="tab-content" id="sourceContent" style="">
+					<div id="view2" class="tab-pane fade in active" style="height:340px;"></div>
+					<div id="view3" class="tab-pane fade" style="height:356px;"></div>
 				</div>
-				-->
-				<div id="view2" style="height:340px;"></div>
-				<div id="view3" class="hide" style="height:340px;"></div>
 			</div>
 		</div>
 	</div>
@@ -56,6 +50,21 @@ table tfoot td{border:0px;}
 		</div>
 	</div>
 </div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document" style="width: 1000px!important;padding-bottom: 10px;">
+            <div class="modal-header" style="padding: 10px;!important;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto">
+                <div class="col col-sm-12">
+                    <div style="width: 100px;height: 30px;margin: 10px auto 0" id="loadingIcon"><img src="../img/loading.gif" alt=""/>loading...</div>
+                    <div id="view5" class="w-full" style="margin-bottom: 5px">
+                        <table id="table-data3" class="table" data-paging="true" data-sorting="true"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 <script src="../js/bootstrap.min.js"></script>
@@ -77,12 +86,13 @@ var __myChart2 = null, __view1, __view2;
 var __myChart3C = null, __myChart3P = null;
 var __ChartDatazoom = null;
 var __trip_data = null;
-var __current_month = 0;
+var __current_month = 12;
 var __metux_view2 = false;
 var __metux_load_map = false;
 var __datazoom_view2 = null;
 var __select_create = false;
 var __trip_data_all = {};
+var __trip_data_person = {};
 var __init_datazoom = false;
 var __current_view = 0;
 var __current_unit = '';
@@ -93,6 +103,7 @@ var __trip_data_map_sum = {};
 var __persons = {};
 var __cityP = {'北京市':1, '上海市':1, '天津市':1, '重庆市':1};
 var __cityP2 = {'北京':1, '上海':1, '天津':1, '重庆':1};
+var __pRegion = {"新疆":'新疆维吾尔自治区', "西藏":"西藏自治区", "内蒙古":"内蒙古自治区"};
 
 $(document).ready(function() {
 
@@ -103,7 +114,7 @@ $(document).ready(function() {
 	getTripDataEx();
 	getTripMapData();
 	//getTripData('view2');
-
+    
 	function Init(){
 		$('.form_date').datetimepicker({
 			language:  'zh-CN', weekStart: 1, todayBtn:  1, autoclose: 1, todayHighlight: 1, startView: 2, minView: 2, forceParse: 0,
@@ -120,19 +131,31 @@ $(document).ready(function() {
 			loadUnitList();
 			__select_create = true;
 		}
+
 		$(".source").click(function(){
-			var src = $(this).children("a:eq(0)").html();
-			var funcs = {'出差统计':'loadBarView()', '流动地图':'loadMapView1()'};
-			var ids = {'出差统计':['view2', 0], '流动地图':['view3', 1]}, temp = ['出差统计', '流动地图'];
-			if($(this).hasClass('active'))return;
-			$("#" + ids[src][0]).removeClass('hide');
-			$("#" + ids[temp[(ids[src][1]^1)]][0]).addClass('hide');
-			if(!__metux_load_map && src=="流动地图")
-				__myChart3C = echarts.init(document.getElementById("view3")).showLoading();
-			else{
-				if(__myChart3P)__myChart3P.resize();
-				if(__myChart3C)__myChart3C.resize();
+
+			var src = $(this).children("a:eq(0)").text();
+			var width = $("#sourceContent").width(), height = $("#sourceContent").height();
+
+			////// 防止因标签切换div隐藏导致图形尺寸失真 //////
+			if(src=="流动地图"){
+				$("#view3").children("div").each(function(i, d){
+					$(d).width(width/2).height($("#view3").height());
+					if(__myChart3P)__myChart3P.resize();
+					if(__myChart3C)__myChart3C.resize();
+				});
 			}
+			if(src=="出差统计"){
+				$("#view2_data").width(width);
+				if(__myChart2)__myChart2.resize();
+				var u = getUnitCurrent();
+				loadTable2(__trip_data_all, "table-data2", u);
+			}
+
+			if(!__metux_load_map && src=="流动地图"){
+				__myChart3C = echarts.init(document.getElementById("view3")).showLoading();
+			}
+
 		});
 	}
 	function loadBarView(){ _loadMap('view2'); }
@@ -174,6 +197,7 @@ $(document).ready(function() {
 		$("#" + __view2).css({'margin':'10','margin-left':0,'margin-right':10, 'margin-bottom':10 });
 		getTripData(__view2);
 	}
+
 	function _listenZoomMap1(pos, val){
 		if(__metux_view2)return; //防止重复触发事件
 		__myChart2 = echarts.init(document.getElementById(__view2)).showLoading();
@@ -199,8 +223,7 @@ $(document).ready(function() {
 		{
 			__trip_data = data['trip'];
 			__trip_data[12] = getTripZoomSumData(__trip_data);
-			cout(__trip_data);
-
+			
 			loadTripDefault();
 
 			__metux_view2 = false;
@@ -237,7 +260,7 @@ $(document).ready(function() {
 			if(_u=='所有部门')__trip_data_all = data['data'];
 			loadTable2(__trip_data_all, "table-data2", "所有部门")
 
-            cachePersons(__trip_data_all);
+        cachePersons(__trip_data_all);
 		});
 	}
 	function cachePersons(data){
@@ -245,7 +268,6 @@ $(document).ready(function() {
 		    for(var p in data[u]) __persons[p] = {'unit':u, 'name':data[u][p].name};
 		}
 	}
-	//--------------------------------------------------------------------------------------------------
 
 	//-------------------------------------------------柱状图主要代码----------------------------------------------------------
 	function getMonthPostion(m){ return [m/12*100, (m+1)/12*100]; }
@@ -257,10 +279,9 @@ $(document).ready(function() {
 			mall.push(Object.keys(d).length);
 			if(Object.keys(d).length>0)months.push(i);
 		} );
-		cout(months[0]);
 
-		__datazoom_view2.setData(mall);
-		loadTripImageAll(__view2, __trip_data, months[0]);
+      	__datazoom_view2.setData(mall);
+		loadTripImageAll(__view2, __trip_data, 12);
 		if(__myChart2)__myChart2.hideLoading();
 		loadTable2(__trip_data_all, "table-data2", "所有部门")
 	}
@@ -286,13 +307,15 @@ $(document).ready(function() {
 	function loadTripImage(id, _dt, month, units, data, viewIndex, clickF) {
 		__metux_view2 = true;
 		__current_view = viewIndex;
-		month = month || __current_month;
+		month = month || __current_month;    
+        
 		if(!data || data.length==0){ __myChart2 = Init3(getOptionBar(['暂无数据'], []), id); __metux_view2 = false; return; }
 		var option = getOptionBar(units, data, __current_view);
+
 		__myChart2 = Init3(option, id);
 		__myChart2.on('click', clickF);
-		if(!__init_datazoom){
-			__ChartDatazoom.dispatchAction({type: 'dataZoom', dataZoomIndex: 0, start: getMonthPostion(month)[0], end: getMonthPostion(month)[1]});
+		if(!__init_datazoom || 1){    //***此处放弃保留用户选择行为查询功能***//
+        	__ChartDatazoom.dispatchAction({type: 'dataZoom', dataZoomIndex: 0, start: getMonthPostion(month)[0], end:getMonthPostion(month)[1] });
 			__init_datazoom = true;
 		}
 		__current_month = month;
@@ -301,6 +324,7 @@ $(document).ready(function() {
 	//加载所有部门信息
 	function loadTripImageAll(id, data, month){
 		month = month || __current_month;
+
 		var _data = __trip_data[month];
 		var units = Object.keys(_data), data = units.map(function(u){ return values(_data[u]).reduce(function(a, b){ return a + b;}, 0); });
 		loadTripImage(id, data, month, units, data, 0, function(p){ if(p.seriesType!='bar')return; selUnit2(p.name); });
@@ -323,6 +347,7 @@ $(document).ready(function() {
 	function formatDataTable2(_dt, _unit){
 		function formatStr(str){ return (str.length>21)?str.substr(0, 32)+'...':str}
 		var dt = [];
+		//cout("-----------------------");cout(_dt);
 
 		for(var u in _dt){
 			if(_unit!=undefined && _unit!='所有部门' && _unit!=u )continue;
@@ -334,7 +359,7 @@ $(document).ready(function() {
 				});
 				dt.push({"id":p, "name":_dt[u][p].name, "unit":u, "counts":counts, "targets":formatStr(txt.join(",")) });
 			}
-		};
+		}
 		dt.sort(function(a, b){ return b.counts - a.counts; });
 		return dt;
 	}
@@ -342,6 +367,35 @@ $(document).ready(function() {
         var data = formatDataTable2(dt, _unit);
         _loadTable(data, tbId, _unit);
 	}
+    function loadTable3(dt, tbId, _unit){
+        var data=[];
+        var objData = dt[_unit];
+        for(var key in objData.target){
+            data.push({
+                name:objData.name,
+                unit:objData.unit,
+                targets:key,
+                dates:objData.target[key].sTime,
+                timeLength:objData.target[key].timeLength
+            })
+        }
+        _loadTable2(data, tbId, _unit);
+    }
+    function _loadTable2(data, tbId, _unit){
+        $('#'+tbId).html("");
+        var columns = [
+            {"name":"id","title":"ID", "visible":false},//,"style":{"width":80,"maxWidth":80}},
+            {"name":"name","title":"姓名"},
+            {"name":"unit", "title":"部门"},
+            {"name":"dates","title":"出差日期", "breakpoints":"xs sm"},
+            {"name":"targets","title":"出差目的地", "breakpoints":"xs sm"},
+            {"name":"timeLength","title":"出差时长", "breakpoints":"xs sm"}
+//            {"name":"counts", "title":"累计频次", "type":"number", "visible":true},
+        ];
+        var ft = $('#'+tbId).footable({
+            "columns": columns, "rows": data, "paging": { "size": 8 }
+        });
+    }
 	function _loadTable(data, tbId, _unit){
 		$('#'+tbId).html("");
 		var columns = [
@@ -355,7 +409,20 @@ $(document).ready(function() {
 		var ft = $('#'+tbId).footable({
 			"columns": columns, "rows": data, "paging": { "size": 8 },
 		});
-		tableClick(ft, tbId);
+        tableClick(ft, tbId, function(a,b){
+            $("#table-data3").empty();
+            $("#loadingIcon").css("display","block");
+            $('#myModal').modal({
+                keyboard:true,
+                show:true
+            });
+            var _uu = b[0];
+            var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();
+            getTripPersonData(startDate,endDate,_uu,function(){
+                $("#loadingIcon").css("display","none");
+                loadTable3(__trip_data_person, "table-data3", _uu);
+            });
+        });
 	}
 
 
@@ -391,6 +458,18 @@ $(document).ready(function() {
 			loadMapImages(_u);
 		});
 	}
+    function getTripPersonData(dateStart, dateEnd, _u, callback){
+        var startDate = $("#dtp_input2").val(), endDate = $("#dtp_input3").val();
+        dateStart = dateStart || startDate;
+        dateEnd = dateEnd || endDate;
+        var adt = {'dateStart':dateStart, 'dateEnd':dateEnd, 'personId':_u };
+        ajaxData('get_trip_person', adt, function(data)
+        {
+            __trip_data_person = data['data'];
+            console.log(__trip_data_person);
+            callback();
+        });
+    }
 	function loadMapImages(_u){
 		_u = _u || $("#unitsel2sel1").val();
 		InitMapViews('view3');
@@ -401,7 +480,7 @@ $(document).ready(function() {
 		loadMapMove(__view_map1, top10);
 		if(top10.length==0)top10 = [[['北京市', '北京市'], 0]];
 		//top10 = [[['北京市', '北京市'], 0]];
-		cout(top10[0]);
+		//cout(top10[0]);
 		showProvince(__view_map2, top10[0][0][0], _u);
 	}
 	//部门综合
@@ -457,7 +536,7 @@ $(document).ready(function() {
 				temp.children[key] = {'name':key, value:0};
 			}
 			dData = items(temp.children).map(function (d) {
-				var c = d[0].replace("市", "");
+				var c = d[0];	//.replace("市", "");
 				var _rst = {name: c, value: getProvince(temp.name)['citys'][d[0]][d[0]].concat(d[1].value)};
 				if((p in _cityp) || (c in _cityp)){
 				    _rst['value'][2] = temp.value;
@@ -500,13 +579,14 @@ $(document).ready(function() {
 				//cout(p);
 			});
             __myChart3C.on('click', function(p){
-                var c = "";
+                var c = "", special = {'拉萨':1, "西宁":1, "乌鲁木齐":1, "呼和浩特":1, "昆明":1, "丽江":1, "":1};
                 if(p.componentType=='geo') c = p.name;
                 else if(p.componentType=='series') c = p.data.name;
                 if(c=='' || c==undefined) return;
                 var unit = getUnitCurrent();
-                if(c in _cityp)c +="市";
-                if(key=="西藏自治区")c=c.replace("市", "地区");
+                if(c in _cityp || c in special)c +="市";
+                if(key=="西藏自治区" && c!="拉萨市")c=c.replace("市", "地区");
+
                 loadTableByPlace(key, c, unit);
             });
 			if(__myChart3C)__myChart3C.hideLoading();
@@ -560,8 +640,20 @@ function loadMapMove(id, _dt) {
 	__myChart3P = Init3(option1, id);
 	__myChart3P.on('click', function(p){
 		if(p.componentType!='geo' && !(p.name in __cityP2))return;
-		var unit = getUnitCurrent();
+		var unit = getUnitCurrent(), key;
 		showProvince(__view_map2, p.name, unit);
+        if(p.componentType=='geo') key = p.name;
+        else if(p.componentType=='series') key = p.data.name;
+        if(key=='' || key==undefined) return;
+
+        function getNameP(p){
+            if(p in __pRegion)return __pRegion[p];
+            if(p in __cityP2)return key + "市";
+            return key += "省";
+        }
+        key = getNameP(key);
+		cout(key);
+        loadTableByPlace(key, '', unit);
 
 	});
 
@@ -572,7 +664,7 @@ function loadMapMove(id, _dt) {
 /* ----------------------------------------新增表格显示地域分布----------------------------------------------- */
 // 需在函数   loadMapImages 之后调用
 function loadTableByPlace(province, city, unit){
-    cout(province + "," + city + "," + unit);
+    //cout(province + "," + city + "," + unit);
 	//cout(__trip_data_map);
 	var data = [];
     var persons = {};
@@ -617,20 +709,24 @@ function getPlaceDataUnit(province, city, dtu, persons){
             })
         });
 	}
+	function viewCity(province, city){
+        if("persons" in dtu[province]['children'][city]){
+            viewPersons(dtu[province]["children"][city]["persons"], city);
+        }
+        for(var d in dtu[province]["children"][city]["children"]){
+            if("persons" in dtu[province]['children'][city]["children"][d]){
+                viewPersons(dtu[province]["children"][city]["children"][d]["persons"], d);
+            }
+        }
+	}
 
     if(province in dtu){
         if((city=="" && "persons" in dtu[province]) || (city in _cityp)){
             viewPersons(dtu[province]["persons"], province);
+			for(var c in dtu[province]['children'])viewCity(province, c);
 		}
         if(city!="" && city in dtu[province]['children']){
-			if("persons" in dtu[province]['children'][city]){
-                viewPersons(dtu[province]["children"][city]["persons"], city);
-			}
-			for(var d in dtu[province]["children"][city]["children"]){
-                if("persons" in dtu[province]['children'][city]["children"][d]){
-                    viewPersons(dtu[province]["children"][city]["children"][d]["persons"], d);
-                }
-			}
+            viewCity(province, city);
 		}
 	}
 	return persons;

@@ -1,0 +1,486 @@
+<xmp>
+<html>
+    <meta charset=utf-8>
+
+    <link rel="stylesheet" href="../css/bootstrap-treeview.min.css" type="text/css" />
+    <link href="../css/bootstrap-theme.min.css" rel="stylesheet">
+    <!-- Prism -->
+    <link href="../css/prism.css" rel="stylesheet">
+    <link href="../css/footable.bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/colorbox.css" />
+
+    <!--[if lt IE 9]>
+    <script src="../js/html5shiv.min.js"></script>
+    <script src="../js/respond.min.js"></script>
+    <![endif]-->
+
+    <style type="text/css">
+        th,td{ border: 1px solid #CCCCCC; background-color: white; height: auto; min-height: 30px}
+        #table1 th:last-child{min-width: 50px} 
+        .pointer{cursor: pointer}
+
+
+        th{ text-align: center; height: 30px; padding-top: 5px }
+        tr td{ min-width: 40px; height: 30px }
+        tr td:first-child{ text-align: center;}
+        tr td.treeview{text-align: left}
+        .hide{display: none}
+        .td_value{ width: 100%;border-right: 0px; border-bottom:1px solid #ccc; height:30px; padding-top:10px;text-align: center;  }
+        .newParent{padding-bottom: 8px; margin-top: 8px; padding-left: 38px;}
+        #table2 tr td{  border:0px; padding-top: 8px}
+        .e-value{ border: 1px solid #fff; width: 100%}
+        .e-error{ color:red; }
+        .e-system{ color:#1f6377 }
+        .score{ color:#27c24c }
+        .disabled{ background-color:#fff; }
+        
+        .fileInput{border:1px solid #ccc; padding:4px 0px 4px 4px}
+		.cellImport{ color: blue; }
+    </style>
+    <div class="bg-main m-sm ">
+        <div class="hbox hbox-auto-xs hbox-auto-xs bg-white">
+            <!--<div class="p-n w-full">-->
+            <div class="col-sm-12">
+                <div class="title" id="unitsel1">部门绩效情况</div>
+                <div class="row">
+                    <div class="col-sm-3 p-n" id="view3" style="height:380px"></div>
+                    <div class="col-sm-9" id="view1" style="height:380px"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="m-t-sm hbox hbox-auto-xs hbox-auto-xs bg-white bg-auto" style="margin-top:5px; margin-bottom: 45px">
+            <div class="col col-sm-12">
+                <div class="title">员工详情</div>
+                <div id="view2" class="w-full" style="height:395px">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+
+    <script src="../js/public.js"></script>
+    <script src="../js/ejs.js"></script>
+    <script src="../js/echarts.v3.min.js"></script>
+    <script src="../js/prism.js"></script>
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>    
+    <script type="text/javascript" src="../js/jquery.colorbox-min.js" ></script>
+    <script src="../js/com_tree.js"></script>
+    <script src="../js/unitMonth.js"></script>
+    <script src="../js/cellData.js"></script>
+    <script type="text/javascript" src="../js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="../js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+
+
+    
+
+
+<script language="javascript">
+    "use strict";
+
+    var __units = [];
+    var TV = new ViewTree();
+    //var __leafs = [];
+    var __keys = {};	//仅叶子节点
+    var __config = {};
+    var __data = {};        //总数据
+
+    var __personData = {};  //人员绩效详情数据
+
+    var __lines = {};
+    var __nodes = [];
+    var __tree = null;
+    var __CD = new CellData();
+    CellData.__change_key = "change_performance_value";
+    CellData.checkValue = checkValue;
+    function checkValue(v){ return (parseFloat(v)>=0 && parseFloat(v)<=100) ? true : false; }
+
+    function Init(){
+        loadUnitList();
+        loadUnitData(init_unit_performance);
+
+
+    }
+
+    //----------------------加载部门信息
+    function loadUnitList(){
+        ajaxData('get_performance_unit', {}, function(dt){
+            //data.forEach(function(d){ __units[d[1]] = d[0]; });
+            var unit = dt.data.unit, org = dt.data.org;
+            unit = unit.map(function(d){ __units[d.id] = d.unit; return [d.unit, d.id]; });
+            org.forEach(function(d){ __units[d.id] = d.unit; unit.push([d.unit, d.id.toString()]); });
+
+            addUnitSelEx('unitsel1', unit, loadUnitView);
+            addYearMonthList("unitsel1", loadUnitPerformance);
+        });
+    }
+
+    function loadUnitView(unitInfo){
+        var unitId = unitInfo[1];
+        loadUnitData(unitId);
+    }
+        
+    function ShowUnitScore(data, id){
+        var colorStyle = [{offset: 0, color: '#EE8262'}, {offset: 0.5, color: '#EE8262'}, {offset: 1, color: '#EE8262'}];
+        colorStyle = [{offset: 0, color: '#3388D5'}, {offset: 0.5, color: '#63C3F5'}];
+        var ds = values(data), maxY = 100;
+        var dx = ds.map(function(d){ return {'name':d.name, 'pId':d.personId}; });
+        var dy = ds.map(function(d){ return parseInt(d.score); });
+        var colorCfg = [['#F15C80', '#2323F5'], ['#3388D5', '#9198FF']];
+
+        var GDC = function(cls){    //颜色梯度转换
+            var cg = [{offset: 0, color: cls[0]}, {offset: 1, color: cls[1]},
+                {offset: 0, color: cls[0]}, {offset: 1, color: cls[1]}];
+            return new echarts.graphic.LinearGradient( 0, 0, 1, 1, cg )
+        };
+
+        var option = {
+            tooltip : { formatter: function(d){ if(d.seriesType=="bar")return d.name.name+ ' '+ d.data; }},
+            grid: { x:45, x2:15, y:25, y2:40 },
+            xAxis : [ { type : 'category', data : dx, axisLabel: { interval:0, rotate:45,
+                formatter: function (d) { return echarts.format.truncateText(d.name, 45, '12px Microsoft Yahei', '…'); }, tooltip: { show: true }}  } ],
+            yAxis: [{ max:maxY, nameGap:25, name:"绩效值", nameLocation:"middle", axisTick: { show: false }, axisLabel: { textStyle: { color: '#999' } } }],
+            dataZoom: [ { type: 'inside' } ],
+            series: [{
+                type: 'bar', data: dy, label: {normal: {show: true, textStyle:{color:"#fff"}, position: 'insideTop'}}, barMaxWidth:120,
+                itemStyle: {
+                    normal: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1,
+                                [
+                                    {offset: 0, color: '#83bff6'},
+                                    {offset: 0.5, color: '#589dc0'},
+                                    {offset: 1, color: '#58cdc0'}
+                                ]
+                        )
+                    },},
+                markPoint : {
+                data : [{type : 'max', name: '最大值', itemStyle:{normal:{color:"red"}}},
+                    {type : 'min', name: '最小值', itemStyle:{normal:{color:"#2F4554"}}}]},
+            }]
+        };
+        
+      var __myChart2 = Init3(option, id);
+      __myChart2.on('click', function(p){
+          var pId= p.name.pId, pName = p.name.name;
+          cout(pName);
+          ShowPersonScore(__personData[pId], "view2", pName);
+          
+      });
+      
+    }
+
+    // 个人绩效详情
+    function ShowPersonScore(dt, id, pName){
+        var data = [['绩效值', 'bar', [], 0], ['部门均值', 'line', [], 0], ['绩效排名', 'line', [], 1]], names = [];
+        dt.forEach(function(d){
+            data[0][2].push(d.value);
+            data[1][2].push(d.average);
+            data[2][2].push(d.index);
+            names.push(d.name);
+        });
+        var colors = ["#87CEFA", "#8B4789", "#D48265"];
+        var sers = data.map(function(d, i){
+            return {
+                name:d[0], type:d[1], data:d[2], yAxisIndex:d[3], barMaxWidth:30,
+                itemStyle: {normal: { color: colors[i] }},
+            };
+        });
+
+        var grid = { x:30, x2:40, y:60, y2:50}, width = $("#"+id).width(), height = $("#"+id).height();
+        var y100 = grid.y + (height - grid.y - grid.y2) / 6 ;
+        var markLine = {
+            data : [[{
+                    name: '满分线', x:grid.x, y:y100, //coord:[0, 100],
+                    label: { normal: { formatter: '满分线' }},	lineStyle:{ normal: { color:'red' } },
+                },
+                    { symbol: 'arrow', x:(width - grid.x2), y:y100 //coord:[names.length-1, 100]
+                        }
+            ]]
+        };
+        sers[0].markLine = markLine;
+
+        var option = {
+            title: { text: '个人绩效详情 - ' + (pName || ""), subtext: '', textStyle:{fontSize: 13} },
+            tooltip: { trigger: 'axis' },
+            legend: { data:['绩效值', '部门均值', '绩效排名'], top:8 },
+            xAxis:  {
+                type: 'category', data: names, splitLine:{show:false,lineStyle: { color: ['#aaa', '#ddd'] }}
+            },
+            yAxis: [{ type: 'value', name:'绩效值', max:120,  splitLine:{show:false}, axisLabel:{ formatter:function(p){ return p<=100 ? p : ""; } } },
+                { type: 'value', name:'排名', min:1, axisLabel:{formatter:function(d){ return (d%1)==0 ? d : "" ; }} } ],
+            grid: grid,
+            series: sers
+        };
+
+        Init3(option, id);
+    }
+        
+   /*
+    *
+    *计算方法
+    *
+    */
+    function getPersonScore(pId){
+        var line = {}, full = true;
+        for(var e in __keys){
+            var temp = __data[pId].children.reduce(function(a, b){ a[b.key] = b.value; return a; }, {});
+            var value = (e in temp) ? temp[e] : 0;
+
+            if(!(checkValueOk(value) && checkValue(value)))full = false;
+            line[e] = parseFloat(value);
+            if(line[e]<0)line[e] = 0;
+        }
+        //if(!full)return;
+        return calcScore(line);
+    }
+    function calcScore(line){
+        var score = 0.0;
+        for(var e in __keys) score += 1.0 * line[e] * __config[e].value;
+        return score.toFixed(2);
+    }
+
+    // 设置表头
+    function setTableHead(children){
+        var tmData = getTableData(children);
+        var cache = children.reduce(function(a, b){ a[b.id] = b.text; return a; }, {});
+        // ++++++++++++++++++++++加载部门绩效配置图++++++++++++++++++++++++++++++++++
+        showPerformanceConfig(tmData.tree);
+
+        __tree = tmData.tree;
+        ViewTree.getLeafWeight(__tree);  /* 加载权重 */
+
+        __keys = {};
+        tmData.leafs.forEach(function(d){
+            __keys[d] = {'id':d, 'name':cache[d]};
+        });
+    }
+
+    // 获取表格树的前置信息
+    function getTableData(list){
+        var _tree = ViewTree.formatTree(list);
+        var height = ViewTree.getTreeHeight(_tree);
+        var data = TV.getTreeTableData(_tree);
+        var layers = data[0], leafs = data[1];
+        var tmData = {'common':{'height':height, 'degree':leafs.length},
+            'layers':layers, 'leafs':leafs, 'data':{}, 'tree':_tree };
+        return tmData;
+    }
+
+    //------------------------------------------------------------------------------------------
+    //服务器交互
+    //从服务器获取部门绩效设置信息
+    function loadUnitData(unitId){
+        var userId = "10001";
+        showLoading();
+        ajaxData('get_performance_setting_unit', {'user':userId, 'unitId':unitId}, function(dt)
+        {
+            setTableHead(dt.data.children);
+
+            var selDate = $("#datetimepicker").val();
+            if(selDate==undefined) selDate = getLastMonth();
+            loadUnitPerformance(unitId, selDate, userId);
+
+        });
+    }
+
+    // 获取部门人员具体绩效值
+    function loadUnitPerformance(unitId, dataTime, userId){
+        showLoading();
+        ajaxData('get_performance_value_unit', {'userId':userId, 'dataTime':dataTime, 'unitId':unitId}, function(dt)
+        {
+            __data = dt.data;
+            if(Object.keys(__data).length==0) {
+                alert("该部门或组织无人员配置！");
+                return;
+            }
+
+            var lsChild = ViewTree.getNodeListEx(__tree), maxV = 0, maxP = "";
+            __config = lsChild.reduce(function(a, b){ a[b.id] = b; return a; }, {});
+            for(var p in __data){
+                var sc = getPersonScore(p);
+                __data[p]['score'] = sc;
+
+                if(maxP=="")maxP = p;
+                if(maxV<sc) {
+                    maxV = sc;
+                    maxP = p;
+                }
+            }
+
+            ShowUnitScore(__data, "view1");
+            __personData = initPersonData();
+            ShowPersonScore(__personData[maxP], "view2", __data[maxP].name);
+
+        },null,function(){ hideLoading();});
+    }
+
+    // 排名及均值临时索引
+    function initPersonData(){
+        var datas = {}, Scores = {};
+        for(var p in __data){
+            Scores[p] = __data[p].children.map(function(d){ return {name: __keys[d.key].name, value: d.value }; });
+
+            __data[p].children.forEach(function(d){
+                var name = __keys[d.key].name;
+                if(!(name in datas)) datas[name] = {"values":[], 'sum':0};
+                datas[name].values.push({"person":p, "value": d.value});
+                datas[name].sum += d.value;
+            });
+        }
+
+        //建索引等
+        for(var e in datas){
+            datas[e]['average'] = parseInt(datas[e]['sum'] / datas[e]['values'].length);
+            datas[e]['values'].sort(function(a, b){ return b.value - a.value; });
+            datas[e]['index'] = {};
+            if(datas[e]['values'].length==0) break;
+
+            var pre = datas[e]['values'][0].value, index = 1;
+            datas[e]['values'].forEach(function(d, i){
+                if(pre != d.value){
+                    pre = d.value;
+                    index++;
+                }
+                d['index'] = index;
+                datas[e]['index'][d.person] = d['index'];
+            });
+        }
+
+        for(var p in Scores){
+            Scores[p].forEach(function(d){
+                d['index'] = datas[d.name]["index"][p];
+                d['average'] = datas[d.name]["average"]
+            });
+        }
+
+        return Scores;
+    }
+
+
+    //-----------------------------------------------------绩效配置树----------------------------------------------------
+    function showPerformanceConfig(tree){
+        var dt = {};
+        ViewTree.CopyTree(tree, dt);
+        cout(tree);
+        cout(dt);
+        DrawPieTree(dt, "view3");
+    }
+    function DrawPieTree(dt, id){
+        var data = dt || {name:"绩效", nodes:[{name:"直达", value:20, nodes:[{name:"直达1", value:30}, {name:"直达2", value:70}]},
+                    {name:"营销广告", value:10},
+                    {name:"搜索引擎", value:60, nodes:[{name:"邮件", value:35, nodes:[{name:"企业邮件", value:15}]}, {name:"联盟", value:65}]}] };
+
+        var colorCfg = ["#87CEFA", "#58C1C0", "#23BAD7", "#F7A35C", "#8085E9", "#10B4E8", "#07C25B",
+            "#89F588", "#12AA9E", "#9C99FF", "#4F81BE", "#279F3E", "#FD5F60", "#F7DDDC",
+            "#4272C6", "#FF850A", "#8DAE00", "#67C454", "#F25C82", "#DC70D6"];
+        var colorNull = "#ddd";
+
+        // 获取一个相似颜色， 十六进制，layer表示哪个颜色做改动
+        function getColorNear(clr, layer){
+            if(layer==undefined) layer = 0;
+            layer = layer % 3;
+            var r = clr.substr(1, 2), g = clr.substr(3, 2), b = clr.substr(5, 2);
+            var c = [r, g, b], number = parseInt(c[layer], 16), f = [-1, 1][parseInt(Math.random() * 2)],
+                    offset = parseInt(Math.random() * 32) * f;
+            var S = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+            number = (number + offset) % 256;
+            c[layer] = S[parseInt(number / 16)] + S[parseInt(number % 16)];
+            return "#" + c[0] + c[1] + c[2];
+        }
+
+        var T = new ViewTree(), height = ViewTree.getTreeHeight(data), rCenter = 0;
+        var series = [], R = 85 / (height - 1);
+        for(var i = 1; i< height; i++) series.push({
+            data:[], type:"pie",
+            radius: [(R * (i - 1) + rCenter) + "%", (R * i + rCenter) + '%'],
+            label: {
+                normal: {
+                    position: 'inner', formatter:function(p){ return parseFloat(p.value)>3 ? p.name : ""; }
+                }
+            },
+            labelLine: {
+                normal: {
+                    show: false
+                }
+            }
+        });
+
+        T.viewTreeByLayer(data, function(n){
+            if("nodes" in n){   // 检查是否配满
+                var sumC = n["nodes"].reduce(function(a, b){ a += b.value; return a; }, 0);
+                if(sumC<100)n["nodes"].push({name:"empty", value:100 - sumC, height:n.height + 1 });
+            }else{
+                if(n.height > 0 && n.height < (height-1)){  // 空子孙占位
+                    n["nodes"] = [{name: n.name, value: 100, flag:'full', height:n.height + 1 }];
+                }
+            }
+        });
+
+        // 一级节点配色
+        data['nodes'].forEach(function(d, i){
+            d['color'] = (d.name==="empty") ? colorNull : colorCfg[i % 20];
+        });
+
+        // 节点配色
+        T.viewTreeByLayer(data, function(n){
+            if(n.height==0 || !("nodes" in n))return;
+            n.nodes.forEach(function(c){
+                if(c.name=='empty') c['color'] = "#ddd";             //空白色
+                else if(c.flag=='full') c['color'] = n.color;       //子级占位同色
+                else c['color'] = getColorNear(n.color, n.height);  //子孙近似色
+            });
+        });
+
+
+        data['id'] = "root";
+        ViewTree.getLeafWeight(data);       // 获取各级最终比例
+
+        T.viewTreeByLayer(data, function(node){
+            if(node.height != 0) series[node.height - 1].data.push({
+                name: node.name==="empty" ? "空" : node.name,
+                value: (node.value * 100).toFixed(2),
+                itemStyle: {normal:{color:node.color }
+                }});
+        });
+
+        var option = {
+            tooltip: {
+                trigger: 'item',
+                formatter: function(p){ return p.name + "<br>所占比例：" + p.value; }
+            },
+            series: series
+        };
+
+        Init3(option, id);
+    }
+    // End Function
+
+
+
+
+
+
+    Init();
+
+    $(document).ready(function() {
+
+        //$("#table1>tr>td>div").on('click', 'ul>li>span.badge', clickNodeForOperate);
+
+
+
+    });
+
+
+
+
+
+
+    </script>
+
+
+
+</html>
+</xmp>
